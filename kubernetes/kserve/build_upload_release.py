@@ -31,19 +31,13 @@ if __name__ == "__main__":
     organization = args.organization
 
     try_and_handle(
-        f"./build_image.sh -t {organization}/torchserve-kfs:{check_ts_version()}",
+        f"./build_image.sh -m -t {organization}/torchserve-kfs:{check_ts_version()}",
         dry_run,
     )
     try_and_handle(
         f"./build_image.sh -g -t {organization}/torchserve-kfs:{check_ts_version()}-gpu",
         dry_run,
     )
-
-    for image in [
-        f"{organization}/torchserve-kfs:{check_ts_version()}",
-        f"{organization}/torchserve-kfs:{check_ts_version()}-gpu",
-    ]:
-        try_and_handle(f"docker push {image}", dry_run)
 
     # Cleanup built images
     if args.cleanup:

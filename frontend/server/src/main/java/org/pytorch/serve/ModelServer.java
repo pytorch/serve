@@ -193,7 +193,8 @@ public class ModelServer {
                     String fileName = file.getName();
                     if (file.isFile()
                             && !fileName.endsWith(".mar")
-                            && !fileName.endsWith(".model")) {
+                            && !fileName.endsWith(".model")
+                            && !fileName.endsWith(".tar.gz")) {
                         continue;
                     }
                     try {
