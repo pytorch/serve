@@ -85,9 +85,9 @@ curl -X POST -d '{"prompt":"count from 1 to 9 in french ", "max_tokens": 100}' -
 
 ```bash
 #export token=<HUGGINGFACE_HUB_TOKEN>
-docker build --pull . -f docker/Dockerfile.llm -t ts/llm
+docker build --pull . -f docker/Dockerfile.vllm -t ts/vllm
 
-docker run --rm -ti --shm-size 10g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
+docker run --rm -ti --shm-size 10g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/vllm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
 
 # Try it out
 curl -X POST -d '{"model":"meta-llama/Meta-Llama-3-8B-Instruct", "prompt":"Hello, my name is", "max_tokens": 200}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model/1.0/v1/completions"

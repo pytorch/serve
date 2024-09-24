@@ -11,7 +11,7 @@ The launcher can either be used standalone or in combination with our provided T
 
 To launch the docker we first need to build it:
 ```bash
-docker build . -f docker/Dockerfile.llm -t ts/llm
+docker build . -f docker/Dockerfile.vllm -t ts/vllm
 ```
 
 Models are usually loaded from the HuggingFace hub and are cached in a [docker volume](https://docs.docker.com/storage/volumes/) for faster reload.
@@ -22,7 +22,7 @@ export token=<HUGGINGFACE_HUB_TOKEN>
 
 You can then go ahead and launch a TorchServe instance serving your selected model:
 ```bash
-docker run --rm -ti --shm-size 1g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
+docker run --rm -ti --shm-size 1g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/vllm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
 ```
 
 To change the model you just need to exchange the identifier given to the `--model_id` parameter.
