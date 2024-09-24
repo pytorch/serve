@@ -89,7 +89,7 @@ function make_cluster_accessible_for_grpc() {
     SERVICE_NAME="$1"
     GRPC_METHOD="$2"
     INPUT="$3"
-    wait_for_inference_service 300 5 "$1"
+    wait_for_inference_service 600 5 "$1"
     SERVICE_HOSTNAME=$(kubectl get inferenceservice ${SERVICE_NAME} -o jsonpath='{.status.url}' | cut -d "/" -f 3)
     wait_for_port_forwarding 5
     echo "Make inference request"
