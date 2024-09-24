@@ -116,6 +116,19 @@ function make_cluster_accessible_for_grpc() {
 
 function delete_minikube_cluster() {
     echo "Delete cluster"
+    NAMESPACE="default"
+
+    # Get the list of pods and filter for KServe pods
+    PODS=$(kubectl get pods -n $NAMESPACE --no-headers)
+
+    echo "Fetching logs for KServe pods:"
+    while read -r POD; do
+        POD_NAME=$(echo $POD | awk '{print $1}')
+        echo "Logs for pod: $POD_NAME"
+        kubectl logs -n $NAMESPACE "$POD_NAME"
+        echo "-----------------------------------"
+
+
     minikube delete
 }
 
