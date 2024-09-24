@@ -127,7 +127,7 @@ function delete_minikube_cluster() {
         echo "Logs for pod: $POD_NAME"
         kubectl logs -n $NAMESPACE "$POD_NAME"
         echo "-----------------------------------"
-
+    done <<< "$PODS"
 
     minikube delete
 }
