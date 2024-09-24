@@ -427,7 +427,7 @@ Besides a quick start guide using our VLLM integration we also provide a list of
 Through the integration of our <a class="reference external" href="https://github.com/pytorch/serve/blob/7a9b145204b4d7cfbb114fe737cf980221e6181e/ts/llm_launcher.py">LLM launcher script</a> users are able to deploy any model supported by VLLM with a single command.
 The launcher can either be used standalone or in combination with our provided TorchServe GPU docker image.</p>
 <p>To launch the docker we first need to build it:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>build<span class="w"> </span>.<span class="w"> </span>-f<span class="w"> </span>docker/Dockerfile.llm<span class="w"> </span>-t<span class="w"> </span>ts/llm
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>build<span class="w"> </span>.<span class="w"> </span>-f<span class="w"> </span>docker/Dockerfile.vllm<span class="w"> </span>-t<span class="w"> </span>ts/vllm
 </pre></div>
 </div>
 <p>Models are usually loaded from the HuggingFace hub and are cached in a <a class="reference external" href="https://docs.docker.com/storage/volumes/">docker volume</a> for faster reload.
@@ -436,7 +436,7 @@ If you want to access gated models like the Meta-Llama3 model you need to provid
 </pre></div>
 </div>
 <p>You can then go ahead and launch a TorchServe instance serving your selected model:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-ti<span class="w"> </span>--shm-size<span class="w"> </span>1g<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="nv">HUGGING_FACE_HUB_TOKEN</span><span class="o">=</span><span class="nv">$token</span><span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>-v<span class="w"> </span>data:/data<span class="w"> </span>ts/llm<span class="w"> </span>--model_id<span class="w"> </span>meta-llama/Meta-Llama-3-8B-Instruct<span class="w"> </span>--disable_token_auth
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-ti<span class="w"> </span>--shm-size<span class="w"> </span>1g<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="nv">HUGGING_FACE_HUB_TOKEN</span><span class="o">=</span><span class="nv">$token</span><span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>-v<span class="w"> </span>data:/data<span class="w"> </span>ts/vllm<span class="w"> </span>--model_id<span class="w"> </span>meta-llama/Meta-Llama-3-8B-Instruct<span class="w"> </span>--disable_token_auth
 </pre></div>
 </div>
 <p>To change the model you just need to exchange the identifier given to the <code class="docutils literal notranslate"><span class="pre">--model_id</span></code> parameter.
