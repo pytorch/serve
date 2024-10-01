@@ -168,6 +168,7 @@ def main(args):
 
     model_store_path = Path(args.model_store)
     model_store_path.mkdir(parents=True, exist_ok=True)
+    model_snapshot_path = None
     if args.engine == "trt_llm":
         model_snapshot_path = download_model(args.model_id)
 
