@@ -80,18 +80,18 @@ def get_model_config(args, model_snapshot_path=None):
 
         model_config.update(
             {
-                "parallelLevel": torch.cuda.device_count()
-                if torch.cuda.is_available
-                else 1,
+                "parallelLevel": (
+                    torch.cuda.device_count() if torch.cuda.is_available else 1
+                ),
                 "handler": {
                     "model_path": args.model_id,
                     "vllm_engine_config": {
                         "max_num_seqs": getattr(args, "vllm_engine.max_num_seqs"),
                         "max_model_len": getattr(args, "vllm_engine.max_model_len"),
                         "download_dir": download_dir,
-                        "tensor_parallel_size": torch.cuda.device_count()
-                        if torch.cuda.is_available
-                        else 1,
+                        "tensor_parallel_size": (
+                            torch.cuda.device_count() if torch.cuda.is_available else 1
+                        ),
                     },
                 },
             }
@@ -168,10 +168,9 @@ def main(args):
 
     model_store_path = Path(args.model_store)
     model_store_path.mkdir(parents=True, exist_ok=True)
-    if args.engine == "trt_llm":
-        model_snapshot_path = (
-            download_model(args.model_id) if args.engine == "trt_llm" else None
-        )
+    model_snapshot_path = (
+        download_model(args.model_id) if args.engine == "trt_llm" else None
+    )
 
     with create_mar_file(args, model_snapshot_path):
         if args.engine == "trt_llm":
