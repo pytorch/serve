@@ -65,10 +65,10 @@ Refer to [torchserve docker](docker/README.md) for details.
 #### VLLM Engine
 ```bash
 # Make sure to install torchserve with pip or conda as described above and login with `huggingface-cli login`
-python -m ts.llm_launcher --model_id meta-llama/Meta-Llama-3.1-8B-Instruct --disable_token_auth
+python -m ts.llm_launcher --model_id meta-llama/Llama-3.2-3B-Instruct --disable_token_auth
 
 # Try it out
-curl -X POST -d '{"model":"meta-llama/Meta-Llama-3.1-8B-Instruct", "prompt":"Hello, my name is", "max_tokens": 200}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model/1.0/v1/completions"
+curl -X POST -d '{"model":"meta-llama/Llama-3.2-3B-Instruct", "prompt":"Hello, my name is", "max_tokens": 200}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model/1.0/v1/completions"
 ```
 
 #### TRT-LLM Engine
