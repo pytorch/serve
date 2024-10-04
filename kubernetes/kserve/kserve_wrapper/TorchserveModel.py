@@ -1,5 +1,6 @@
 """ The torchserve side inference end-points request are handled to
     return a KServe side response """
+import json
 import logging
 import os
 import pathlib
@@ -54,6 +55,7 @@ class TorchserveModel(Model):
         grpc_inference_address,
         protocol,
         model_dir,
+        ts_auth_enabled,
     ):
         """The Model Name, Inference Address, Management Address and the model directory
         are specified.
@@ -61,8 +63,11 @@ class TorchserveModel(Model):
         Args:
             name (str): Model Name
             inference_address (str): The Inference Address in which we hit the inference end point
-            management_address (str): The Management Address in which we register the model.
-            model_dir (str): The location of the model artifacts.
+            management_address (str): The Management Address in which we register the model
+            grpc_inference_address (str): The GRPC Inference Address
+            protocol (str): The API REST protocol version
+            model_dir (str): The location of the model artifacts
+            ts_auth_enabled (bool): Whether torchserve has auth enabled
         """
         super().__init__(name)
 
@@ -74,6 +79,7 @@ class TorchserveModel(Model):
         self.inference_address = inference_address
         self.management_address = management_address
         self.model_dir = model_dir
+        self.ts_auth_enabled = ts_auth_enabled
 
         # Validate the protocol value passed otherwise, the default value will be used
         if protocol is not None:
@@ -85,6 +91,9 @@ class TorchserveModel(Model):
         logging.info("Predict URL set to %s", self.predictor_host)
         logging.info("Explain URL set to %s", self.explainer_host)
         logging.info("Protocol version is %s", self.protocol)
+        logging.info(
+            "Torchserve auth is %s", "enabled" if self.ts_auth_enabled else "disabled"
+        )
 
     def grpc_client(self):
         if self._grpc_client_stub is None:
@@ -168,13 +177,24 @@ class TorchserveModel(Model):
             logging.info(
                 f"Loading {self.name} .. {num_try} of {model_load_max_try} tries.."
             )
+            # Sleep first so that it won't sleep after ready
+            logging.info(f"Sleep {model_load_delay} seconds for load {self.name}..")
+            time.sleep(model_load_delay)
 
             try:
+                headers = None
+                if self.ts_auth_enabled:
+                    with open("key_file.json") as f:
+                        keys = json.load(f)
+                    management_endpoint_key = keys["management"]["key"]
+                    headers = {"Authorization": f"Bearer {management_endpoint_key}"}
+
                 response = requests.get(
                     READINESS_URL_FORMAT.format(
                         self.management_address, self.name, model_load_customized
                     ),
                     timeout=model_load_timeout,
+                    headers=headers,
                 ).json()
 
                 default_verison = response[0]
@@ -206,9 +226,6 @@ class TorchserveModel(Model):
                 logging.info(e)
                 logging.info(f"Failed loading model {self.name}")
                 break
-
-            logging.info(f"Sleep {model_load_delay} seconds for load {self.name}..")
-            time.sleep(model_load_delay)
 
         if self.ready:
             logging.info(f"The model {self.name} is ready")
