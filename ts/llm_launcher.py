@@ -88,6 +88,7 @@ def get_model_config(args, model_snapshot_path=None):
                     "vllm_engine_config": {
                         "max_num_seqs": getattr(args, "vllm_engine.max_num_seqs"),
                         "max_model_len": getattr(args, "vllm_engine.max_model_len"),
+                        "distributed_executor_backend": "mp",
                         "download_dir": download_dir,
                         "tensor_parallel_size": torch.cuda.device_count()
                         if torch.cuda.is_available
@@ -168,6 +169,7 @@ def main(args):
 
     model_store_path = Path(args.model_store)
     model_store_path.mkdir(parents=True, exist_ok=True)
+    model_snapshot_path = None
     if args.engine == "trt_llm":
         model_snapshot_path = download_model(args.model_id)
 
