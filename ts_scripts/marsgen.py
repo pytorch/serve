@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -87,8 +88,9 @@ def generate_model(model, model_store_dir):
         export_path,
     )
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
+    cmd = shlex.split(cmd)
     try:
-        subprocess.check_call(cmd, shell=True)
+        subprocess.check_call(cmd)
         marfile = "{}.mar".format(model["model_name"])
         print("## {} is generated.\n".format(marfile))
         mar_set.add(marfile)

@@ -2,8 +2,7 @@
 This script creates a DLRM model and packs it into a TorchServe mar file
 """
 
-import os
-
+import subprocess
 import torch
 from dlrm_factory import DLRMFactory
 
@@ -32,7 +31,7 @@ def main():
     ]
 
     print("Archiving model into dlrm.mar")
-    os.system(" ".join(cmd))
+    subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print("Done")
 
 

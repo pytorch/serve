@@ -7,7 +7,7 @@ import sys
 import tempfile
 from os import path
 from pathlib import Path
-
+import shlex
 import orjson
 import requests
 
@@ -167,10 +167,10 @@ def create_model_artifacts(items: dict, force=False, export_path=None) -> str:
         requirements_file=items.get("requirements_file"),
         export_path=export_path,
     )
-
+    command = shlex.split(command)
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
     try:
-        subprocess.check_call(cmd, shell=True)
+        subprocess.check_call(cmd)
         if str(items.get("archive_format")) == "no-archive":
             model_artifacts = "{0}".format(items.get("model_name"))
         elif str(items.get("archive_format")) == "tgz":

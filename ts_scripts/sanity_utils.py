@@ -118,10 +118,16 @@ def run_grpc_test(model: dict):
     print("pass mg.mar_set=", mg.mar_set)
     mar_set_list_str = [str(s) for s in mg.mar_set]
     mar_set_str = ",".join(mar_set_list_str)
-    register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name} {mar_set_str}"
-    status = os.system(register_model_grpc_cmd)
+    register_model_grpc_cmd = [
+        "python",
+        "ts_scripts/torchserve_grpc_client.py",
+        "register",
+        model_name,
+        mar_set_str
+    ]
+    result = subprocess.run(register_model_grpc_cmd, capture_output=True, text=True)
 
-    if status != 0:
+    if result.returncode != 0:
         print("## Failed to register model with torchserve")
         sys.exit(1)
     else:
@@ -147,12 +153,15 @@ def run_grpc_test(model: dict):
         else:
             print(f"## Successfully ran inference on {model_name} model.")
 
-    unregister_model_grpc_cmd = (
-        f"python ts_scripts/torchserve_grpc_client.py unregister {model_name}"
-    )
-    status = os.system(unregister_model_grpc_cmd)
+    unregister_model_grpc_cmd = [
+        "python",
+        "ts_scripts/torchserve_grpc_client.py",
+        "unregister",
+        model_name
+    ]
+    result = subprocess.run(unregister_model_grpc_cmd, capture_output=True, text=True)
 
-    if status != 0:
+    if result.returncode != 0:
         print(f"## Failed to unregister {model_name}")
         sys.exit(1)
     else:
@@ -209,13 +218,17 @@ def test_sanity():
     coverage_dir = os.path.join("ts")
     report_output_dir = os.path.join(test_dir, "coverage.xml")
 
-    ts_test_cmd = f"python -m pytest --cov-report xml:{report_output_dir} --cov={coverage_dir} {test_dir}"
+    ts_test_cmd = [
+        "python", "-m", "pytest",
+        "--cov-report", f"xml:{report_output_dir}",
+        "--cov", coverage_dir,
+        test_dir
+    ]
     print(f"## In directory: {os.getcwd()} | Executing command: {ts_test_cmd}")
-    ts_test_error_code = os.system(ts_test_cmd)
+    result = subprocess.run(ts_test_cmd, capture_output=True, text=True)
 
-    if ts_test_error_code != 0:
+    if result.returncode != 0:
         sys.exit("## TorchServe sanity test failed !")
-
 
 def test_workflow_sanity():
     current_path = os.getcwd()

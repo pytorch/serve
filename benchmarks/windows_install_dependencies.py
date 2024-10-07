@@ -5,12 +5,14 @@ import os
 import subprocess
 import locale
 import shutil
+import shlex
 import argparse
 
 def run(command):
     """Returns (return-code, stdout, stderr)"""
-    p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE, shell=True)
+    if isinstance(command, str):
+        command = shlex.split(command)
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     raw_output, raw_err = p.communicate()
     rc = p.returncode
     enc = locale.getpreferredencoding()

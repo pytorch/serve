@@ -2,6 +2,7 @@ import os
 import sys
 import tempfile
 import urllib.request
+import subprocess
 
 from ts_scripts.shell_utils import rm_file
 
@@ -35,39 +36,53 @@ def generate_densenet_test_model_archive():
     urllib.request.urlretrieve(serialized_model_file_url, serialized_model_file_name)
 
     # create mar command
-    cmd = f"torch-model-archiver \
-                --model-name {model_name} \
-                --version {version} \
-                --model-file {model_file} \
-                --serialized-file {serialized_file_path} \
-                --extra-files {extra_files} \
-                --handler {handler} \
-                --force"
+    cmd = [
+        "torch-model-archiver",
+        "--model-name", model_name,
+        "--version", version,
+        "--model-file", model_file,
+        "--serialized-file", serialized_file_path,
+        "--extra-files", extra_files,
+        "--handler", handler,
+        "--force"
+    ]
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    sys_exit_code = os.system(cmd)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    
     os.remove(serialized_file_path)
     os.chdir(REPO_ROOT)
-    return sys_exit_code
+    return result.returncode
 
 
 def run_pytest():
     print("## Started regression pytests")
-    os.chdir(os.path.join(REPO_ROOT, "test", "pytest"))
-    cmd = (
-        "python -m grpc_tools.protoc -I ../../third_party/google/rpc --proto_path=../../frontend/server/src/main/resources/proto/"
-        " --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto"
-        " ../../frontend/server/src/main/resources/proto/management.proto"
-    )
-    status = os.system(cmd)
-    if status != 0:
+    proto_dir = os.path.join(REPO_ROOT, "frontend", "server", "src", "main", "resources", "proto")
+    third_party_dir = os.path.join(REPO_ROOT, "third_party", "google", "rpc")
+    proto_files = [
+        "inference.proto",
+        "management.proto"
+    ]
+    cmd = [
+        "python", "-m", "grpc_tools.protoc",
+        "-I", third_party_dir,
+        "--proto_path", proto_dir
+    ]
+    cmd += ["--python_out=.", "--grpc_python_out=."] + [os.path.join(proto_dir, proto_file) for proto_file in proto_files]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
         print("Could not generate gRPC client stubs")
         sys.exit(1)
 
-    cmd = "python -m pytest -v ./ --ignore=sanity"
+    pytest_cmd = ["python", "-m", "pytest", "-v", "./", "--ignore=sanity"]
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    status = os.system(cmd)
+    result = subprocess.run(pytest_cmd, capture_output=True, text=True)
+
+    if result.returncode != 0:
+        print(f"Pytest failed with return code {result.returncode}")
+
     rm_file("*_pb2*.py", True)
-    return status
+    return result.returncode
 
 
 def test_regression():

@@ -42,8 +42,7 @@ def teardown_module():
 def create_example_mar():
     # Create only if not already present
     if not os.path.exists(DCGAN_MAR_FILE):
-        create_mar_cmd = "cd " + DCGAN_EXAMPLE_DIR + ";./create_mar.sh"
-        subprocess.check_call(create_mar_cmd, shell=True)
+        subprocess.check_call(["./create_mar.sh"], cwd=DCGAN_EXAMPLE_DIR)
 
 
 def delete_example_mar():

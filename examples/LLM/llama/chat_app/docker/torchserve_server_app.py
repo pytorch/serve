@@ -15,9 +15,9 @@ st.set_page_config(page_title="TorchServe Server")
 
 
 def start_server():
+    commands = ["torchserve", "--start", "--ts-config", "/home/model-server/config.properties"]
     subprocess.run(
-        ["torchserve --start --ts-config /home/model-server/config.properties"],
-        shell=True,
+        commands,
         check=True,
     )
     while True:

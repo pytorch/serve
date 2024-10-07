@@ -40,10 +40,10 @@ def test_benchmark_e2e(backend):
     os.chdir(REPO_ROOT_DIR / "benchmarks")
 
     cmd = subprocess.Popen(
-        f"{sys.executable} ./benchmark-ab.py --concurrency 1 --requests 10 -bb {backend} --generate_graphs True",
-        shell=True,
+        [sys.executable, "./benchmark-ab.py", "--concurrency", "1", "--requests", "10", "-bb", backend, "--generate_graphs", "True"],
         stdout=subprocess.PIPE,
     )
+    
     output_lines = list(cmd.stdout)
 
     assert output_lines[-1].decode("utf-8") == "Test suite execution complete.\n"
