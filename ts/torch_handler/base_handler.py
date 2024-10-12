@@ -105,6 +105,9 @@ def setup_ort_session(model_pt_path, map_location):
         else ["CPUExecutionProvider"]
     )
 
+    if "TensorrtExecutionProvider" in ort.get_available_providers():
+        providers.insert(0, "TensorrtExecutionProvider")
+
     sess_options = ort.SessionOptions()
     sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
 
