@@ -23,8 +23,5 @@
 //        "--gpus", "all",
         // Enable the docker container to access system resources
         "--ipc", "host"
-    ],
-    "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
-    }
+    ]
 }
