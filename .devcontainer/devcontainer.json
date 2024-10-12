@@ -1,5 +1,5 @@
 {
-    "name": "TorchServe Dev Container",
+    "name": "TorchServe Dev Environment",
     "build": {
         "dockerfile": "../docker/Dockerfile",
         "context": "..",
