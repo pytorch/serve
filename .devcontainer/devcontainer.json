@@ -1,0 +1,30 @@
+{
+    "name": "TorchServe Dev Container",
+    "build": {
+        "dockerfile": "../docker/Dockerfile",
+        "context": "..",
+        "args": {
+            "BASE_IMAGE": "ubuntu:20.04",
+            "PYTHON_VERSION": "3.9",
+            "BRANCH_NAME": "master",
+            "REPO_URL": "https://github.com/pytorch/serve.git",
+            "CUDA_VERSION": ""
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python"
+            ]
+        }
+    },
+    "runArgs": [
+        // ACTION NEEDED: uncomment the next line if your local machine has GPUs available
+//        "--gpus", "all",
+        // Enable the docker container to access system resources
+        "--ipc", "host"
+    ],
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+    }
+}
