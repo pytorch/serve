@@ -105,7 +105,7 @@ def setup_ort_session(model_pt_path, map_location):
         else ["CPUExecutionProvider"]
     )
 
-    if "TensorrtExecutionProvider" in ort.get_available_providers():
+    if map_location == "cuda" and "TensorrtExecutionProvider" in ort.get_available_providers():
         providers.insert(0, "TensorrtExecutionProvider")
 
     sess_options = ort.SessionOptions()
