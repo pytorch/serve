@@ -304,6 +304,54 @@ docker run --rm --shm-size=1g \
         --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models
 ```
 
+# Development Environment with VS Code Dev Containers
+
+This section provides a guide on setting up a development environment for TorchServe using Visual Studio Code Dev Containers.
+
+## Setup Instructions
+
+1. **Install the Dev Containers Extension**  
+   In Visual Studio Code, search for "Dev Containers" in the Extensions marketplace and install it.
+
+   ![Dev Containers Extension Installation](https://github.com/user-attachments/assets/16e1fd10-b20e-4ef4-a16f-0f544d233ba6)
+
+2. **Open in Container**  
+   After installation, you will see a pop-up similar to the one in the screenshot. Click the "Reopen in Container" button to start the development environment inside a Docker container.
+
+   ![Reopen in Container](https://github.com/user-attachments/assets/31c3c090-2808-4e55-8d2e-89d4ab40649f)
+
+## Customizing the Development Environment
+
+To use a GPU-based container or make other modifications, update the `.devcontainer/devcontainer.json` file. Here’s an example configuration for a GPU-enabled environment:
+
+```json
+{
+    "name": "TorchServe Dev Environment",
+    "build": {
+        "dockerfile": "../docker/Dockerfile",
+        "context": "..",
+        "args": {
+            "BASE_IMAGE": "nvidia/cuda:12.1.1-base-ubuntu20.04",
+            "PYTHON_VERSION": "3.9",
+            "BRANCH_NAME": "master",
+            "REPO_URL": "https://github.com/pytorch/serve.git",
+            "CUDA_VERSION": "cu121"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python"
+            ]
+        }
+    },
+    "runArgs": [
+        "--gpus", "all",
+        "--ipc", "host"
+    ]
+}
+```
+
 # Example showing serving model using Docker container
 
 [This](../examples/image_classifier/mnist/Docker.md) is an example showing serving MNIST model using Docker.
