@@ -81,6 +81,10 @@ Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
 For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
+### Using Visual Studio Code Dev Containers
+
+You can also set up a development environment for TorchServe using Visual Studio Code Dev Containers. This approach provides a fully-isolated, Docker-based environment that simplifies setup and ensures consistency across different development machines. Follow the guide in the [Development Environment with VS Code Dev Containers](docker/README.md#development-environment-with-vs-code-dev-containers) section of the Docker README for setup instructions and customization options.
+
 ### What to Contribute?
 
 ### A good first issue

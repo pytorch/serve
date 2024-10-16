@@ -12,6 +12,7 @@ TorchServe now enforces token authorization enabled and model API control disabl
 * [Create TorchServe docker image](#create-torchserve-docker-image)
 * [Create torch-model-archiver from container](#create-torch-model-archiver-from-container)
 * [Running TorchServe docker image in production](#running-torchserve-in-a-production-docker-environment)
+* [Development Environment with VS Code Dev Containers](#development-environment-with-vs-code-dev-containers)
 
 # Prerequisites
 
