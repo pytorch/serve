@@ -8,7 +8,7 @@ from builtins import str
 
 import ts
 from ts.context import Context, RequestProcessor
-from ts.protocol.otf_message_handler import create_predict_response
+from ts.protocol.otf_torch_message_handler import create_predict_response
 from ts.utils.util import PredictionException, get_yaml_config
 
 PREDICTION_METRIC = "PredictionTime"

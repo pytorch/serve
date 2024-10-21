@@ -1,5 +1,6 @@
 """
-ModelServiceWorker is the worker that is started by the MMS front-end.
+class TorchModelServiceWorker(object):
+ is the worker that is started by the MMS front-end.
 Communication message format: binary encoding
 """
 
