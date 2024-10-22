@@ -429,7 +429,7 @@ public class ModelServerTest {
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
         Assert.assertEquals(
                 resp.getStatus(),
-                "Default vesion succsesfully updated for model \"noopversioned\" to \"1.2.1\"");
+                "Default version successfully updated for model \"noopversioned\" to \"1.2.1\"");
     }
 
     @Test(

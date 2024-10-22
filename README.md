@@ -62,21 +62,32 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 ### 🤖 Quick Start LLM Deployment
 
+#### VLLM Engine
 ```bash
 # Make sure to install torchserve with pip or conda as described above and login with `huggingface-cli login`
-python -m ts.llm_launcher --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
+python -m ts.llm_launcher --model_id meta-llama/Llama-3.2-3B-Instruct --disable_token_auth
 
 # Try it out
-curl -X POST -d '{"model":"meta-llama/Meta-Llama-3-8B-Instruct", "prompt":"Hello, my name is", "max_tokens": 200}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model/1.0/v1/completions"
+curl -X POST -d '{"model":"meta-llama/Llama-3.2-3B-Instruct", "prompt":"Hello, my name is", "max_tokens": 200}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model/1.0/v1/completions"
+```
+
+#### TRT-LLM Engine
+```bash
+# Make sure to install torchserve with python venv as described above and login with `huggingface-cli login`
+# pip install -U --use-deprecated=legacy-resolver -r requirements/trt_llm.txt
+python -m ts.llm_launcher --model_id meta-llama/Meta-Llama-3.1-8B-Instruct --engine trt_llm --disable_token_auth
+
+# Try it out
+curl -X POST -d '{"prompt":"count from 1 to 9 in french ", "max_tokens": 100}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model"
 ```
 
 ### 🚢 Quick Start LLM Deployment with Docker
 
 ```bash
 #export token=<HUGGINGFACE_HUB_TOKEN>
-docker build --pull . -f docker/Dockerfile.llm -t ts/llm
+docker build --pull . -f docker/Dockerfile.vllm -t ts/vllm
 
-docker run --rm -ti --shm-size 10g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
+docker run --rm -ti --shm-size 10g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/vllm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
 
 # Try it out
 curl -X POST -d '{"model":"meta-llama/Meta-Llama-3-8B-Instruct", "prompt":"Hello, my name is", "max_tokens": 200}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model/1.0/v1/completions"

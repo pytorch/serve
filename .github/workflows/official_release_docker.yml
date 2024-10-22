@@ -42,9 +42,11 @@ jobs:
         if: github.event.inputs.upload_docker == 'yes'
         run: |
           cd docker
+          docker buildx use multibuilder
           python build_upload_release.py --cleanup
       - name: Build & Upload pytorch/torchserve-kfs Docker images
         if: github.event.inputs.upload_kfs == 'yes'
         run: |
           cd kubernetes/kserve
+          docker buildx use multibuilder
           python build_upload_release.py --cleanup

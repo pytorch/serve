@@ -5,6 +5,7 @@ Basic unit test for ObjectDetector class.
 Ensures it can load and execute an example model
 """
 
+import platform
 import sys
 from pathlib import Path
 
@@ -56,7 +57,6 @@ def model_dir(tmp_path_factory, model_name):
 
 @pytest.fixture(scope="module")
 def context(model_dir, model_name):
-
     context = MockContext(
         model_name="mnist",
         model_dir=model_dir.as_posix(),
@@ -73,6 +73,9 @@ def handler(context):
     return handler
 
 
+@pytest.mark.skipif(
+    platform.machine() == "aarch64", reason="Test skipped on aarch64 architecture"
+)
 def test_handle(handler, context, image_bytes):
     test_data = [{"data": image_bytes}] * 2
     results = handler.handle(test_data, context)

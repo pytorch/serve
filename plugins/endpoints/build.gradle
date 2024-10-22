@@ -22,8 +22,15 @@ jar {
     exclude "META-INF/MANIFEST*"
     exclude "META-INF//LICENSE*"
     exclude "META-INF//NOTICE*"
-    exclude "org/pytorch/serve/plugins/endpoint/ExecutionParameters*" // Comment out if ExecutionParameter endpoint is needed
-    exclude "org/pytorch/serve/plugins/endpoint/Ping*" // Comment out if Ping endpoint is needed
+    include "META-INF/services/*"
+    /**
+     * By default, include all endpoint plugins in the JAR.
+     * In order to build a custom JAR with specific endpoint plugins, specify the required paths.
+     * For example:
+     * include "org/pytorch/serve/plugins/endpoint/Ping*"
+     * include "org/pytorch/serve/plugins/endpoint/ExecutionParameters*"
+     */
+    include "org/pytorch/serve/plugins/endpoint/*"
 }
 
 java {

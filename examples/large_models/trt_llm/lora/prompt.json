@@ -1,0 +1,4 @@
+{"prompt": "Amanda: I baked  cookies. Do you want some?\nJerry: Sure \nAmanda: I will bring you tomorrow :-)\n\nSummarize the dialog:",
+ "temperature":0.0,
+ "max_new_tokens": 100,
+ "streaming": true}

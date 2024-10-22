@@ -203,7 +203,7 @@ public final class OpenApiUtils {
         MediaType error = getErrorResponse();
 
         operation.addResponse(
-                new Response("200", "Default vesion succsesfully updated for model", status));
+                new Response("200", "Default version successfully updated for model", status));
         operation.addResponse(
                 new Response("404", "Model not found or Model version not found", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));
@@ -350,8 +350,8 @@ public final class OpenApiUtils {
             operationId = "version_unregisterModel";
         } else {
             operationDescription =
-                    "Unregister the default version of a model from TorchServe if it is the only version available."
-                            + "This is a asynchronous call by default. Caller can call listModels to confirm model is unregistered";
+                    "Unregister the default version of a model from TorchServe if it is the only version available. "
+                            + "This is an asynchronous call by default. Caller can call listModels to confirm model is unregistered.";
             operationId = "unregisterModel";
         }
         Operation operation = new Operation(operationId, operationDescription);
@@ -482,12 +482,12 @@ public final class OpenApiUtils {
         if (version) {
             operationDescription =
                     "Configure number of workers for a specified version of a model. "
-                            + "This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
+                            + "This is an asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
             operationId = "version_setAutoScale";
         } else {
             operationDescription =
-                    "Configure number of workers for a default version of a model."
-                            + "This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
+                    "Configure number of workers for a default version of a model. "
+                            + "This is an asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
             operationId = "setAutoScale";
         }
 

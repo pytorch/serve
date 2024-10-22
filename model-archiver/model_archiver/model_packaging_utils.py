@@ -35,12 +35,15 @@ model_handlers = {
     "image_segmenter": "vision",
     "dali_image_classifier": "vision",
     "vllm_handler": "text",
+    "trt_llm_handler": "text",
 }
 
 MODEL_SERVER_VERSION = "1.0"
 MODEL_ARCHIVE_VERSION = "1.0"
 MANIFEST_FILE_NAME = "MANIFEST.json"
 MAR_INF = "MAR-INF"
+
+logger = logging.getLogger(__file__)
 
 
 class ModelExportUtils(object):
@@ -183,11 +186,21 @@ class ModelExportUtils(object):
 
                 if file_type == "extra_files":
                     for path_or_wildcard in path.split(","):
-                        if not Path(path_or_wildcard).exists():
+                        maybe_wildcard = "*" in path_or_wildcard
+                        maybe_wildcard |= "?" in path_or_wildcard
+                        maybe_wildcard |= (
+                            "[" in path_or_wildcard and "]" in path_or_wildcard
+                        )
+                        if not (maybe_wildcard or Path(path_or_wildcard).exists()):
                             raise FileNotFoundError(
                                 f"File does not exist: {path_or_wildcard}"
                             )
-                        for file in glob.glob(path_or_wildcard.strip()):
+                        files = glob.glob(path_or_wildcard.strip())
+                        if maybe_wildcard and len(files) == 0:
+                            logging.warning(
+                                f"Given wildcard pattern did not match any file: {path_or_wildcard}"
+                            )
+                        for file in files:
                             if os.path.isfile(file):
                                 shutil.copy2(file, model_path)
                             elif os.path.isdir(file) and file != model_path:
@@ -355,7 +368,12 @@ class ModelExportUtils(object):
     @staticmethod
     def validate_inputs(model_name, export_path):
         ModelExportUtils.check_model_name_regex_or_exit(model_name)
-        if not os.path.isdir(os.path.abspath(export_path)):
+        if not os.path.exists(os.path.abspath(export_path)):
+            logger.warning(
+                f"Export directory ({export_path}) does not exist. Creating..."
+            )
+            os.makedirs(os.path.abspath(export_path))
+        elif not os.path.isdir(os.path.abspath(export_path)):
             raise ModelArchiverError(
                 "Given export-path {} is not a directory. "
                 "Point to a valid export-path directory.".format(export_path)
