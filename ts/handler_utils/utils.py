@@ -2,7 +2,7 @@ import importlib
 import os
 
 from ts.context import Context
-from ts.protocol.otf_message_handler import create_predict_response
+from ts.protocol.otf_torch_message_handler import create_predict_response
 
 
 def import_class(class_name: str, module_prefix=None):
