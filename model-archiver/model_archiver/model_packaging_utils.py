@@ -43,6 +43,8 @@ MODEL_ARCHIVE_VERSION = "1.0"
 MANIFEST_FILE_NAME = "MANIFEST.json"
 MAR_INF = "MAR-INF"
 
+logger = logging.getLogger(__file__)
+
 
 class ModelExportUtils(object):
     """
@@ -366,7 +368,12 @@ class ModelExportUtils(object):
     @staticmethod
     def validate_inputs(model_name, export_path):
         ModelExportUtils.check_model_name_regex_or_exit(model_name)
-        if not os.path.isdir(os.path.abspath(export_path)):
+        if not os.path.exists(os.path.abspath(export_path)):
+            logger.warning(
+                f"Export directory ({export_path}) does not exist. Creating..."
+            )
+            os.makedirs(os.path.abspath(export_path))
+        elif not os.path.isdir(os.path.abspath(export_path)):
             raise ModelArchiverError(
                 "Given export-path {} is not a directory. "
                 "Point to a valid export-path directory.".format(export_path)
