@@ -1,6 +1,8 @@
 import argparse
 import glob
 import os
+import shlex
+import subprocess
 import sys
 
 # To help discover local modules
@@ -49,10 +51,12 @@ def build_dist_whl(args):
         print(f"## In directory: {os.getcwd()} | Executing command: {cur_wheel_cmd}")
 
         if not args.dry_run:
-            build_exit_code = os.system(cur_wheel_cmd)
-            # If any one of the steps fail, exit with error
-            if build_exit_code != 0:
-                sys.exit(f"## {binary} build Failed !")
+            try:
+                cur_wheel_cmd_list = shlex.split(cur_wheel_cmd)
+                subprocess.run(cur_wheel_cmd_list, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            except subprocess.CalledProcessError as e:
+                print(f"## {binary} build Failed! Error: {e.stderr.decode()}")
+                sys.exit(1)
 
 
 def build(args):

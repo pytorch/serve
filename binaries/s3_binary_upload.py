@@ -2,6 +2,7 @@ import argparse
 import glob
 import logging
 import os
+import shlex
 import subprocess
 import sys
 
@@ -39,10 +40,10 @@ class S3BinaryUploader:
         """
         LOGGER.info(f"Uploading *.whl files from folder: {local_folder_path}")
         s3_command = f"{self.s3_command} --exclude '*' --include '*.whl' {local_folder_path} {self.s3_bucket.rstrip('/')}/whl/{self.channel}"
-
+        s3_command = shlex.split(s3_command)
         try:
-            ret_code = subprocess.run(
-                s3_command, check=True, stdout=subprocess.PIPE, universal_newlines=True, shell=True
+            subprocess.run(
+                s3_command, check=True, stdout=subprocess.PIPE, universal_newlines=True
             )
         except subprocess.CalledProcessError as e:
             LOGGER.info(f"S3 upload command failed: {s3_command}. Exception: {e}")

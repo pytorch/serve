@@ -1,5 +1,6 @@
 import os
 import platform
+import shlex
 import subprocess
 import sys
 
@@ -14,15 +15,29 @@ nvidia_smi_cmd = {
 
 
 def is_gpu_instance():
-    return True if os.system(nvidia_smi_cmd[platform.system()]) == 0 else False
+    cmd = nvidia_smi_cmd.get(platform.system())
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode == 0:
+        return True
+    else:
+        return False
 
 
 def is_conda_build_env():
-    return True if os.system("conda-build") == 0 else False
+    result = subprocess.run(["conda-build"], capture_output=True, text=True)
+    if result.returncode == 0:
+        return True
+    else:
+        return False
 
 
 def is_conda_env():
-    return True if os.system("conda") == 0 else False
+    result = subprocess.run(["conda"], capture_output=True, text=True)
+    if result.returncode == 0:
+        return True
+    else:
+        return False
 
 
 def check_python_version():
@@ -48,8 +63,18 @@ def check_ts_version():
 def try_and_handle(cmd, dry_run=False):
     if dry_run:
         print(f"Executing command: {cmd}")
+    if isinstance(cmd, str):
+        cmd = shlex.split(cmd)
     else:
         try:
-            subprocess.run([cmd], shell=True, check=True)
+            subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError as e:
             raise (e)
+
+def find_conda_binary():
+    try:
+        subprocess.run(["conda", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        conda_path = subprocess.check_output(["which", "conda"], text=True).strip()
+    except subprocess.CalledProcessError:
+        conda_path = os.path.expanduser("$HOME/miniconda/condabin/conda")
+    return conda_path

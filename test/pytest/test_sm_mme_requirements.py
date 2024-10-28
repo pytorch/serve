@@ -1,6 +1,6 @@
 import os
 import pathlib
-
+import subprocess
 import pytest
 import requests
 import test_utils
@@ -103,25 +103,24 @@ def test_oom_on_invoke():
 
     # Make 8 curl requests in parallel with &
     # Send multiple requests to make sure to hit OOM
+    processes = []
     for i in range(10):
-        response = os.popen(
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} "
-        )
-        response = response.read()
+        for _ in range(8):
+            process = subprocess.Popen(
+                ["curl", "http://127.0.0.1:8080/models/BERTSeqClassification/invoke", "-T", input_text],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            processes.append(process)
+    responses = []
+    for process in processes:
+        stdout, stderr = process.communicate()
+        responses.append(stdout.decode())
 
     # If OOM is hit, we expect code 507 to be present in the response string
-    lines = response.split("\n")
     output = ""
-    for line in lines:
-        if "code" in line:
-            line = line.strip()
-            output = line
+    for response in responses:
+        if '"code": 507,' in response:
+            output = '"code": 507,'
             break
     assert output == '"code": 507,', "OOM Error expected"

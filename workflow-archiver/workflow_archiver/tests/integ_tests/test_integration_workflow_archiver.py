@@ -2,6 +2,7 @@ from datetime import datetime
 import errno
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import workflow_archiver
@@ -31,9 +32,11 @@ def delete_file_path(path):
 
 def run_test(test, cmd):
     it = test.get("iterations") if test.get("iterations") is not None else 1
+    if isinstance(cmd, str):
+        cmd = shlex.split(cmd)
     for i in range(it):
         try:
-            subprocess.check_call(cmd, shell=True)
+            subprocess.check_call(cmd)
         except subprocess.CalledProcessError as exc:
             if test.get("expect-error") is not True:
                 assert 0, "{}".format(exc.output)

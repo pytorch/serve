@@ -33,14 +33,14 @@ import ts
 pkgs = find_packages(exclude=["ts_scripts", "test"])
 
 build_frontend_command = {
-    "Windows": ".\\frontend\\gradlew.bat -p frontend clean assemble",
-    "Darwin": "frontend/gradlew -p frontend clean assemble",
-    "Linux": "frontend/gradlew -p frontend clean assemble",
+    "Windows": [".\\frontend\\gradlew.bat", "-p", "frontend", "clean", "assemble"],
+    "Darwin": ["frontend/gradlew", "-p", "frontend", "clean", "assemble"],
+    "Linux": ["frontend/gradlew", "-p", "frontend", "clean", "assemble"],
 }
 build_plugins_command = {
-    "Windows": ".\\plugins\\gradlew.bat -p plugins clean bS",
-    "Darwin": "plugins/gradlew -p plugins clean bS",
-    "Linux": "plugins/gradlew -p plugins clean bS",
+    "Windows": [".\\plugins\\gradlew.bat", "-p", "plugins", "clean", "bS"],
+    "Darwin": ["plugins/gradlew", "-p", "plugins", "clean", "bS"],
+    "Linux": ["plugins/gradlew", "-p", "plugins", "clean", "bS"],
 }
 
 
@@ -94,7 +94,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
             os.remove(self.source_server_file)
 
         try:
-            subprocess.check_call(build_frontend_command[platform.system()], shell=True)
+            subprocess.check_call(build_frontend_command[platform.system()])
         except OSError:
             assert 0, "build failed"
         copy2(self.source_server_file, self.dest_file_name)
@@ -131,9 +131,7 @@ class BuildPlugins(Command):
 
         try:
             if self.plugins == "endpoints":
-                subprocess.check_call(
-                    build_plugins_command[platform.system()], shell=True
-                )
+                subprocess.check_call(build_plugins_command[platform.system()])
             else:
                 raise OSError("No such rule exists")
         except OSError:

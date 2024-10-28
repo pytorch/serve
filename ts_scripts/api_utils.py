@@ -2,6 +2,7 @@ import glob
 import os
 import shutil
 import sys
+import subprocess
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
@@ -127,9 +128,21 @@ def trigger_management_tests():
         config_file="config.properties",
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -d {POSTMAN_MANAGEMENT_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_MANAGEMENT_DIR}/{REPORT_FILE} --verbose"
-    )
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_MANAGEMENT,
+        "-d", POSTMAN_MANAGEMENT_DATA_FILE,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_MANAGEMENT_DIR}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_MANAGEMENT_DIR)
     cleanup_model_store()
@@ -150,9 +163,21 @@ def trigger_inference_tests():
         config_file="config.properties",
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
-    )
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_INFERENCE,
+        "-d", POSTMAN_INFERENCE_DATA_FILE,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
     cleanup_model_store()
@@ -173,9 +198,22 @@ def trigger_workflow_tests():
         workflow_store=MODEL_STORE_DIR,
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW} -d {POSTMAN_WORKFLOW_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_WORKFLOW_MANAGEMENT_DIR}/{REPORT_FILE} --verbose"
-    )
+
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_WORKFLOW,
+        "-d", POSTMAN_WORKFLOW_DATA_FILE,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_WORKFLOW_MANAGEMENT_DIR}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_WORKFLOW_MANAGEMENT_DIR)
     cleanup_model_store()
@@ -195,9 +233,21 @@ def trigger_workflow_inference_tests():
         workflow_store=MODEL_STORE_DIR,
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW_INFERENCE} -d {POSTMAN_WORKFLOW_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_WORKFLOW_INFERENCE_DIR}/{REPORT_FILE} --verbose"
-    )
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_WORKFLOW_INFERENCE,
+        "-d", POSTMAN_WORKFLOW_INFERENCE_DATA_FILE,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_WORKFLOW_INFERENCE_DIR}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_WORKFLOW_INFERENCE_DIR)
     cleanup_model_store()
@@ -218,9 +268,22 @@ def trigger_explanation_tests():
         config_file="config.properties",
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_EXPLANATION} -d {POSTMAN_EXPLANATION_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
-    )
+
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_EXPLANATION,
+        "-d", POSTMAN_EXPLANATION_DATA_FILE,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_EXPLANATION_DIR}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_EXPLANATION_DIR)
     cleanup_model_store()
@@ -245,9 +308,23 @@ def trigger_incr_timeout_inference_tests():
         config_file="config.properties",
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR}/{REPORT_FILE} --verbose"
-    )
+
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_INFERENCE,
+        "-d", POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR)
     cleanup_model_store()
@@ -264,9 +341,23 @@ def trigger_https_tests():
         config_file=TS_CONFIG_FILE_HTTPS,
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_HTTPS_DIR}/{REPORT_FILE} --verbose"
-    )
+
+    command = [
+        "newman", "run",
+        "--insecure",  # Option to allow insecure HTTPS requests
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_HTTPS,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_HTTPS_DIR}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_HTTPS_DIR)
     cleanup_model_store()
@@ -289,9 +380,23 @@ def trigger_management_tests_kf():
         config_file="config.properties",
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -d {POSTMAN_MANAGEMENT_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_MANAGEMENT_DIR_KF}/{REPORT_FILE} --verbose"
-    )
+    
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_MANAGEMENT,
+        "-d", POSTMAN_MANAGEMENT_DATA_FILE,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_MANAGEMENT_DIR_KF}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+    
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_MANAGEMENT_DIR_KF)
     cleanup_model_store()
@@ -315,9 +420,23 @@ def trigger_inference_tests_kf():
         config_file="config.properties",
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE_KF} -d {POSTMAN_INFERENCE_DATA_FILE_KF} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR_KF}/{REPORT_FILE} --verbose"
-    )
+
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_INFERENCE_KF,
+        "-d", POSTMAN_INFERENCE_DATA_FILE_KF,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_INFERENCE_DIR_KF}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR_KF)
     cleanup_model_store()
@@ -333,9 +452,23 @@ def trigger_https_tests_kf():
         config_file=TS_CONFIG_FILE_HTTPS_KF,
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS_KF} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_HTTPS_DIR_KF}/{REPORT_FILE} --verbose"
-    )
+
+    command = [
+        "newman", "run",
+        "--insecure",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_HTTPS_KF,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_HTTPS_DIR_KF}/{REPORT_FILE}",
+        "--verbose"
+    ]
+    
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_HTTPS_DIR_KF)
     cleanup_model_store()
@@ -358,9 +491,23 @@ def trigger_inference_tests_kfv2():
         config_file="config.properties",
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE_KFV2} -d {POSTMAN_INFERENCE_DATA_FILE_KFV2} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR_KFV2}/{REPORT_FILE} --verbose"
-    )
+
+    command = [
+        "newman", "run",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_INFERENCE_KFV2,
+        "-d", POSTMAN_INFERENCE_DATA_FILE_KFV2,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_INFERENCE_DIR_KFV2}/{REPORT_FILE}",
+        "--verbose"
+    ]
+
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR_KFV2)
     cleanup_model_store()
@@ -376,9 +523,22 @@ def trigger_https_tests_kfv2():
         config_file=TS_CONFIG_FILE_HTTPS_KFV2,
         log_file=TS_CONSOLE_LOG_FILE,
     )
-    EXIT_CODE = os.system(
-        f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS_KFV2} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_HTTPS_DIR_KFV2}/{REPORT_FILE} --verbose"
-    )
+    command = [
+        "newman", "run",
+        "--insecure",
+        "-e", POSTMAN_ENV_FILE,
+        POSTMAN_COLLECTION_HTTPS_KFV2,
+        "-r", "cli,htmlextra",
+        "--reporter-htmlextra-export", f"{ARTIFACTS_HTTPS_DIR_KFV2}/{REPORT_FILE}",
+        "--verbose"
+    ]
+
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        EXIT_CODE = result.returncode
+    except subprocess.CalledProcessError as e:
+        EXIT_CODE = e.returncode
+
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_HTTPS_DIR_KFV2)
     cleanup_model_store()

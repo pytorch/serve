@@ -1,19 +1,16 @@
 import argparse
 import os
+import subprocess
 from datetime import date
 
-from ts_scripts.utils import try_and_handle
+from ts_scripts.utils import try_and_handle, find_conda_binary
 
 conda_build_dir = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.join(conda_build_dir, "..", "..")
 MINICONDA_DOWNLOAD_URL = (
     "https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh"
 )
-CONDA_BINARY = (
-    os.popen("which conda").read().strip()
-    if os.system(f"conda --version") == 0
-    else f"$HOME/miniconda/condabin/conda"
-)
+CONDA_BINARY = find_conda_binary()
 
 CONDA_PACKAGES_PATH = os.path.join(REPO_ROOT, "binaries", "conda", "output")
 CONDA_LINUX_PACKAGES_PATH = os.path.join(
@@ -32,8 +29,7 @@ PLATFORMS = [
 
 if os.name == "nt":
     # Assumes miniconda is installed in windows
-    CONDA_BINARY = "conda"
-
+    CONDA_BINARY = "conda"    
 
 def add_nightly_suffix_conda(binary_name: str) -> str:
     """
@@ -52,15 +48,15 @@ def install_conda_build(dry_run):
     """
 
     # Check if conda binary already exists
-    exit_code = os.system(f"conda --version")
-    if exit_code == 0:
-        print(
-            f"'conda' already present on the system. Proceeding without a fresh conda installation."
-        )
+    try:
+        subprocess.run(["conda", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("'conda' already present on the system. Proceeding without a fresh conda installation.")
         return
-    try_and_handle(
-        f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y", dry_run
-    )
+    except subprocess.CalledProcessError:
+        # Conda is not available, proceed with installation
+        try_and_handle(
+            f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y", dry_run
+        )
 
 
 def install_miniconda(dry_run):
@@ -68,13 +64,13 @@ def install_miniconda(dry_run):
     Installs miniconda, a slimmer anaconda installation to build conda packages
     """
 
-    # Check if conda binary already exists
-    exit_code = os.system(f"conda --version")
-    if exit_code == 0:
-        print(
-            f"'conda' already present on the system. Proceeding without a fresh minconda installation."
-        )
+    try:
+        subprocess.run(["conda", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("'conda' already present on the system. Proceeding without a fresh conda installation.")
         return
+    except subprocess.CalledProcessError as e:
+        raise (e)
+
     if os.name == "nt":
         print(
             "Identified as Windows system. Please install miniconda using this URL: https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"

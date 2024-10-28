@@ -3,6 +3,7 @@
 import locale
 import os
 import re
+import shlex
 import subprocess
 import sys
 
@@ -56,8 +57,10 @@ def get_nvidia_smi():
 
 def run(command):
     """Returns (return-code, stdout, stderr)"""
+    if isinstance(command, str):
+        command = shlex.split(command)
     p = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     output, err = p.communicate()
     rc = p.returncode

@@ -2,7 +2,7 @@ import ast
 import json
 import logging
 import os
-
+import subprocess
 import numpy as np
 import pytest
 import requests
@@ -314,10 +314,14 @@ def test_huggingface_bert_batch_inference():
 
     # Make 2 curl requests in parallel with &
     # curl --header \"X-Forwarded-For: 1.2.3.4\" won't work since you can't access local host anymore
-    response = os.popen(
-        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} & curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text}"
-    )
-    response = response.read()
+    curl_command = [
+        "curl", "http://127.0.0.1:8080/predictions/BERTSeqClassification", "-T", input_text
+    ]
+    process1 = subprocess.Popen(curl_command, stdout=subprocess.PIPE)
+    process2 = subprocess.Popen(curl_command, stdout=subprocess.PIPE)
+    response1, _ = process1.communicate()
+    response2, _ = process2.communicate()
+    response = response1.decode() + response2.decode()
 
     ## Assert that 2 responses are returned from the same batch
     assert response == "Not AcceptedNot Accepted"
@@ -360,7 +364,7 @@ def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
 
 def test_huggingface_bert_model_parallel_inference():
     number_of_gpus = torch.cuda.device_count()
-    check = os.popen(f"curl http://localhost:8081/models")
+    check = subprocess.run(["curl", "http://localhost:8081/models"], capture_output=True, text=True)
     print(check)
     if number_of_gpus > 1:
         batch_size = 1
@@ -385,10 +389,12 @@ def test_huggingface_bert_model_parallel_inference():
             "sample_text_captum_input.txt",
         )
 
-        response = os.popen(
-            f"curl http://127.0.0.1:8080/predictions/Textgeneration -T {input_text}"
+        response = subprocess.run(
+            ["curl", "http://127.0.0.1:8080/predictions/Textgeneration", "-T", input_text],
+            capture_output=True,
+            text=True
         )
-        response = response.read()
+        response = response.stdout
 
         assert (
             "Bloomberg has decided to publish a new report on the global economy"

@@ -1,6 +1,6 @@
 import os
 import sys
-
+import subprocess
 import pytest
 import test_utils
 
@@ -37,10 +37,14 @@ def test_large_model_inference():
     )
 
     try:
-        command = f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_LARGE_MODEL_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
-        result = os.system(command)
+        command = [
+            "newman", "run", "-e", POSTMAN_ENV_FILE, POSTMAN_COLLECTION_INFERENCE,
+            "-d", POSTMAN_LARGE_MODEL_INFERENCE_DATA_FILE, "-r", "cli,htmlextra",
+            "--reporter-htmlextra-export", f"{ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE}", "--verbose"
+        ]
+        result = subprocess.run(command, check=True)
         assert (
-            result == 0
+            result.returncode == 0
         ), "Error: Distributed inference failed, the exit code is not zero"
     finally:
         test_utils.stop_torchserve()

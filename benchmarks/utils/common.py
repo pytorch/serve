@@ -1,12 +1,16 @@
 import os
+import shlex
 from subprocess import Popen
 
 
-def execute(command, wait=False, stdout=None, stderr=None, shell=True):
+def execute(command, wait=False, stdout=None, stderr=None):
     print(command)
+    # Split the command into a list of arguments
+    if isinstance(command, str):
+        command = shlex.split(command)
+
     cmd = Popen(
         command,
-        shell=shell,
         close_fds=True,
         stdout=stdout,
         stderr=stderr,

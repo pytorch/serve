@@ -1,5 +1,6 @@
 import csv
 import logging
+import shlex
 import subprocess
 from io import StringIO
 
@@ -11,8 +12,11 @@ cmd_dump = "xpu-smi dump -d X -m 0,5,18 -n 1"
 
 def check_cmd(cmd):
     out = None
+    # Split the command into a list of arguments
+    if isinstance(command, str):
+        command = shlex.split(command)
     try:
-        out = subprocess.check_output(cmd, shell=True, timeout=5, text=True)
+        out = subprocess.check_output(cmd, timeout=5, text=True)
     except subprocess.TimeoutExpired:
         logging.error("Timeout running %s", cmd)
     except FileNotFoundError:
