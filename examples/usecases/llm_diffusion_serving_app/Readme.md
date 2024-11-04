@@ -1,13 +1,18 @@
 
-# Multi-Image Generation App
+# Multi-Image Generation App with Streamlit, Llama, Stable Diffusion, OpenVINO, TorchServe
 
-This Streamlit app is designed to generate multiple images based on a provided text prompt. It leverages **TorchServe** for efficient model serving and management, and utilizes **LLaMA3** for prompt generation, and **Stable Diffusion** with **latent-consistency/lcm-sdxl** and **Torch.compile** using **OpenVINO backend** for image generation.
+This Streamlit app is designed to generate multiple images based on a provided text prompt. It leverages [TorchServe](https://pytorch.org/serve/) for efficient model serving and management, and utilizes [Meta-LLaMA-3.2](https://huggingface.co/meta-llama) for prompt generation, and **Stable Diffusion** with [latent-consistency/lcm-sdxl](https://huggingface.co/latent-consistency/lcm-sdxl) and [Torch.compile using OpenVINO backend](https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html) for image generation.
 
 ![Multi-Image Generation App Workflow](./docker/workflow-1.png)
 
 ## Quick Start Guide
 
-To launch the app, you need to run the following
+**Prerequisites**: 
+- Docker installed on your system
+- Hugging Face Token: Create a Hugging Face account and obtain a token with access to the [meta-llama/Llama-3.2-3B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct) model.
+
+
+To launch the app, you need to run the following:
 ```bash
 # 1: Set HF Token as Env variable
 export HUGGINGFACE_TOKEN=<HUGGINGFACE_TOKEN>
@@ -18,7 +23,7 @@ cd serve
 ./examples/usecases/llm_diffusion_serving_app/docker/build_image.sh
 
 # 3: Launch the streamlit app for server & client
-# Start the app with the command printed after successful docker build.
+# After the Docker build is successful, you will see a command printed to start the app. Run that command to launch the Streamlit app for both the server and client.
 ```
 
 #### Sample Output:
