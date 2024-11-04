@@ -5,8 +5,8 @@ BASE_IMAGE="pytorch/torchserve:latest-cpu"
 DOCKER_TAG="pytorch/torchserve:llm_diffusion_serving_app"
 
 # LLM_HF_ID=meta-llama/Meta-Llama-3-8B
+# LLM_HF_ID=meta-llama/Llama-3.2-1B-Instruct
 LLM_HF_ID=meta-llama/Llama-3.2-3B-Instruct
-LLM_HF_ID=meta-llama/Llama-3.2-1B-Instruct
 SD_HF_ID=stabilityai/stable-diffusion-xl-base-1.0
 
 # Get relative path of example dir
@@ -15,8 +15,8 @@ ROOT_DIR=${EXAMPLE_DIR}/../../../../
 ROOT_DIR=$(realpath "$ROOT_DIR")
 EXAMPLE_DIR=$(echo "$EXAMPLE_DIR" | sed "s|$ROOT_DIR|./|")
 
-echo $EXAMPLE_DIR
-echo $ROOT_DIR
+echo "EXAMPLE_DIR: $EXAMPLE_DIR"
+echo "ROOT_DIR: $ROOT_DIR"
 
 # Build docker image for the application
 docker_build_cmd="DOCKER_BUILDKIT=1 \
@@ -36,10 +36,9 @@ echo -e "$docker_build_cmd"
 eval $docker_build_cmd
 
 mkdir -p model-store-local
-chmod 777 model-store-local
 
 echo ""
-echo "Run the following command to start the chat bot"
+echo "Run the following command to start the Multi-image generation App"
 echo ""
 echo "docker run --rm -it --platform linux/amd64 \\
 -p 127.0.0.1:8080:8080 \\
@@ -51,5 +50,6 @@ echo "docker run --rm -it --platform linux/amd64 \\
 -e MODEL_NAME_LLM=${LLM_HF_ID} \\
 -e MODEL_NAME_SD=${SD_HF_ID}  \\
 $DOCKER_TAG"
+
 echo ""
 echo "Note: You can replace the model identifier as needed"

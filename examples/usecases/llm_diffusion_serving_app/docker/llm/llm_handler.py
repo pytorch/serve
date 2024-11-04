@@ -13,7 +13,6 @@ from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
-
 class LlmHandler(BaseHandler):
     def __init__(self):
         super().__init__()
@@ -26,6 +25,7 @@ class LlmHandler(BaseHandler):
         self.prompt_length = 0
         self.stream = False
         self.user_prompt = []
+        self.prompt_template = ""
 
     def initialize(self, ctx):
         self.context = ctx
@@ -77,8 +77,9 @@ class LlmHandler(BaseHandler):
         if isinstance(input_data, str):
             input_data = json.loads(input_data)
 
-        self.user_prompt = input_data["prompt"]
-        encoded_prompt = self.tokenizer(self.user_prompt, return_tensors="pt").to(self.device)
+        self.user_prompt = input_data["user_prompt"]
+        self.prompt_template = input_data["prompt_template"]
+        encoded_prompt = self.tokenizer(self.prompt_template, return_tensors="pt").to(self.device)
 
         # self.prompt_length = encoded_prompt.size(0)
         input_data["encoded_prompt"] = encoded_prompt
@@ -91,11 +92,13 @@ class LlmHandler(BaseHandler):
         try:
             generation_params = {
                 "do_sample": True,
-                "max_new_tokens": 80,
-                "temperature": 0.8,
-                "top_p": 0.95,
-                "top_k": 50,
+                "max_new_tokens": input_data["max_new_tokens"],
+                "temperature": input_data["temperature"],
+                "top_k": input_data["top_k"],
+                "top_p": input_data["top_p"],
                 "repetition_penalty": 1.2,
+                "pad_token_id": self.tokenizer.pad_token_id,
+                "eos_token_id": self.tokenizer.eos_token_id,
             }
 
             with torch.no_grad():
@@ -112,11 +115,12 @@ class LlmHandler(BaseHandler):
 
 
     def postprocess(self, generated_text):
-        logger.info(f"LLM Generated Output: {generated_text}")
+        logger.info(f"LLM Generated Output: {generated_text}")    
+        # Initialize with user prompt
         prompt_list = [self.user_prompt]
         try:
             logger.info(f"Parsing LLM Generated Output to extract prompts within []...")
-            response_match = re.search(r'Response:\s*\[(.*?)\]', generated_text)
+            response_match = re.search(r"\[(.*?)\]", generated_text)
             # Extract the result if match is found
             if response_match:
                 # Split the extracted string by semicolon and strip any leading/trailing spaces
