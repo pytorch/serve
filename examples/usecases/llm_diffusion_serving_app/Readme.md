@@ -31,7 +31,7 @@ cd serve
 ubuntu@ip-10-0-0-137:~/serve$ ./examples/usecases/llm_diffusion_serving_app/docker/build_image.sh 
 EXAMPLE_DIR: .//examples/usecases/llm_diffusion_serving_app/docker
 ROOT_DIR: /home/ubuntu/serve
-DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 --file .//examples/usecases/llm_diffusion_serving_app/docker/Dockerfile --build-arg BASE_IMAGE="pytorch/torchserve:latest-cpu" --build-arg EXAMPLE_DIR=".//examples/usecases/llm_diffusion_serving_app/docker" --build-arg HUGGINGFACE_TOKEN=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 --build-arg HTTP_PROXY= --build-arg HTTPS_PROXY= --build-arg NO_PROXY= -t "pytorch/torchserve:llm_diffusion_serving_app" .
+DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 --file .//examples/usecases/llm_diffusion_serving_app/docker/Dockerfile --build-arg BASE_IMAGE="pytorch/torchserve:latest-cpu" --build-arg EXAMPLE_DIR=".//examples/usecases/llm_diffusion_serving_app/docker" --build-arg HUGGINGFACE_TOKEN=hf_<token> --build-arg HTTP_PROXY= --build-arg HTTPS_PROXY= --build-arg NO_PROXY= -t "pytorch/torchserve:llm_diffusion_serving_app" .
 [+] Building 1.4s (18/18) FINISHED                                                                                                                                                               docker:default
  => [internal] load .dockerignore                                                                                                                                                                          0.0s
  => => transferring context: 2B                                                                                                                                                                            0.0s
@@ -48,7 +48,7 @@ DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 --file .//examples/
  => CACHED [server  6/13] COPY .//examples/usecases/llm_diffusion_serving_app/docker/sd/requirements.txt /home/model-server/sd_requirements.txt                                                            0.0s
  => CACHED [server  7/13] RUN pip install -r sd_requirements.txt                                                                                                                                           0.0s
  => [server  8/13] COPY .//examples/usecases/llm_diffusion_serving_app/docker /home/model-server/llm_diffusion_serving_app/                                                                                0.0s
- => [server  9/13] RUN --mount=type=secret,id=hf_token     huggingface-cli login --token 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                                                                             0.5s
+ => [server  9/13] RUN --mount=type=secret,id=hf_token     huggingface-cli login --token hf_<token>                                                                                      0.5s
  => [server 10/13] WORKDIR /home/model-server/llm_diffusion_serving_app                                                                                                                                    0.0s
  => [server 11/13] COPY .//examples/usecases/llm_diffusion_serving_app/docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh                                                                   0.0s 
  => [server 12/13] COPY .//examples/usecases/llm_diffusion_serving_app/docker/config.properties /home/model-server/config.properties                                                                       0.0s
