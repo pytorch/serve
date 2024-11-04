@@ -7,6 +7,9 @@ import importlib.metadata
 
 import requests
 import streamlit as st
+import logging
+
+logger = logging.getLogger(__name__)
 
 MODEL_NAME_LLM = os.environ["MODEL_NAME_LLM"]
 MODEL_NAME_LLM = MODEL_NAME_LLM.replace("/", "---")
@@ -60,7 +63,7 @@ def _register_model(url, MODEL_NAME):
         st.session_state.started = True
         return False
 
-    print(f"registering {MODEL_NAME}")
+    print(f"Registering {MODEL_NAME}")
     st.session_state.registered[MODEL_NAME] = True
     st.session_state.stopped = False
     server_state_container.caption(res.text)
@@ -72,19 +75,32 @@ def register_model(MODEL_NAME):
     if not st.session_state.started:
         server_state_container.caption("TorchServe is not running. Start it")
         return
-    url = f"http://127.0.0.1:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}&batch_size=1&max_batch_delay=3000&initial_workers=1&synchronous=true&disable_token_authorization=true"
+    
+    url = (f"http://127.0.0.1:8081/models"
+        f"?model_name={MODEL_NAME}"
+        f"&url={MODEL_NAME}"
+        f"&batch_size=1"
+        f"&max_batch_delay=3000"
+        f"&initial_workers=1"
+        f"&synchronous=true"
+        f"&disable_token_authorization=true")
+    
     return _register_model(url, MODEL_NAME)
 
 def register_models(models: list):
-    for model in models: 
-        if not register_model(model):
+    for model in models:
+        success = register_model(model)
+        # If registration fails, exit the function early
+        if not success:
+            logger.error(f"Failed to register model: {model}")
             return
+    # Call scale_sd_workers after model registration, which overrides min_workers in model-config.yaml
+    scale_sd_workers()
+    logger.info("All models registered successfully.")
 
 def get_model_status():
     for MODEL_NAME in [MODEL_NAME_LLM, MODEL_NAME_SD]:
-        print(
-            f"registered state for {MODEL_NAME} is {st.session_state.registered[MODEL_NAME]}"
-        )
+        print(f"Registered state for {MODEL_NAME} is {st.session_state.registered[MODEL_NAME]}")
         if st.session_state.registered[MODEL_NAME]:
             url = f"http://localhost:8081/models/{MODEL_NAME}"
             res = requests.get(url)
@@ -99,10 +115,9 @@ def get_model_status():
         else:
             model_state_container.write(f"{MODEL_NAME} is not registered ! ")
 
-
-def scale_sd_workers(workers):
+def scale_sd_workers(workers_key="sd_workers"):
     if st.session_state.registered[MODEL_NAME_SD]:
-        num_workers = st.session_state[workers]
+        num_workers = st.session_state.get(workers_key, 2)
         url = (
             f"http://localhost:8081/models/{MODEL_NAME_SD}?min_worker="
             f"{str(num_workers)}&synchronous=true"
@@ -172,13 +187,13 @@ with st.sidebar:
     st.subheader("SD Model parameters")
 
     workers_sd = st.sidebar.number_input(
-        "Num Workers SD",
-        key="Num Workers SD",
+        "Num Workers for Stable Diffusion",
+        key="sd_workers",
         min_value=1,
         max_value=4,
-        value=4,
+        value=2,
         on_change=scale_sd_workers,
-        args=("Num Workers SD",),
+        args=("sd_workers",),
     )
     
     if st.session_state.started:
@@ -194,17 +209,17 @@ with st.sidebar:
         st.success(f"Registered model {MODEL_NAME_SD}", icon="✅")
 
 
-
 # Server Page UI
-
 st.title("Multi-Image Generation App Control Center")
 image_container = st.container()
 with image_container:
     st.markdown("""
     This Streamlit app is designed to generate multiple images based on a provided text prompt.
-    It leverages **TorchServe** for efficient model serving and management, and utilizes **LLaMA3** 
+    It leverages **TorchServe** for efficient model serving and management, and utilizes **LLaMA3.2** 
     for prompt generation, and **Stable Diffusion** 
     with **latent-consistency/lcm-sdxl** and **Torch.compile** using **OpenVINO backend** for image generation.
+    
+    After Starting TorchServe and Registering models, go to Client App running at port 8085.
     """)
     st.image("workflow-1.png")
     

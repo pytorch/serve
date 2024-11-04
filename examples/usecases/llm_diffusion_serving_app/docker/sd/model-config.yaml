@@ -1,4 +1,4 @@
-minWorkers: 1
+minWorkers: 2
 maxWorkers: 4
 maxBatchDelay: 200
 responseTimeout: 3600
@@ -7,8 +7,6 @@ pt2:
   backend: "openvino"
   options:
     device: "CPU"
-    model_caching: true
-    cache_dir: "./sd_model_cache"
     config:
       PERFORMANCE_HINT: "LATENCY"
 handler:

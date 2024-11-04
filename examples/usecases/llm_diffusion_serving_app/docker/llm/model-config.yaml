@@ -9,6 +9,6 @@ pt2:
 handler:
   profile: true
   model_store_dir: "/home/model-server/model-store/"
-  max_new_tokens: 50
+  max_new_tokens: 40
   compile: true
   fx_graph_cache: true

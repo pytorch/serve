@@ -66,7 +66,7 @@ with st.sidebar:
 
     st.subheader("Number of images to generate")
     num_images = st.sidebar.number_input(
-        "num_of_img", min_value=1, max_value=6, value=2, step=1
+        "num_of_img", min_value=1, max_value=8, value=2, step=1
     )
 
     st.subheader("LLM Model parameters")
@@ -87,7 +87,7 @@ with st.sidebar:
     )
 
 
-    st.subheader("SD Model parameters")
+    st.subheader("Stable Diffusion Parameters")
     num_inference_steps = st.sidebar.number_input(
         "steps", min_value=1, max_value=100, value=5, step=1
     )
@@ -207,19 +207,22 @@ st.title("Multi-Image Generation App with TorchServe and OpenVINO")
 intro_container = st.container()
 with intro_container:
     st.markdown("""
-        The multi-image generation app generate similar image generation prompts using **LLaMA3** and 
+        The multi-image generation app generates similar image generation prompts using **LLaMA-3.2** and 
         these prompts are then processed in parallel by **Stable Diffusion**, which is optimized 
         using the **latent-consistency/lcm-sdxl** model and accelerated with **Torch.compile** using the 
         **OpenVINO** backend. This approach enables efficient and high-quality image generation, 
         offering users a selection of interpretations to choose from.
     """)
     st.image("workflow-2.png")
+    st.markdown("""
+        **NOTE:** The initial image generations might take longer due to model initialization and warm-up. 
+        Subsequent generations should be faster !
+    """)
     
 user_prompt = st.text_input("Enter an Image Generation Prompt :")
 
 prompt_container = st.container()
 status_container = st.container()
-# image_container = st.container()
 
 if 'gen_images' not in st.session_state:
     st.session_state.gen_images = []
@@ -233,9 +236,11 @@ def display_images_in_grid(images, captions):
         col.image(img, caption=caption, use_column_width=True)
 
 def display_prompts():
-    prompt_container.write(f"Generated prompts:")
-    for pr in st.session_state.llm_prompts:
-        prompt_container.write(pr)
+    prompt_container.write(f"Generated Prompts:")
+    prompt_list = ""
+    for i, pr in enumerate(st.session_state.llm_prompts, 1):
+        prompt_list += f"{i}. {pr}\n"
+    prompt_container.markdown(prompt_list)
         
 if 'llm_prompts' not in st.session_state:
     st.session_state.llm_prompts = None
@@ -258,14 +263,13 @@ if st.session_state.model_sd_loaded:
             display_prompts()
             prompt_container.write(f"LLM time: {st.session_state.llm_time:.2f} sec.")
 else:
-    st.warning("Start TorchServe and Register models in the Server/Control Center App running at port 8084 ...", icon="⚠️")
+    st.warning("Start TorchServe and Register models in the Server App running at port 8084.", icon="⚠️")
 
 
 if not st.session_state.llm_prompts:
     prompt_container.write(f"Enter Image Generation Prompt and Click Generate Prompts !")
     pass
 elif len(st.session_state.llm_prompts) != num_images:
-    #prompt_container.write(f"Generate the prompts again!")
     st.warning("Generate the prompts again !", icon="⚠️")
     pass
 else:
@@ -276,7 +280,7 @@ else:
             
             sd_res = asyncio.run(generate_sd_response_v2(st.session_state.llm_prompts))
 
-            if sd_res is not None:  # Only proceed if no errors
+            if sd_res is not None: 
                 images = sd_response_postprocess(sd_res)
                 st.session_state.gen_images[:0] = images
 
