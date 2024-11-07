@@ -20,10 +20,10 @@ MODEL_NAME_SD = MODEL_NAME_SD.replace("/", "---")
 logger = logging.getLogger(__name__)
 
 # App title
-st.set_page_config(page_title="Image Generation with SDXL and OpenVINO")
+st.set_page_config(page_title="Multi-image Gen App")
 
 with st.sidebar:
-    st.title("Image Generation with SDXL and OpenVINO")
+    st.title("Image Generation with LLaMA, SDXL and OpenVINO")
 
     st.session_state.model_sd_loaded = False
 
@@ -151,22 +151,31 @@ def preprocess_llm_input(user_prompt, num_images = 2):
     ### Response: 
     """
     
-    # Get 'num_images-1' prompts as the user_prompt is included.
-    prompt_template_with_user_input = template.format(num_images-1, user_prompt)
+    prompt_template_with_user_input = template.format(num_images, user_prompt)
 
     return prompt_template_with_user_input
 
 
-def postprocess_llm_response(prompts, original_prompt=None, num_images=2):
+def postprocess_llm_response(prompts, original_prompt=None, num_images=2, include_user_prompt=False):
     # Parse the JSON string into a Python list
     prompts = prompts.strip()
     prompts = json.loads(prompts)
-    logging.info(f"LLM Model Responded with prompts: {prompts}")
+    logging.info(f"LLM Model Responded with prompts. Required: {num_images}, Generated: {len(prompts)}. Prompts: {prompts}")
     
-    if len(prompts) < num_images:
-         logging.info(f"Llama Model generated too few prompts! Required: {num_images}, Generated: {len(prompts)}")
-    else:
+    # prompts list ideally should contain num_images + 1 (original prompt) 
+    # Trim the list to the desired number of prompts
+    if len(prompts) > num_images + 1:
+        prompts = prompts[:num_images + 1]
+
+    # Remove the original user prompt if desired
+    if include_user_prompt:
         prompts = prompts[:num_images]
+    else:
+        prompts = prompts[1:]
+
+    # If the list is empty, return the original prompt
+    if not prompts:
+        prompts = [original_prompt]
 
     return prompts
 
@@ -203,23 +212,27 @@ def generate_llm_model_response(prompt_template_with_user_input, user_prompt):
     
 
 # Client Page UI
-st.title("Multi-Image Generation App with TorchServe and OpenVINO")
+st.markdown("## Multi-Image Generation App with TorchServe and OpenVINO", unsafe_allow_html=True)
+
 intro_container = st.container()
 with intro_container:
     st.markdown("""
-        The multi-image generation app generates similar image generation prompts using **LLaMA-3.2** and 
-        these prompts are then processed in parallel by **Stable Diffusion**, which is optimized 
-        using the **latent-consistency/lcm-sdxl** model and accelerated with **Torch.compile** using the 
-        **OpenVINO** backend. This approach enables efficient and high-quality image generation, 
-        offering users a selection of interpretations to choose from.
-    """)
+    This Streamlit app is designed to generate multiple images based on a provided text prompt. 
+    Instead of using Stable Diffusion directly, this app chains Llama and Stable Diffusion. 
+    It takes a user prompt and makes use of LLaMA to create multiple interesting relevant prompts 
+    which are then sent to Stable Diffusion to generate images. It leverages:
+    - [TorchServe](https://pytorch.org/serve/) for efficient model serving and management, 
+    - [Meta-LLaMA-3.2](https://huggingface.co/meta-llama) for enhanced prompt generation, 
+    - Stable Diffusion with [latent-consistency/lcm-sdxl](https://huggingface.co/latent-consistency/lcm-sdxl) for image generation,
+    - For performance optimization, the models are compiled using [torch.compile using OpenVINO backend](https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html).
+    """, unsafe_allow_html=True)
+    st.markdown("""<div style='background-color: #f0f0f0; font-size: 14px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;'>
+            NOTE: Initial image generation may take longer due to model warm-up. Subsequent generations will be faster. !
+            </div>""", unsafe_allow_html=True)
     st.image("workflow-2.png")
-    st.markdown("""
-        **NOTE:** The initial image generations might take longer due to model initialization and warm-up. 
-        Subsequent generations should be faster !
-    """)
     
-user_prompt = st.text_input("Enter an Image Generation Prompt :")
+user_prompt = st.text_input("Enter a prompt for image generation:")
+include_user_prompt = st.checkbox("Include orginal prompt", value=False)
 
 prompt_container = st.container()
 status_container = st.container()
@@ -257,7 +270,7 @@ if st.session_state.model_sd_loaded:
             if num_images > 1:
                 prompt_template_with_user_input = preprocess_llm_input(user_prompt, num_images)
                 llm_prompts = generate_llm_model_response(prompt_template_with_user_input, user_prompt)
-                st.session_state.llm_prompts = postprocess_llm_response(llm_prompts, user_prompt, num_images)
+                st.session_state.llm_prompts = postprocess_llm_response(llm_prompts, user_prompt, num_images, include_user_prompt)
 
             st.session_state.llm_time = time.time() - llm_start_time
             display_prompts()

@@ -20,7 +20,7 @@ MODEL_NAME_SD = MODEL_NAME_SD.replace("/", "---")
 MODEL_SD = MODEL_NAME_SD.split("---")[1]
 
 # App title
-st.set_page_config(page_title="TorchServe Server")
+st.set_page_config(page_title="Multi-image Gen App Control Center")
 
 def start_server():
     subprocess.run(
@@ -59,7 +59,7 @@ def stop_server():
 def _register_model(url, MODEL_NAME):
     res = requests.post(url)
     if res.status_code != 200:
-        server_state_container.error(f"Error registering model: {MODEL_NAME}", icon="🚫")
+        server_state_container.error(f"Error {res.status_code}: Failed to register model: {MODEL_NAME}", icon="🚫")
         st.session_state.started = True
         return False
 
@@ -184,7 +184,7 @@ with st.sidebar:
     st.button("Stop Server", on_click=stop_server)
     st.button(f"Register Models", on_click=register_models, args=([MODEL_NAME_LLM, MODEL_NAME_SD],))
 
-    st.subheader("SD Model parameters")
+    st.subheader("Stable Diffusion Model Config Parameters")
 
     workers_sd = st.sidebar.number_input(
         "Num Workers for Stable Diffusion",
@@ -210,17 +210,24 @@ with st.sidebar:
 
 
 # Server Page UI
-st.title("Multi-Image Generation App Control Center")
-image_container = st.container()
-with image_container:
+st.markdown("## Multi-Image Generation App Control Center", unsafe_allow_html=True)
+
+intro_container = st.container()
+with intro_container:
     st.markdown("""
-    This Streamlit app is designed to generate multiple images based on a provided text prompt.
-    It leverages **TorchServe** for efficient model serving and management, and utilizes **LLaMA3.2** 
-    for prompt generation, and **Stable Diffusion** 
-    with **latent-consistency/lcm-sdxl** and **Torch.compile** using **OpenVINO backend** for image generation.
-    
-    After Starting TorchServe and Registering models, go to Client App running at port 8085.
-    """)
+    This Streamlit app is designed to generate multiple images based on a provided text prompt. 
+    Instead of using Stable Diffusion directly, this app chains LLaMA and Stable Diffusion. 
+    It takes a user prompt and makes use of LLaMA to create multiple interesting relevant prompts 
+    which are then sent to Stable Diffusion to generate images. It leverages:
+    - [TorchServe](https://pytorch.org/serve/) for efficient model serving and management, 
+    - [Meta-LLaMA-3.2](https://huggingface.co/meta-llama) for enhanced prompt generation, 
+    - Stable Diffusion with [latent-consistency/lcm-sdxl](https://huggingface.co/latent-consistency/lcm-sdxl) for image generation,
+    - For performance optimization, the models are compiled using [torch.compile using OpenVINO backend](https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html).
+    """, unsafe_allow_html=True)
+    st.markdown("""<div style='background-color: #f0f0f0; font-size: 14px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;'>
+        NOTE: After Starting TorchServe and Registering models, go to Client App running at port 8085.
+        </div>""", unsafe_allow_html=True)
+
     st.image("workflow-1.png")
     
 server_state_container = st.container()
@@ -231,7 +238,7 @@ if st.session_state.started:
 elif st.session_state.stopped:
     server_state_container.success("Stopped TorchServe", icon="🛑")
 else:
-    server_state_container.write("TorchServe not started !")
+    server_state_container.warning("TorchServe not started !", icon="⚠️")
 
 if st.session_state.registered[MODEL_NAME_LLM]:
     server_state_container.success(f"Registered model {MODEL_NAME_LLM}", icon="✅")
