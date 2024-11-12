@@ -19,25 +19,58 @@ MODEL_NAME_SD = os.environ["MODEL_NAME_SD"]
 MODEL_NAME_SD = MODEL_NAME_SD.replace("/", "---")
 MODEL_SD = MODEL_NAME_SD.split("---")[1]
 
-# App title
-st.set_page_config(page_title="Multi-image Gen App Control Center")
+# Initialize Session State variables
+st.session_state.started = st.session_state.get('started', False)
+st.session_state.stopped = st.session_state.get('stopped', True)
+st.session_state.registered = st.session_state.get('registered', {
+    MODEL_NAME_LLM: False,
+    MODEL_NAME_SD: False,
+})
 
-def start_server():
-    subprocess.run(
-        ["torchserve --start --ts-config /home/model-server/config.properties --disable-token-auth --enable-model-api"],
-        shell=True,
-        check=True,
-    )
-    while True:
+# App title
+st.set_page_config(page_title="Multi-Image Gen App Control Center")
+
+def start_torchserve_server():
+    """Starts the TorchServe server if it's not already running."""
+    def is_server_running():
+        """Check if the TorchServe server is running."""
         try:
-            res = requests.get(url="http://localhost:8080/ping")
-            if res.status_code == 200:
+            res = requests.get("http://localhost:8080/ping")
+            return res.status_code == 200
+        except requests.exceptions.ConnectionError:
+            return False
+
+    def launch_server():
+        """Launch the TorchServe server with the specified configurations."""
+        subprocess.run(
+            [
+                "torchserve --start --ts-config /home/model-server/config.properties "
+                "--disable-token-auth --enable-model-api"
+            ],
+            shell=True,
+            check=True,
+        )
+
+    # Check if the server is already running
+    if is_server_running():
+        sidebar_status_container.info("TorchServe is already running.")
+    else:
+        # Start the server
+        launch_server()
+        
+        # Attempt to connect up to 5 times with a short delay in between
+        num_attempts = 5
+        for attempt in range(num_attempts):
+            if is_server_running():
                 break
             else:
-                server_state_container.error("Not able to start TorchServe", icon="🚫")
-        except:
-            time.sleep(0.1)
+                time.sleep(0.5)
+                logger.info(f"Unable to start TorchServe: Attempt {attempt + 1} of {num_attempts}")
+        else:
+            sidebar_status_container.error(f"Failed to start TorchServe after {num_attempts} attempts", icon="🚫")
+            return False
 
+    # Update session state variables if server started successfully
     st.session_state.started = True
     st.session_state.stopped = False
     st.session_state.registered = {
@@ -47,34 +80,58 @@ def start_server():
 
 
 def stop_server():
-    os.system("torchserve --stop")
-    st.session_state.stopped = True
-    st.session_state.started = False
-    st.session_state.registered = {
-        MODEL_NAME_LLM: False,
-        MODEL_NAME_SD: False,
-    }
+    """Stops the TorchServe server if it is running, and updates the session state."""
+    if st.session_state.stopped:
+        sidebar_status_container.info("TorchServe is already stopped.")
+    else :
+        try:
+            # Stop the server if it is running
+            subprocess.run(["torchserve", "--stop"], check=True)
+            
+            # Update session state upon successful server stop
+            st.session_state.stopped = True
+            st.session_state.started = False
+            st.session_state.registered = {
+                MODEL_NAME_LLM: False,
+                MODEL_NAME_SD: False,
+            }
+
+        except subprocess.CalledProcessError as e:
+            sidebar_status_container.error(f"Failed to stop TorchServe: {e}", icon="🚫")
+
+def unregister_model(MODEL_NAME):
+    url = f"http://127.0.0.1:8081/models/{MODEL_NAME}"
+    response = requests.delete(url)
+    if response.status_code == 200:
+        print(f"Model {MODEL_NAME} successfully unregistered")
+        st.session_state.registered[MODEL_NAME] = False
+        return True
+    else:
+        server_state_container.error(f"Failed to unregister model {MODEL_NAME}."
+                                     f"Status code: {response.status_code}"
+                                     f"Response: {response.text}",icon="🚫")
+
+        return False
 
 
 def _register_model(url, MODEL_NAME):
+    server_state_container.write(f"Registering {MODEL_NAME}")
     res = requests.post(url)
+    
     if res.status_code != 200:
         server_state_container.error(f"Error {res.status_code}: Failed to register model: {MODEL_NAME}", icon="🚫")
-        st.session_state.started = True
         return False
 
-    print(f"Registering {MODEL_NAME}")
     st.session_state.registered[MODEL_NAME] = True
-    st.session_state.stopped = False
-    server_state_container.caption(res.text)
+    server_state_container.write(res.text)
 
     return True
 
 
 def register_model(MODEL_NAME):
     if not st.session_state.started:
-        server_state_container.caption("TorchServe is not running. Start it")
-        return
+        sidebar_status_container.warning("TorchServe Server is not running. Start it !", icon="⚠️")
+        return False
     
     url = (f"http://127.0.0.1:8081/models"
         f"?model_name={MODEL_NAME}"
@@ -93,7 +150,7 @@ def register_models(models: list):
         # If registration fails, exit the function early
         if not success:
             logger.error(f"Failed to register model: {model}")
-            return
+            return False
     # Call scale_sd_workers after model registration, which overrides min_workers in model-config.yaml
     scale_sd_workers()
     logger.info("All models registered successfully.")
@@ -123,7 +180,7 @@ def scale_sd_workers(workers_key="sd_workers"):
             f"{str(num_workers)}&synchronous=true"
         )
         res = requests.put(url)
-        server_state_container.caption(res.text)
+        server_state_container.write(res.text)
 
 def get_hw_config_output():
     output = subprocess.check_output(['lscpu']).decode('utf-8')
@@ -166,27 +223,26 @@ def get_sw_versions():
     
     return sw_versions
 
-if "started" not in st.session_state:
-    st.session_state.started = False
-if "stopped" not in st.session_state:
-    st.session_state.stopped = False
-if "registered" not in st.session_state:
-    st.session_state.registered = {
-        MODEL_NAME_LLM: False,
-        MODEL_NAME_SD: False,
-    }
 
 # Server Page Sidebar UI
 with st.sidebar:
     st.title("TorchServe Controls ")
 
-    st.button("Start TorchServe", on_click=start_server)
-    st.button("Stop Server", on_click=stop_server)
+    st.button("Start TorchServe Server", on_click=start_torchserve_server)
+    st.button("Stop TorchServe Server", on_click=stop_server)
     st.button(f"Register Models", on_click=register_models, args=([MODEL_NAME_LLM, MODEL_NAME_SD],))
+    
+    sidebar_status_container = st.container()
+    
+    if st.session_state.started:
+        sidebar_status_container.success("Started TorchServe", icon="✅")
 
+    if st.session_state.stopped:
+        sidebar_status_container.success("TorchServe is Stopped", icon="🛑")
+        
     st.subheader("Stable Diffusion Model Config Parameters")
 
-    workers_sd = st.sidebar.number_input(
+    sd_workers_inp = st.sidebar.number_input(
         "Num Workers for Stable Diffusion",
         key="sd_workers",
         min_value=1,
@@ -195,37 +251,28 @@ with st.sidebar:
         on_change=scale_sd_workers,
         args=("sd_workers",),
     )
-    
-    if st.session_state.started:
-        st.success("Started TorchServe", icon="✅")
-
-    if st.session_state.stopped:
-        st.success("Stopped TorchServe", icon="🛑")
 
     if st.session_state.registered[MODEL_NAME_LLM]:
-        st.success(f"Registered model {MODEL_NAME_LLM}", icon="✅")
+        sidebar_status_container.success(f"Registered model {MODEL_NAME_LLM}", icon="✅")
         
     if st.session_state.registered[MODEL_NAME_SD]:
-        st.success(f"Registered model {MODEL_NAME_SD}", icon="✅")
+        sidebar_status_container.success(f"Registered model {MODEL_NAME_SD}", icon="✅")
 
 
 # Server Page UI
-st.markdown("## Multi-Image Generation App Control Center", unsafe_allow_html=True)
 
 intro_container = st.container()
 with intro_container:
     st.markdown("""
-    This Streamlit app is designed to generate multiple images based on a provided text prompt. 
-    Instead of using Stable Diffusion directly, this app chains LLaMA and Stable Diffusion. 
-    It takes a user prompt and makes use of LLaMA to create multiple interesting relevant prompts 
-    which are then sent to Stable Diffusion to generate images. It leverages:
-    - [TorchServe](https://pytorch.org/serve/) for efficient model serving and management, 
-    - [Meta-LLaMA-3.2](https://huggingface.co/meta-llama) for enhanced prompt generation, 
-    - Stable Diffusion with [latent-consistency/lcm-sdxl](https://huggingface.co/latent-consistency/lcm-sdxl) for image generation,
-    - For performance optimization, the models are compiled using [torch.compile using OpenVINO backend](https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html).
+    ### Multi-Image Generation App Control Center
+    Manage the Multi-Image Generation App workflow with this administrative interface. 
+    Use this app to Start/stop TorchServe, load/register models, scale up/down workers, 
+    and perform other tasks to ensure smooth operation.
+    See [GitHub](https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app) for details.
     """, unsafe_allow_html=True)
-    st.markdown("""<div style='background-color: #f0f0f0; font-size: 14px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;'>
-        NOTE: After Starting TorchServe and Registering models, go to Client App running at port 8085.
+    st.markdown("""<div style='background-color: #f0f0f0; font-size: 14px; padding: 10px; 
+                border: 1px solid #ddd; border-radius: 5px;'>
+        <b>NOTE</b>: After Starting TorchServe and Registering models, proceed to Client App running at port 8085.
         </div>""", unsafe_allow_html=True)
 
     st.image("workflow-1.png")
@@ -236,7 +283,7 @@ server_state_container.subheader("TorchServe Status:")
 if st.session_state.started:
     server_state_container.success("Started TorchServe", icon="✅")
 elif st.session_state.stopped:
-    server_state_container.success("Stopped TorchServe", icon="🛑")
+    server_state_container.success("TorchServe is Stopped", icon="🛑")
 else:
     server_state_container.warning("TorchServe not started !", icon="⚠️")
 

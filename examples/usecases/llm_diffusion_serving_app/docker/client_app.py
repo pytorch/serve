@@ -11,13 +11,20 @@ import logging
 import numpy as np
 from PIL import Image
 
+logger = logging.getLogger(__name__)
+
 MODEL_NAME_LLM = os.environ["MODEL_NAME_LLM"]
 MODEL_NAME_LLM = MODEL_NAME_LLM.replace("/", "---")
 
 MODEL_NAME_SD = os.environ["MODEL_NAME_SD"]
 MODEL_NAME_SD = MODEL_NAME_SD.replace("/", "---")
 
-logger = logging.getLogger(__name__)
+# Initialize session state if not already set
+st.session_state.models_loaded = st.session_state.get('models_loaded', False)
+st.session_state.gen_images = st.session_state.get('gen_images', [])
+st.session_state.gen_captions = st.session_state.get('gen_captions', [])
+st.session_state.llm_prompts = st.session_state.get('llm_prompts', None)
+st.session_state.llm_time = st.session_state.get('llm_time', 0)
 
 # App title
 st.set_page_config(page_title="Multi-image Gen App")
@@ -25,45 +32,39 @@ st.set_page_config(page_title="Multi-image Gen App")
 with st.sidebar:
     st.title("Image Generation with LLaMA, SDXL and OpenVINO")
 
-    st.session_state.model_sd_loaded = False
-
     try:
+        # Check if TorchServe is running
         res = requests.get(url="http://localhost:8080/ping")
+        if res.status_code != 200:
+            st.warning("TorchServe is not up ! Start TorchServe Server and Register Models in the Server App running at port 8084.", icon="⚠️")
+        elif res.status_code == 200:
+            # Check model statuses
+            def get_model_status(model_name):
+                try:
+                    res = requests.get(f"http://localhost:8081/models/{model_name}")
+                    if res.status_code == 200:
+                        status = json.loads(res.text)[0]["workers"][0]["status"]
+                        return status == "READY"
+                    else:
+                        return False
+                except requests.ConnectionError:
+                    return False
 
-        sd_res = requests.get(
-            url=f"http://localhost:8081/models/{MODEL_NAME_SD}")
-        sd_status = "NOT READY"
+            sd_status = get_model_status(MODEL_NAME_SD)
+            llm_status = get_model_status(MODEL_NAME_LLM)
 
-        llm_res = requests.get(
-            url=f"http://localhost:8081/models/{MODEL_NAME_LLM}")
-        llm_status = "NOT READY"
+            # Update session state
+            st.session_state.models_loaded = sd_status and llm_status
 
-        if sd_res.status_code == 200:
-            sd_status = json.loads(sd_res.text)[0]["workers"][0]["status"]
-
-        if llm_res.status_code == 200:
-            llm_status = json.loads(llm_res.text)[0]["workers"][0]["status"]
-
-        st.session_state.model_sd_loaded = True if sd_status == "READY" else False
-        if st.session_state.model_sd_loaded:
-            st.success(f"Model loaded: {MODEL_NAME_SD}", icon="👉")
-        else:
-            st.warning(
-                f"Model {MODEL_NAME_SD} not loaded in TorchServe", icon="⚠️")
-
-        st.session_state.model_llm_loaded = True if llm_status == "READY" else False
-        if st.session_state.model_llm_loaded:
-            st.success(f"Model loaded: {MODEL_NAME_LLM}", icon="👉")
-        else:
-            st.warning(
-                f"Model {MODEL_NAME_LLM} not loaded in TorchServe", icon="⚠️")
-
-        if sd_status == "READY" and llm_status == "READY":
-            st.success("Proceed to entering your prompt input!", icon="👉")
+            if st.session_state.models_loaded:
+                st.success("Models Ready ! Proceed to entering your prompt for image generation!", icon="👉")
+            else:
+                st.warning("TorchServe Server is running but Models are not loaded/registered. Please Register Models at port 8084.", icon="⚠️")
 
     except requests.ConnectionError:
-        st.warning("TorchServe is not up. Try again", icon="⚠️")
+        st.warning("TorchServe is not up ! Start TorchServe Server and Register Models in the Server App running at port 8084.", icon="⚠️")
 
+    # Client App Parameters
     st.subheader("Number of images to generate")
     num_images = st.sidebar.number_input(
         "num_of_img", min_value=1, max_value=8, value=2, step=1
@@ -212,24 +213,22 @@ def generate_llm_model_response(prompt_template_with_user_input, user_prompt):
     
 
 # Client Page UI
-st.markdown("## Multi-Image Generation App with TorchServe and OpenVINO", unsafe_allow_html=True)
+st.markdown("### Multi-Image Generation App with TorchServe and OpenVINO", unsafe_allow_html=True)
 
 intro_container = st.container()
 with intro_container:
     st.markdown("""
-    This Streamlit app is designed to generate multiple images based on a provided text prompt. 
-    Instead of using Stable Diffusion directly, this app chains Llama and Stable Diffusion. 
-    It takes a user prompt and makes use of LLaMA to create multiple interesting relevant prompts 
-    which are then sent to Stable Diffusion to generate images. It leverages:
-    - [TorchServe](https://pytorch.org/serve/) for efficient model serving and management, 
-    - [Meta-LLaMA-3.2](https://huggingface.co/meta-llama) for enhanced prompt generation, 
-    - Stable Diffusion with [latent-consistency/lcm-sdxl](https://huggingface.co/latent-consistency/lcm-sdxl) for image generation,
-    - For performance optimization, the models are compiled using [torch.compile using OpenVINO backend](https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html).
+    Welcome to the Multi-Image Generation Client App. This app allows you to generate multiple images 
+    from a single text prompt. Simply input your prompt, and the app will enhance it using a LLM (LLaMA) and 
+    generate images in parallel using the Stable Diffusion model.
+    See [GitHub](https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app) for details.
     """, unsafe_allow_html=True)
-    st.markdown("""<div style='background-color: #f0f0f0; font-size: 14px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;'>
-            NOTE: Initial image generation may take longer due to model warm-up. Subsequent generations will be faster. !
-            </div>""", unsafe_allow_html=True)
     st.image("workflow-2.png")
+    
+    st.markdown("""<div style='background-color: #f0f0f0; font-size: 14px; padding: 10px; 
+                border: 1px solid #ddd; border-radius: 5px;'>
+            NOTE: Initial image generation may take longer due to model warm-up. Subsequent generations will be faster !
+            </div>""", unsafe_allow_html=True)
     
 user_prompt = st.text_input("Enter a prompt for image generation:")
 include_user_prompt = st.checkbox("Include orginal prompt", value=False)
@@ -237,16 +236,12 @@ include_user_prompt = st.checkbox("Include orginal prompt", value=False)
 prompt_container = st.container()
 status_container = st.container()
 
-if 'gen_images' not in st.session_state:
-    st.session_state.gen_images = []
-if 'gen_captions' not in st.session_state:
-    st.session_state.gen_captions = []
 
 def display_images_in_grid(images, captions):
     cols = image_container.columns(2)
     for i, (img, caption) in enumerate(zip(images, captions)):
         col = cols[i % 2]
-        col.image(img, caption=caption, use_column_width=True)
+        col.image(img, caption=caption, use_container_width=True)
 
 def display_prompts():
     prompt_container.write(f"Generated Prompts:")
@@ -254,14 +249,9 @@ def display_prompts():
     for i, pr in enumerate(st.session_state.llm_prompts, 1):
         prompt_list += f"{i}. {pr}\n"
     prompt_container.markdown(prompt_list)
-        
-if 'llm_prompts' not in st.session_state:
-    st.session_state.llm_prompts = None
 
-if 'llm_time' not in st.session_state:
-    st.session_state.llm_time = 0
 
-if st.session_state.model_sd_loaded:
+if st.session_state.models_loaded:
     if prompt_container.button("Generate Prompts"):
         with st.spinner('Generating prompts...'):
             llm_start_time = time.time()
@@ -275,39 +265,39 @@ if st.session_state.model_sd_loaded:
             st.session_state.llm_time = time.time() - llm_start_time
             display_prompts()
             prompt_container.write(f"LLM time: {st.session_state.llm_time:.2f} sec.")
+
+    if not st.session_state.llm_prompts:
+        prompt_container.write(f"Enter Image Generation Prompt and Click Generate Prompts !")
+    elif len(st.session_state.llm_prompts) < num_images:
+        prompt_container.warning(f"""Insufficient prompts. Regenerate prompts ! 
+                                 Num Images Requested: {num_images}, Prompts Generated: {len(st.session_state.llm_prompts)}""", icon="⚠️")
+    else:
+        st.success(f"""{len(st.session_state.llm_prompts)} Prompts ready. 
+                   Proceed with image generation or regenerate if needed.""", icon="⬇️")
+        if st.button("Generate Images"):
+            with st.spinner('Generating images...'):
+                st.session_state.gen_captions[:0] = st.session_state.llm_prompts
+                sd_start_time = time.time()
+                
+                sd_res = asyncio.run(generate_sd_response_v2(st.session_state.llm_prompts))
+
+                if sd_res is not None: 
+                    images = sd_response_postprocess(sd_res)
+                    st.session_state.gen_images[:0] = images
+
+                    image_container = st.container()
+                    display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
+
+                    sd_time = time.time() - sd_start_time
+                    e2e_time = sd_time + st.session_state.llm_time
+                    
+                    timing_info = f"""
+                    Total Time Taken: {e2e_time:.2f} sec.
+                    LLM time: {st.session_state.llm_time:.2f} sec.
+                    SD time: {sd_time:.2f} sec."""
+                    
+                    print(timing_info)
+                    display_prompts()
+                    prompt_container.write(timing_info)
 else:
     st.warning("Start TorchServe and Register models in the Server App running at port 8084.", icon="⚠️")
-
-
-if not st.session_state.llm_prompts:
-    prompt_container.write(f"Enter Image Generation Prompt and Click Generate Prompts !")
-    pass
-elif len(st.session_state.llm_prompts) != num_images:
-    st.warning("Generate the prompts again !", icon="⚠️")
-    pass
-else:
-    if st.button("Generate Images"):
-        with st.spinner('Generating images...'):
-            st.session_state.gen_captions[:0] = st.session_state.llm_prompts
-            sd_start_time = time.time()
-            
-            sd_res = asyncio.run(generate_sd_response_v2(st.session_state.llm_prompts))
-
-            if sd_res is not None: 
-                images = sd_response_postprocess(sd_res)
-                st.session_state.gen_images[:0] = images
-
-                image_container = st.container()
-                display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
-
-                sd_time = time.time() - sd_start_time
-                e2e_time = sd_time + st.session_state.llm_time
-                
-                timing_info = f"""
-                Total Time Taken: {e2e_time:.2f} sec.
-                LLM time: {st.session_state.llm_time:.2f} sec.
-                SD time: {sd_time:.2f} sec."""
-                
-                print(timing_info)
-                display_prompts()
-                prompt_container.write(timing_info)
