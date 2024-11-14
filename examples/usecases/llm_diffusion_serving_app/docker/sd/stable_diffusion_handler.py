@@ -1,13 +1,10 @@
 import logging
 import os
 from pathlib import Path
-
 import numpy as np
 import json
-
 import torch
 import openvino.torch
-
 from diffusers import (
     DiffusionPipeline,
     StableDiffusionXLPipeline,
@@ -15,11 +12,11 @@ from diffusers import (
     UNet2DConditionModel,
     LCMScheduler,
 )
-
 from ts.handler_utils.timer import timed
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
+
 
 class StableDiffusionHandler(BaseHandler):
     """
@@ -41,14 +38,15 @@ class StableDiffusionHandler(BaseHandler):
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        
-        self.device = ctx.model_yaml_config["deviceType"]
-        
-        self.num_inference_steps = ctx.model_yaml_config["handler"]["num_inference_steps"]
 
-        logger.info(f"ctx.model_yaml_config is {ctx.model_yaml_config}")
-        logger.info(f"ctx.system_properties is {ctx.system_properties}")
-        logger.info(f"Using device={self.device}")
+        self.device = ctx.model_yaml_config["deviceType"]
+        self.num_inference_steps = ctx.model_yaml_config["handler"][
+            "num_inference_steps"
+        ]
+
+        logger.info(f"SD ctx.model_yaml_config is {ctx.model_yaml_config}")
+        logger.info(f"SD ctx.system_properties is {ctx.system_properties}")
+        logger.info(f"SD device={self.device}")
 
         # Parameters for the model
         compile_unet = ctx.model_yaml_config["handler"]["compile_unet"]
@@ -61,30 +59,32 @@ class StableDiffusionHandler(BaseHandler):
         compile_options = {}
         pt2_config = ctx.model_yaml_config.get("pt2", {})
         compile_options = {
-            "backend": pt2_config.get("backend", "inductor"),
-            "options": pt2_config.get("options", {})  # Pass through all options as-is
+            "backend": pt2_config.get("backend", "openvino"),
+            "options": pt2_config.get("options", {}),
         }
-        logger.info(f"Loading model with PT2 compiler options: {compile_options}")
+        logger.info(f"Loading SD model with PT2 compiler options: {compile_options}")
 
         # Load model weights
         model_path = Path(ctx.model_yaml_config["handler"]["model_path"])
         ckpt = os.path.join(model_dir, model_path)
-    
+
         """Loads the SDXL LCM pipeline."""
 
         dtype = torch.float16
         logger.info(f"Loading the SDXL LCM pipeline using dtype: {dtype}")
 
         if is_lcm:
-            unet = UNet2DConditionModel.from_pretrained(f"{ckpt}/lcm/", torch_dtype=dtype)
+            unet = UNet2DConditionModel.from_pretrained(
+                f"{ckpt}/lcm/", torch_dtype=dtype
+            )
             pipe = DiffusionPipeline.from_pretrained(ckpt, unet=unet, torch_dtype=dtype)
             pipe.scheduler = LCMScheduler.from_config(pipe.scheduler.config)
             pipe.text_encoder = torch.compile(pipe.text_encoder, **compile_options)
-            
+
         elif is_xl:
             pipe = StableDiffusionXLPipeline.from_pretrained(
-                        ckpt, torch_dtype=dtype, use_safetensors=True
-                    )
+                ckpt, torch_dtype=dtype, use_safetensors=True
+            )
         else:
             pipe = StableDiffusionPipeline.from_pretrained(
                 ckpt, torch_dtype=dtype, use_safetensors=True, safety_checker=None
@@ -111,14 +111,14 @@ class StableDiffusionHandler(BaseHandler):
                 torch._inductor.config.coordinate_descent_check_all_directions = True
 
             pipe.vae.decode = torch.compile(pipe.vae.decode, **compile_options)
-            
+
         logger.info(f"Compiled {ckpt} model with {compile_options}")
         pipe.set_progress_bar_config(disable=True)
-        
+
         self.pipeline = pipe
         logger.info(f"Stable Diffusion model loaded successfully: {ckpt}")
         self.initialized = True
-            
+
         return pipe
 
     @timed
@@ -160,11 +160,11 @@ class StableDiffusionHandler(BaseHandler):
         height = model_inputs.get("height") or 768
         width = model_inputs.get("width") or 768
         inferences = self.pipeline(
-            model_inputs["prompt"], 
-            num_inference_steps=num_inference_steps, 
-            guidance_scale=guidance_scale, 
-            height=height, 
-            width=width
+            model_inputs["prompt"],
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            height=height,
+            width=width,
         ).images
 
         return inferences

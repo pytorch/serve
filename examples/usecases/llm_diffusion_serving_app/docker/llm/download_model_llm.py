@@ -39,8 +39,11 @@ parser.add_argument(
     help="Output directory for downloaded model files",
 )
 parser.add_argument(
-    "--model_name", "-m", required=True, help="HuggingFace model name"
-    #type=hf_model, 
+    "--model_name",
+    "-m",
+    required=True,
+    help="HuggingFace model name",
+    # type=hf_model,
 )
 
 args = parser.parse_args()

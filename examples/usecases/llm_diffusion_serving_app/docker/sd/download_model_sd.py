@@ -44,7 +44,9 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-unet = UNet2DConditionModel.from_pretrained("latent-consistency/lcm-sdxl", torch_dtype=torch.float16, variant="fp16")
+unet = UNet2DConditionModel.from_pretrained(
+    "latent-consistency/lcm-sdxl", torch_dtype=torch.float16, variant="fp16"
+)
 
 pipeline = DiffusionPipeline.from_pretrained(
     args.model_name,

@@ -13,6 +13,7 @@ from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
+
 class LlmHandler(BaseHandler):
     def __init__(self):
         super().__init__()
@@ -31,42 +32,40 @@ class LlmHandler(BaseHandler):
         self.context = ctx
         self.manifest = ctx.manifest
         properties = ctx.system_properties
-        
+
         model_store_dir = ctx.model_yaml_config["handler"]["model_store_dir"]
         model_name_llm = os.environ["MODEL_NAME_LLM"].replace("/", "---")
         model_dir = os.path.join(model_store_dir, model_name_llm, "model")
-        
+
         self.device = ctx.model_yaml_config["deviceType"]
         self.stream = ctx.model_yaml_config["handler"].get("stream", True)
-        
+
         logger.info(f"ctx.model_yaml_config is {ctx.model_yaml_config}")
         logger.info(f"ctx.system_properties is {ctx.system_properties}")
         logger.info(f"Using device={self.device}")
-        
+
         # Load tokenizer and model
         logger.info(f"Loading model {model_dir}...")
         t0 = time.time()
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
         self.model = AutoModelForCausalLM.from_pretrained(model_dir)
-        
+
         # Get backend for model-confil.yaml. Defaults to "inductor"
         backend = ctx.model_yaml_config.get("pt2", {}).get("backend", "inductor")
 
         logger.info(f"Compiling model with {backend} backend.")
         self.model = torch.compile(self.model, backend=backend)
-        
+
         self.model.to(self.device)
         self.model.eval()
-        
+
         logger.info(f"Time to load {model_dir}: {time.time() - t0:.02f} seconds")
         self.initialized = True
 
     @timed
     def preprocess(self, requests):
-        assert (
-            len(requests) == 1
-        ), "Llama currently only supported with batch_size=1"
-        
+        assert len(requests) == 1, "Llama currently only supported with batch_size=1"
+
         req_data = requests[0]
 
         input_data = req_data.get("data") or req_data.get("body")
@@ -79,7 +78,9 @@ class LlmHandler(BaseHandler):
 
         self.user_prompt = input_data["user_prompt"]
         self.prompt_template = input_data["prompt_template"]
-        encoded_prompt = self.tokenizer(self.prompt_template, return_tensors="pt").to(self.device)
+        encoded_prompt = self.tokenizer(self.prompt_template, return_tensors="pt").to(
+            self.device
+        )
 
         # self.prompt_length = encoded_prompt.size(0)
         input_data["encoded_prompt"] = encoded_prompt
@@ -113,9 +114,8 @@ class LlmHandler(BaseHandler):
 
         return generated_text
 
-
     def postprocess(self, generated_text):
-        logger.info(f"LLM Generated Output: {generated_text}")    
+        logger.info(f"LLM Generated Output: {generated_text}")
         # Initialize with user prompt
         prompt_list = [self.user_prompt]
         try:
@@ -125,8 +125,8 @@ class LlmHandler(BaseHandler):
             if response_match:
                 # Split the extracted string by semicolon and strip any leading/trailing spaces
                 response_list = response_match.group(1)
-                extracted_prompts = [item.strip() for item in response_list.split(';')]
-                prompt_list.extend(extracted_prompts) 
+                extracted_prompts = [item.strip() for item in response_list.split(";")]
+                prompt_list.extend(extracted_prompts)
             else:
                 logger.warning("No match found in the generated output text !!!")
         except Exception as e:

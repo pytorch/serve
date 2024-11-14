@@ -1,6 +1,7 @@
+# Stable Diffusion Model Config
 minWorkers: 2
-maxWorkers: 4
-maxBatchDelay: 200
+maxWorkers: 8
+maxBatchDelay: 600
 responseTimeout: 3600
 deviceType: "cpu"
 pt2:
