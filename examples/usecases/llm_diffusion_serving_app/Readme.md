@@ -119,14 +119,18 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 
 ## App Screenshots
 
+### App Workflow 
+![Multi-Image Generation App Workflow Gif](./docker/img/multi-image-gen-app.gif)
+
 ### Server App Screenshots
 
-| Screenshot 1 | Screenshot 2 | Screenshot 3 |
+| Server App Screenshot 1 | Server App Screenshot 2 | Server App Screenshot 3 |
 | --- | --- | --- |
 | <img src="./docker/img/server-app-screen-1.png" width="400"> | <img src="./docker/img/server-app-screen-2.png" width="400"> | <img src="./docker/img/server-app-screen-3.png" width="400"> |
 
 ### Client App Screenshots
 
-| Screenshot 1 | Screenshot 2 | Screenshot 3 |
+| Client App Screenshot 1 | Client App Screenshot 2 | Client App Screenshot 3 |
 | --- | --- | --- |
 | <img src="./docker/img/client-app-screen-1.png" width="400"> | <img src="./docker/img/client-app-screen-2.png" width="400"> | <img src="./docker/img/client-app-screen-3.png" width="400"> |
+
