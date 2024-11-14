@@ -1,13 +1,13 @@
 
 ## Multi-Image Generation Streamlit App by chaining LLaMA & Stable Diffusion using TorchServe, torch.compile & OpenVINO
 
-This Streamlit app is designed to generate multiple images based on a provided text prompt. Instead of using Stable Diffusion directly, this app chains LLaMA and Stable Diffusion to enhance the image generation process. Here’s how it works:
+This Multi-Image Generation Streamlit app is designed to generate multiple images based on a provided text prompt. Instead of using Stable Diffusion directly, this app chains LLaMA and Stable Diffusion to enhance the image generation process. Here’s how it works:
 - The app takes a user prompt and uses [Meta-LLaMA-3.2](https://huggingface.co/meta-llama) to create multiple interesting and relevant prompts.
 - These generated prompts are then sent to Stable Diffusion with [latent-consistency/lcm-sdxl](https://huggingface.co/latent-consistency/lcm-sdxl) model, to generate images.
 - For performance optimization, the models are compiled using [torch.compile using OpenVINO backend.](https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html)
 - The application leverages [TorchServe](https://pytorch.org/serve/) for efficient model serving and management.
 
-![Multi-Image Generation App Workflow](./docker/workflow-1.png)
+![Multi-Image Generation App Workflow](./docker/img/workflow-1.png)
 
 ## Quick Start Guide
 
