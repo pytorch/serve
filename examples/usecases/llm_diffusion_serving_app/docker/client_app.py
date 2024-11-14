@@ -10,6 +10,9 @@ import logging
 import numpy as np
 from PIL import Image
 
+# App title
+st.set_page_config(page_title="Multi-image Gen App")
+
 logger = logging.getLogger(__name__)
 
 MODEL_NAME_LLM = os.environ["MODEL_NAME_LLM"]
@@ -24,9 +27,6 @@ st.session_state.gen_images = st.session_state.get("gen_images", [])
 st.session_state.gen_captions = st.session_state.get("gen_captions", [])
 st.session_state.llm_prompts = st.session_state.get("llm_prompts", None)
 st.session_state.llm_time = st.session_state.get("llm_time", 0)
-
-# App title
-st.set_page_config(page_title="Multi-image Gen App")
 
 with st.sidebar:
     st.title("Image Generation with LLaMA, SDXL and OpenVINO")
@@ -244,7 +244,7 @@ with intro_container:
     ### Multi-Image Generation App with TorchServe and OpenVINO
     Welcome to the Multi-Image Generation Client App. This app allows you to generate multiple images 
     from a single text prompt. Simply input your prompt, and the app will enhance it using a LLM (LLaMA) and 
-    generate images in parallel using the Stable Diffusion model.
+    generate images in parallel using the Stable Diffusion with latent-consistency/lcm-sdxl model.
     See [GitHub](https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app) for details.
     """,
         unsafe_allow_html=True,
@@ -252,7 +252,7 @@ with intro_container:
     st.image("./img/workflow-2.png")
 
     st.markdown(
-        """<div style='background-color: #f0f0f0; font-size: 14px; padding: 10px; 
+        """<div style='background-color: #232628; font-size: 14px; padding: 10px; 
                 border: 1px solid #ddd; border-radius: 5px;'>
             NOTE: Initial image generation may take longer due to model warm-up. Subsequent generations will be faster !
             </div>""",
@@ -309,7 +309,8 @@ if st.session_state.models_loaded:
     elif len(st.session_state.llm_prompts) < num_images:
         prompt_container.warning(
             f"""Insufficient prompts. Regenerate prompts ! 
-                                 Num Images Requested: {num_images}, Prompts Generated: {len(st.session_state.llm_prompts)}""",
+                Num Images Requested: {num_images}, Prompts Generated: {len(st.session_state.llm_prompts)}
+                {f"Consider increasing the max_new_tokens parameter !" if num_images > 4 else ""}""",
             icon="⚠️",
         )
     else:

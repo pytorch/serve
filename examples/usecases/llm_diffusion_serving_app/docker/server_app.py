@@ -9,6 +9,9 @@ import requests
 import streamlit as st
 import logging
 
+# App title
+st.set_page_config(page_title="Multi-Image Gen App Control Center")
+
 logger = logging.getLogger(__name__)
 
 MODEL_NAME_LLM = os.environ["MODEL_NAME_LLM"]
@@ -19,9 +22,9 @@ MODEL_NAME_SD = os.environ["MODEL_NAME_SD"]
 MODEL_NAME_SD = MODEL_NAME_SD.replace("/", "---")
 MODEL_SD = MODEL_NAME_SD.split("---")[1]
 
-# Initialize Session State variables
+# Init Session State variables
 st.session_state.started = st.session_state.get("started", False)
-st.session_state.stopped = st.session_state.get("stopped", True)
+st.session_state.stopped = st.session_state.get("stopped", True)    
 st.session_state.registered = st.session_state.get(
     "registered",
     {
@@ -30,21 +33,36 @@ st.session_state.registered = st.session_state.get(
     },
 )
 
-# App title
-st.set_page_config(page_title="Multi-Image Gen App Control Center")
+def is_server_running():
+    """Check if the TorchServe server is running."""
+    try:
+        res = requests.get("http://localhost:8080/ping")
+        return res.status_code == 200
+    except requests.exceptions.ConnectionError:
+        return False
+
+def init_model_registrations():
+    for model_name in [MODEL_NAME_LLM, MODEL_NAME_SD]:
+        url = f"http://localhost:8081/models/{model_name}"
+        try:
+            res = requests.get(url)
+            if res.status_code == 200:
+                st.session_state.registered[model_name] = True
+            else:
+                st.session_state.registered[model_name] = False
+        except requests.exceptions.RequestException as e:
+            logger.info(f"Error checking model registration: {e}")
+            st.session_state.registered[model_name] = False
+
+# Update Session State variables
+if is_server_running():
+    st.session_state.started = True
+    st.session_state.stopped = False    
+    init_model_registrations()
 
 
 def start_torchserve_server():
     """Starts the TorchServe server if it's not already running."""
-
-    def is_server_running():
-        """Check if the TorchServe server is running."""
-        try:
-            res = requests.get("http://localhost:8080/ping")
-            return res.status_code == 200
-        except requests.exceptions.ConnectionError:
-            return False
-
     def launch_server():
         """Launch the TorchServe server with the specified configurations."""
         subprocess.run(
@@ -82,10 +100,7 @@ def start_torchserve_server():
     # Update session state variables if server started successfully
     st.session_state.started = True
     st.session_state.stopped = False
-    st.session_state.registered = {
-        MODEL_NAME_LLM: False,
-        MODEL_NAME_SD: False,
-    }
+    init_model_registrations()
 
 
 def stop_server():
@@ -301,13 +316,13 @@ with intro_container:
     ### Multi-Image Generation App Control Center
     Manage the Multi-Image Generation App workflow with this administrative interface. 
     Use this app to Start/stop TorchServe, load/register models, scale up/down workers, 
-    and perform other tasks to ensure smooth operation.
+    and review TorchServe Server and Model info.
     See [GitHub](https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app) for details.
     """,
         unsafe_allow_html=True,
     )
     st.markdown(
-        """<div style='background-color: #f0f0f0; font-size: 14px; padding: 10px; 
+        """<div style='background-color: #232628; font-size: 14px; padding: 10px; 
                 border: 1px solid #ddd; border-radius: 5px;'>
         <b>NOTE</b>: After Starting TorchServe and Registering models, proceed to Client App running at port 8085.
         </div>""",

@@ -30,6 +30,7 @@ test/model_store/
 test/ts_console.log
 test/config.properties
 
+model-store-local/
 
 .vscode
 .scratch/

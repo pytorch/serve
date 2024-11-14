@@ -1,5 +1,5 @@
 
-## Multi-Image Generation Streamlit App by chaining LLaMA & Stable Diffusion using TorchServe, torch.compile & OpenVINO
+## Multi-Image Generation Streamlit App: Chaining LLaMA & Stable Diffusion using TorchServe, torch.compile & OpenVINO
 
 This Multi-Image Generation Streamlit app is designed to generate multiple images based on a provided text prompt. Instead of using Stable Diffusion directly, this app chains LLaMA and Stable Diffusion to enhance the image generation process. Here’s how it works:
 - The app takes a user prompt and uses [Meta-LLaMA-3.2](https://huggingface.co/meta-llama) to create multiple interesting and relevant prompts.
@@ -116,3 +116,17 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
   Network URL: http://123.11.0.2:8084
   External URL: http://123.123.12.34:8084
 ```
+
+## App Screenshots
+
+### Server App Screenshots
+
+| Screenshot 1 | Screenshot 2 | Screenshot 3 |
+| --- | --- | --- |
+| <img src="./docker/img/server-app-screen-1.png" width="400"> | <img src="./docker/img/server-app-screen-2.png" width="400"> | <img src="./docker/img/server-app-screen-3.png" width="400"> |
+
+### Client App Screenshots
+
+| Screenshot 1 | Screenshot 2 | Screenshot 3 |
+| --- | --- | --- |
+| <img src="./docker/img/client-app-screen-1.png" width="400"> | <img src="./docker/img/client-app-screen-2.png" width="400"> | <img src="./docker/img/client-app-screen-3.png" width="400"> |
