@@ -30,7 +30,10 @@ cd serve
 # Run that "docker run" command to launch the Streamlit app for both the server and client.
 ```
 
-#### Sample Output:
+#### Sample Output of Docker Build:
+
+<details>
+
 ```console
 ubuntu@ip-10-0-0-137:~/serve$ ./examples/usecases/llm_diffusion_serving_app/docker/build_image.sh 
 EXAMPLE_DIR: .//examples/usecases/llm_diffusion_serving_app/docker
@@ -41,25 +44,34 @@ DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 --file .//examples/
  .
  .
  .
- => [server 13/13] RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh     && chown -R model-server /home/model-server                                                                                       0.3s
- => exporting to image                                                                                                                                                                                     0.1s
- => => exporting layers                                                                                                                                                                                    0.1s
- => => writing image sha256:e900f12e6dad3ec443966766f82860427fa066aefe504a415eecf69bf4c3c043                                                                                                               0.0s
  => => naming to docker.io/pytorch/torchserve:llm_diffusion_serving_app                                                                                                                                    0.0s
 
 Docker Build Successful ! 
 
-................. Next Steps .................
-----------------------------------------------
-Run the following command to start the Multi-image generation App:
+............................ Next Steps ............................
+--------------------------------------------------------------------
+[Optional] Run the following command to benchmark Stable Diffusion:
+--------------------------------------------------------------------
+
+docker run --rm --platform linux/amd64 \
+        --name llm_sd_app_bench \
+        -v /home/ubuntu/serve/model-store-local:/home/model-server/model-store \
+        --entrypoint python \
+        pytorch/torchserve:llm_diffusion_serving_app \
+        /home/model-server/llm_diffusion_serving_app/sd-benchmark.py -ni 3
+
+-------------------------------------------------------------------
+Run the following command to start the Multi-Image generation App:
+-------------------------------------------------------------------
 
 docker run --rm -it --platform linux/amd64 \
+        --name llm_sd_app \
         -p 127.0.0.1:8080:8080 \
         -p 127.0.0.1:8081:8081 \
         -p 127.0.0.1:8082:8082 \
         -p 127.0.0.1:8084:8084 \
         -p 127.0.0.1:8085:8085 \
-        -v /home/ravi/projects/surya-serve/model-store-local:/home/model-server/model-store \
+        -v /home/ubuntu/serve/model-store-local:/home/model-server/model-store \
         -e MODEL_NAME_LLM=meta-llama/Llama-3.2-3B-Instruct \
         -e MODEL_NAME_SD=stabilityai/stable-diffusion-xl-base-1.0 \
         pytorch/torchserve:llm_diffusion_serving_app
@@ -68,24 +80,32 @@ Note: You can replace the model identifiers (MODEL_NAME_LLM, MODEL_NAME_SD) as n
 
 ```
 
+</details>
+
 ## What to expect
 After launching the Docker container using the `docker run ..` command displayed after successful build, you can access two separate Streamlit applications:
 1. TorchServe Server App (running at http://localhost:8084) to start/stop TorchServe, load/register models, scale up/down workers. 
 2. Client App (running at http://localhost:8085) where you can enter prompt for Image generation. 
 
-#### Sample Output:
+> Note: You could also run a quick benchmark comparing performance of Stable Diffusion with Eager, torch.compile with inductor and openvino.
+> Review the `docker run ..` command displayed after successful build for benchmarking
+
+#### Sample Output of Starting the App:
+
+<details>
 
 ```console
 ubuntu@ip-10-0-0-137:~/serve$ docker run --rm -it --platform linux/amd64 \
--p 127.0.0.1:8080:8080 \
--p 127.0.0.1:8081:8081 \
--p 127.0.0.1:8082:8082 \
--p 127.0.0.1:8084:8084 \
--p 127.0.0.1:8085:8085 \
--v /home/ubuntu/serve/model-store-local:/home/model-server/model-store \
--e MODEL_NAME_LLM=meta-llama/Llama-3.2-3B-Instruct \
--e MODEL_NAME_SD=stabilityai/stable-diffusion-xl-base-1.0  \
-pytorch/torchserve:llm_diffusion_serving_app
+        --name llm_sd_app \
+        -p 127.0.0.1:8080:8080 \
+        -p 127.0.0.1:8081:8081 \
+        -p 127.0.0.1:8082:8082 \
+        -p 127.0.0.1:8084:8084 \
+        -p 127.0.0.1:8085:8085 \
+        -v /home/ubuntu/serve/model-store-local:/home/model-server/model-store \
+        -e MODEL_NAME_LLM=meta-llama/Llama-3.2-3B-Instruct \
+        -e MODEL_NAME_SD=stabilityai/stable-diffusion-xl-base-1.0 \
+        pytorch/torchserve:llm_diffusion_serving_app
 
 Preparing meta-llama/Llama-3.2-1B-Instruct
 /home/model-server/llm_diffusion_serving_app/llm /home/model-server/llm_diffusion_serving_app
@@ -117,20 +137,77 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
   External URL: http://123.123.12.34:8084
 ```
 
-## App Screenshots
+</details>
+
+#### Sample Output of Stable Diffusion Benchmarking:
+
+<details>
+
+```console
+ubuntu@ip-10-0-0-137:~/serve$ docker run --rm --platform linux/amd64 \
+        --name llm_sd_app_bench \
+        -v /home/ubuntu/serve/model-store-local:/home/model-server/model-store \
+        --entrypoint python \
+        pytorch/torchserve:llm_diffusion_serving_app \
+        /home/model-server/llm_diffusion_serving_app/sd-benchmark.py -ni 3
+
+.
+.
+.
+
+Hardware Info:
+--------------------------------------------------
+cpu_model: Intel(R) Xeon(R) Platinum 8488C
+cpu_count: 64
+threads_per_core: 2
+cores_per_socket: 32
+socket_count: 1
+total_memory: Total Memory: 247.71 GB
+
+Software Versions:
+--------------------------------------------------
+Python: 3.9.20
+TorchServe: 0.12.0
+OpenVINO: 2024.4.0
+PyTorch: 2.5.1+cpu
+Transformers: 4.46.3
+Diffusers: 0.31.0
+
+Benchmark Summary:
+--------------------------------------------------
++-------------+----------------+---------------------------+-----------------------------+
+| Run Mode    | Warm-up Time   | Average Time for 2 iter   | Image Saved as              |
++=============+================+===========================+=============================+
+| eager       | 10.65 seconds  | 9.50 +/- 0.05 seconds     | image-eager-final.png       |
++-------------+----------------+---------------------------+-----------------------------+
+| tc_inductor | 83.22 seconds  | 8.22 +/- 0.01 seconds     | image-tc_inductor-final.png |
++-------------+----------------+---------------------------+-----------------------------+
+| tc_openvino | 58.63 seconds  | 2.99 +/- 0.02 seconds     | image-tc_openvino-final.png |
++-------------+----------------+---------------------------+-----------------------------+
+
+Results saved to /home/model-server/model-store/sd_benchmark_results_20241120_070318.json
+
+Results and Images saved at /home/model-server/model-store/ which is a Docker container mount, corresponds to 'serve/model-store-local/' on the host machine.
+
+```
+
+</details>
+
+## Multi-Image Generation App UI
 
 ### App Workflow 
 ![Multi-Image Generation App Workflow Gif](./docker/img/multi-image-gen-app.gif)
 
-### Server App Screenshots
+### App Screenshots
+
+<details>
 
 | Server App Screenshot 1 | Server App Screenshot 2 | Server App Screenshot 3 |
 | --- | --- | --- |
 | <img src="./docker/img/server-app-screen-1.png" width="400"> | <img src="./docker/img/server-app-screen-2.png" width="400"> | <img src="./docker/img/server-app-screen-3.png" width="400"> |
 
-### Client App Screenshots
-
 | Client App Screenshot 1 | Client App Screenshot 2 | Client App Screenshot 3 |
 | --- | --- | --- |
 | <img src="./docker/img/client-app-screen-1.png" width="400"> | <img src="./docker/img/client-app-screen-2.png" width="400"> | <img src="./docker/img/client-app-screen-3.png" width="400"> |
 
+</details>

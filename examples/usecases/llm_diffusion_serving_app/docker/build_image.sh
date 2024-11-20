@@ -40,11 +40,25 @@ if [ $exit_status -eq 0 ]; then
     mkdir -p model-store-local
 
     echo -e "\nDocker Build Successful ! \n"
-    echo "................. Next Steps ................."
-    echo "----------------------------------------------"
-    echo "Run the following command to start the Multi-image generation App:"
+    echo "............................ Next Steps ............................"
+    echo "--------------------------------------------------------------------"
+    echo "[Optional] Run the following command to benchmark Stable Diffusion:"
+    echo "--------------------------------------------------------------------"
+    echo ""
+    echo "docker run --rm --platform linux/amd64 \\
+        --name llm_sd_app_bench \\
+        -v ${PWD}/model-store-local:/home/model-server/model-store \\
+        --entrypoint python \\
+        $DOCKER_TAG \\
+        /home/model-server/llm_diffusion_serving_app/sd-benchmark.py -ni 3"
+
+    echo ""
+    echo "-------------------------------------------------------------------"
+    echo "Run the following command to start the Multi-Image generation App:"
+    echo "-------------------------------------------------------------------"
     echo ""
     echo "docker run --rm -it --platform linux/amd64 \\
+        --name llm_sd_app \\
         -p 127.0.0.1:8080:8080 \\
         -p 127.0.0.1:8081:8081 \\
         -p 127.0.0.1:8082:8082 \\

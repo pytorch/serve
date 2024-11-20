@@ -226,11 +226,6 @@ def scale_sd_workers(workers_key="sd_workers"):
 def get_hw_config_output():
     output = subprocess.check_output(["lscpu"]).decode("utf-8")
     lines = output.split("\n")
-    cpu_model = None
-    cpu_count = None
-    threads_per_core = None
-    cores_per_socket = None
-    socket_count = None
 
     for line in lines:
         line = line.strip()
@@ -245,23 +240,37 @@ def get_hw_config_output():
         elif line.startswith("Socket(s):"):
             socket_count = line.split("Socket(s):")[1].strip()
 
+    output = subprocess.check_output(["head", "-n", "1", "/proc/meminfo"]).decode("utf-8")
+    total_memory = int(output.split()[1]) / (1024.0 ** 2)
+    total_memory_str = f"{total_memory:.2f} GB"
+    
     return {
         "cpu_model": cpu_model,
         "cpu_count": cpu_count,
         "threads_per_core": threads_per_core,
         "cores_per_socket": cores_per_socket,
         "socket_count": socket_count,
+        "total_memory": total_memory_str
     }
-
 
 def get_sw_versions():
     sw_versions = {}
-    sw_versions["Python"] = sys.version
-    sw_versions["TorchServe"] = importlib.metadata.version("torchserve")
-    sw_versions["OpenVINO"] = importlib.metadata.version("openvino")
-    sw_versions["PyTorch"] = importlib.metadata.version("torch")
-    sw_versions["Transformers"] = importlib.metadata.version("transformers")
-    sw_versions["Diffusers"] = importlib.metadata.version("diffusers")
+    packages = [
+        ("TorchServe", "torchserve"),
+        ("OpenVINO", "openvino"),
+        ("PyTorch", "torch"),
+        ("Transformers", "transformers"),
+        ("Diffusers", "diffusers")
+    ]
+
+    sw_versions["Python"] = sys.version.split()[0]
+    
+    for name, package in packages:
+        try:
+            version = importlib.metadata.version(package)
+            sw_versions[name] = version
+        except Exception as e:
+            sw_versions[name] = "Not installed"
 
     return sw_versions
 

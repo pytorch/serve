@@ -4,3 +4,4 @@ requests_futures
 asyncio
 aiohttp
 accelerate
+tabulate
