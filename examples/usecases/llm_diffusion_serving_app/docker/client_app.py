@@ -29,7 +29,7 @@ st.session_state.llm_prompts = st.session_state.get("llm_prompts", None)
 st.session_state.llm_time = st.session_state.get("llm_time", 0)
 
 with st.sidebar:
-    st.title("Image Generation with LLaMA, SDXL and OpenVINO")
+    st.title("Image Generation with Llama, SDXL, torch.compile and OpenVINO")
 
     try:
         # Check if TorchServe is running
@@ -243,7 +243,7 @@ with intro_container:
         """
     ### Multi-Image Generation App with TorchServe and OpenVINO
     Welcome to the Multi-Image Generation Client App. This app allows you to generate multiple images 
-    from a single text prompt. Simply input your prompt, and the app will enhance it using a LLM (LLaMA) and 
+    from a single text prompt. Simply input your prompt, and the app will enhance it using a LLM (Llama) and 
     generate images in parallel using the Stable Diffusion with latent-consistency/lcm-sdxl model.
     See [GitHub](https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app) for details.
     """,
