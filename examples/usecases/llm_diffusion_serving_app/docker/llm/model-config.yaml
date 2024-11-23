@@ -1,0 +1,11 @@
+# LLM Model Config
+minWorkers: 1
+maxWorkers: 4
+maxBatchDelay: 200
+responseTimeout: 1200
+deviceType: "cpu"
+pt2:
+  backend: "openvino"
+handler:
+  profile: true
+  model_store_dir: "/home/model-server/model-store/"
