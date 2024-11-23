@@ -140,6 +140,7 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 </details>
 
 #### Sample Output of Stable Diffusion Benchmarking:
+To run Stable Diffusion benchmarking, use the `sd-benchmark.py`. See details below for sample.
 
 <details>
 
@@ -150,44 +151,111 @@ ubuntu@ip-10-0-0-137:~/serve$ docker run --rm --platform linux/amd64 \
         --entrypoint python \
         pytorch/torchserve:llm_diffusion_serving_app \
         /home/model-server/llm_diffusion_serving_app/sd-benchmark.py -ni 3
-
 .
 .
 .
 
 Hardware Info:
---------------------------------------------------
+--------------------------------------------------------------------------------
 cpu_model: Intel(R) Xeon(R) Platinum 8488C
 cpu_count: 64
 threads_per_core: 2
 cores_per_socket: 32
 socket_count: 1
-total_memory: Total Memory: 247.71 GB
+total_memory: 247.71 GB
 
 Software Versions:
---------------------------------------------------
+--------------------------------------------------------------------------------
 Python: 3.9.20
 TorchServe: 0.12.0
-OpenVINO: 2024.4.0
+OpenVINO: 2024.5.0
 PyTorch: 2.5.1+cpu
 Transformers: 4.46.3
 Diffusers: 0.31.0
 
 Benchmark Summary:
---------------------------------------------------
-+-------------+----------------+---------------------------+-----------------------------+
-| Run Mode    | Warm-up Time   | Average Time for 2 iter   | Image Saved as              |
-+=============+================+===========================+=============================+
-| eager       | 10.65 seconds  | 9.50 +/- 0.05 seconds     | image-eager-final.png       |
-+-------------+----------------+---------------------------+-----------------------------+
-| tc_inductor | 83.22 seconds  | 8.22 +/- 0.01 seconds     | image-tc_inductor-final.png |
-+-------------+----------------+---------------------------+-----------------------------+
-| tc_openvino | 58.63 seconds  | 2.99 +/- 0.02 seconds     | image-tc_openvino-final.png |
-+-------------+----------------+---------------------------+-----------------------------+
+--------------------------------------------------------------------------------
++-------------+----------------+---------------------------+
+| Run Mode    | Warm-up Time   | Average Time for 3 iter   |
++=============+================+===========================+
+| eager       | 11.25 seconds  | 10.13 +/- 0.02 seconds    |
++-------------+----------------+---------------------------+
+| tc_inductor | 85.40 seconds  | 8.85 +/- 0.03 seconds     |
++-------------+----------------+---------------------------+
+| tc_openvino | 52.57 seconds  | 2.58 +/- 0.04 seconds     |
++-------------+----------------+---------------------------+
 
-Results saved to /home/model-server/model-store/sd_benchmark_results_20241120_070318.json
+Results saved in directory: /home/model-server/model-store/benchmark_results_20241123_071103
+Files in the /home/model-server/model-store/benchmark_results_20241123_071103 directory:
+benchmark_results.json
+image-eager-final.png
+image-tc_inductor-final.png
+image-tc_openvino-final.png
 
-Results and Images saved at /home/model-server/model-store/ which is a Docker container mount, corresponds to 'serve/model-store-local/' on the host machine.
+Results saved at /home/model-server/model-store/ which is a Docker container mount, corresponds to 'serve/model-store-local/' on the host machine.
+
+```
+
+</details>
+
+#### Sample Output of Stable Diffusion Benchmarking with Profiling:
+To run Stable Diffusion benchmarking with profiling, use `--run_profiling` or `-rp`. See details below for sample. Sample profiling benchmarking output files are available in [assets/benchmark_results_20241123_044407/](./assets/benchmark_results_20241123_044407/)
+
+<details>
+
+```console
+ubuntu@ip-10-0-0-137:~/serve$ docker run --rm --platform linux/amd64 \
+        --name llm_sd_app_bench \
+        -v /home/ubuntu/serve/model-store-local:/home/model-server/model-store \
+        --entrypoint python \
+        pytorch/torchserve:llm_diffusion_serving_app \
+        /home/model-server/llm_diffusion_serving_app/sd-benchmark.py -rp
+.
+.
+.
+Hardware Info:
+--------------------------------------------------------------------------------
+cpu_model: Intel(R) Xeon(R) Platinum 8488C
+cpu_count: 64
+threads_per_core: 2
+cores_per_socket: 32
+socket_count: 1
+total_memory: 247.71 GB
+
+Software Versions:
+--------------------------------------------------------------------------------
+Python: 3.9.20
+TorchServe: 0.12.0
+OpenVINO: 2024.5.0
+PyTorch: 2.5.1+cpu
+Transformers: 4.46.3
+Diffusers: 0.31.0
+
+Benchmark Summary:
+--------------------------------------------------------------------------------
++-------------+----------------+---------------------------+
+| Run Mode    | Warm-up Time   | Average Time for 1 iter   |
++=============+================+===========================+
+| eager       | 9.33 seconds   | 8.57 +/- 0.00 seconds     |
++-------------+----------------+---------------------------+
+| tc_inductor | 81.11 seconds  | 7.20 +/- 0.00 seconds     |
++-------------+----------------+---------------------------+
+| tc_openvino | 50.76 seconds  | 1.72 +/- 0.00 seconds     |
++-------------+----------------+---------------------------+
+
+Results saved in directory: /home/model-server/model-store/benchmark_results_20241123_071629
+Files in the /home/model-server/model-store/benchmark_results_20241123_071629 directory:
+benchmark_results.json
+image-eager-final.png
+image-tc_inductor-final.png
+image-tc_openvino-final.png
+profile-eager.txt
+profile-tc_inductor.txt
+profile-tc_openvino.txt
+
+num_iter is set to 1 as run_profiling flag is enabled !
+
+Results saved at /home/model-server/model-store/ which is a Docker container mount, corresponds to 'serve/model-store-local/' on the host machine.
 
 ```
 
