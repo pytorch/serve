@@ -1,0 +1,54 @@
+CPU Time Profile (sort_by='cpu_time_total', row_limit=20):
+-----------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                 Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg       CPU Mem  Self CPU Mem    # of Calls  
+-----------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                Torch-Compiled Region        11.15%     978.694ms       243.17%       21.338s        1.778s      49.11 Mb      -5.99 Gb            12  
+                                      model_inference         0.31%      27.435ms       100.00%        8.775s        8.775s     159.56 Mb    -467.16 Mb             1  
+                                          aten::addmm        33.55%        2.944s        34.48%        3.026s       1.995ms      54.14 Mb      54.14 Mb          1517  
+                                    aten::convolution         0.03%       2.311ms        32.58%        2.859s      11.911ms       5.08 Gb           0 b           240  
+                                   aten::_convolution         0.03%       2.694ms        32.55%        2.856s      11.901ms       5.08 Gb           0 b           240  
+                             aten::mkldnn_convolution        32.49%        2.851s        32.52%        2.854s      11.890ms       5.08 Gb           0 b           240  
+                                             aten::mm        13.34%        1.170s        13.35%        1.171s     677.765us       2.50 Kb       2.50 Kb          1728  
+    aten::_scaled_dot_product_flash_attention_for_cpu         7.41%     650.199ms         7.65%     671.659ms       1.110ms     944.76 Mb      -3.17 Gb           605  
+                                         aten::linear         0.01%       1.257ms         1.15%     101.083ms     523.748us      54.14 Mb           0 b           193  
+                                          aten::copy_         1.00%      87.585ms         1.00%      87.585ms      42.190us           0 b           0 b          2076  
+                                             aten::to         0.00%     408.486us         0.15%      13.382ms      21.377us     478.68 Mb           0 b           626  
+                                       aten::_to_copy         0.01%       1.300ms         0.15%      12.973ms      23.376us     478.68 Mb       1.25 Kb           555  
+                                      aten::transpose         0.08%       6.832ms         0.12%      10.230ms       2.589us           0 b           0 b          3951  
+                             TorchDynamo Cache Lookup         0.09%       8.074ms         0.09%       8.074ms     672.829us           0 b           0 b            12  
+                                          aten::empty         0.08%       6.633ms         0.08%       6.633ms       2.915us       3.21 Gb       3.21 Gb          2276  
+                                     aten::empty_like         0.03%       2.893ms         0.07%       6.463ms      10.682us     916.37 Mb           0 b           605  
+                   aten::scaled_dot_product_attention         0.00%     182.884us         0.07%       6.327ms     197.709us       6.02 Mb    -192.50 Kb            32  
+                                         aten::expand         0.04%       3.462ms         0.06%       4.878ms       3.115us           0 b           0 b          1566  
+                                     aten::as_strided         0.06%       4.864ms         0.06%       4.864ms       0.875us           0 b           0 b          5561  
+                                           aten::gelu         0.05%       4.537ms         0.05%       4.537ms     141.789us      24.06 Mb      24.06 Mb            32  
+-----------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 8.775s
+
+
+Memory Usage Profile (sort_by='cpu_memory_usage', row_limit=20):
+-----------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                 Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg       CPU Mem  Self CPU Mem    # of Calls  
+-----------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                        aten::resize_         0.02%       1.956ms         0.02%       1.956ms       8.050us       5.08 Gb       5.08 Gb           243  
+                                    aten::convolution         0.03%       2.311ms        32.58%        2.859s      11.911ms       5.08 Gb           0 b           240  
+                                   aten::_convolution         0.03%       2.694ms        32.55%        2.856s      11.901ms       5.08 Gb           0 b           240  
+                             aten::mkldnn_convolution        32.49%        2.851s        32.52%        2.854s      11.890ms       5.08 Gb           0 b           240  
+                                          aten::empty         0.08%       6.633ms         0.08%       6.633ms       2.915us       3.21 Gb       3.21 Gb          2276  
+                                  aten::empty_strided         0.05%       4.505ms         0.05%       4.505ms       3.883us       1.36 Gb       1.36 Gb          1160  
+    aten::_scaled_dot_product_flash_attention_for_cpu         7.41%     650.199ms         7.65%     671.659ms       1.110ms     944.76 Mb      -3.17 Gb           605  
+                                     aten::empty_like         0.03%       2.893ms         0.07%       6.463ms      10.682us     916.37 Mb           0 b           605  
+                                             aten::to         0.00%     408.486us         0.15%      13.382ms      21.377us     478.68 Mb           0 b           626  
+                                       aten::_to_copy         0.01%       1.300ms         0.15%      12.973ms      23.376us     478.68 Mb       1.25 Kb           555  
+                                      model_inference         0.31%      27.435ms       100.00%        8.775s        8.775s     159.56 Mb    -467.16 Mb             1  
+                                         aten::linear         0.01%       1.257ms         1.15%     101.083ms     523.748us      54.14 Mb           0 b           193  
+                                          aten::addmm        33.55%        2.944s        34.48%        3.026s       1.995ms      54.14 Mb      54.14 Mb          1517  
+                                Torch-Compiled Region        11.15%     978.694ms       243.17%       21.338s        1.778s      49.11 Mb      -5.99 Gb            12  
+                                           aten::gelu         0.05%       4.537ms         0.05%       4.537ms     141.789us      24.06 Mb      24.06 Mb            32  
+                                            aten::add         0.02%       2.115ms         0.02%       2.151ms      26.237us      19.46 Mb      19.46 Mb            82  
+                              aten::native_layer_norm         0.03%       2.407ms         0.03%       3.060ms      47.074us      12.24 Mb           0 b            65  
+                                     aten::layer_norm         0.00%     175.379us         0.04%       3.235ms      49.772us      12.22 Mb     -19.10 Kb            65  
+                                            aten::div         0.00%     208.021us         0.00%     255.811us      23.256us       7.10 Mb       7.10 Mb            11  
+                                            aten::cat         0.00%     164.204us         0.00%     188.948us      62.983us       7.05 Mb       7.05 Mb             3  
+-----------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 8.775s

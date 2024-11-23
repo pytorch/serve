@@ -1,0 +1,54 @@
+{
+  "timestamp": "2024-11-23T04:44:07.510110",
+  "hardware_config": {
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "cpu_count": "64",
+    "threads_per_core": "2",
+    "cores_per_socket": "32",
+    "socket_count": "1",
+    "total_memory": "247.71 GB"
+  },
+  "software_versions": {
+    "Python": "3.9.20",
+    "TorchServe": "0.12.0",
+    "OpenVINO": "2024.5.0",
+    "PyTorch": "2.5.1+cpu",
+    "Transformers": "4.46.3",
+    "Diffusers": "0.31.0"
+  },
+  "benchmark_results": [
+    {
+      "run_mode": "eager",
+      "warmup_time": 11.164182662963867,
+      "statistics": {
+        "mean": 10.437215328216553,
+        "std": 0.0,
+        "all_iterations": [
+          10.437215328216553
+        ]
+      }
+    },
+    {
+      "run_mode": "tc_inductor",
+      "warmup_time": 83.48197150230408,
+      "statistics": {
+        "mean": 8.774884462356567,
+        "std": 0.0,
+        "all_iterations": [
+          8.774884462356567
+        ]
+      }
+    },
+    {
+      "run_mode": "tc_openvino",
+      "warmup_time": 52.01788377761841,
+      "statistics": {
+        "mean": 2.633979082107544,
+        "std": 0.0,
+        "all_iterations": [
+          2.633979082107544
+        ]
+      }
+    }
+  ]
+}
