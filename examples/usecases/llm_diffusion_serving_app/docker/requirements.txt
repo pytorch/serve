@@ -1,7 +1,8 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 transformers
 streamlit>=1.26.0
 requests_futures
-asyncio
 aiohttp
 accelerate
 tabulate
+torch>=2.5.1

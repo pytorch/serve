@@ -24,7 +24,7 @@ MODEL_SD = MODEL_NAME_SD.split("---")[1]
 
 # Init Session State variables
 st.session_state.started = st.session_state.get("started", False)
-st.session_state.stopped = st.session_state.get("stopped", True)    
+st.session_state.stopped = st.session_state.get("stopped", True)
 st.session_state.registered = st.session_state.get(
     "registered",
     {
@@ -33,6 +33,7 @@ st.session_state.registered = st.session_state.get(
     },
 )
 
+
 def is_server_running():
     """Check if the TorchServe server is running."""
     try:
@@ -40,6 +41,7 @@ def is_server_running():
         return res.status_code == 200
     except requests.exceptions.ConnectionError:
         return False
+
 
 def init_model_registrations():
     for model_name in [MODEL_NAME_LLM, MODEL_NAME_SD]:
@@ -54,15 +56,17 @@ def init_model_registrations():
             logger.info(f"Error checking model registration: {e}")
             st.session_state.registered[model_name] = False
 
+
 # Update Session State variables
 if is_server_running():
     st.session_state.started = True
-    st.session_state.stopped = False    
+    st.session_state.stopped = False
     init_model_registrations()
 
 
 def start_torchserve_server():
     """Starts the TorchServe server if it's not already running."""
+
     def launch_server():
         """Launch the TorchServe server with the specified configurations."""
         subprocess.run(
@@ -240,18 +244,21 @@ def get_hw_config_output():
         elif line.startswith("Socket(s):"):
             socket_count = line.split("Socket(s):")[1].strip()
 
-    output = subprocess.check_output(["head", "-n", "1", "/proc/meminfo"]).decode("utf-8")
-    total_memory = int(output.split()[1]) / (1024.0 ** 2)
+    output = subprocess.check_output(["head", "-n", "1", "/proc/meminfo"]).decode(
+        "utf-8"
+    )
+    total_memory = int(output.split()[1]) / (1024.0**2)
     total_memory_str = f"{total_memory:.2f} GB"
-    
+
     return {
         "cpu_model": cpu_model,
         "cpu_count": cpu_count,
         "threads_per_core": threads_per_core,
         "cores_per_socket": cores_per_socket,
         "socket_count": socket_count,
-        "total_memory": total_memory_str
+        "total_memory": total_memory_str,
     }
+
 
 def get_sw_versions():
     sw_versions = {}
@@ -260,17 +267,18 @@ def get_sw_versions():
         ("OpenVINO", "openvino"),
         ("PyTorch", "torch"),
         ("Transformers", "transformers"),
-        ("Diffusers", "diffusers")
+        ("Diffusers", "diffusers"),
     ]
 
     sw_versions["Python"] = sys.version.split()[0]
-    
+
     for name, package in packages:
         try:
             version = importlib.metadata.version(package)
             sw_versions[name] = version
         except Exception as e:
             sw_versions[name] = "Not installed"
+            print(f"Exception trying to get {package} version. Error: {e}")
 
     return sw_versions
 
@@ -282,7 +290,7 @@ with st.sidebar:
     st.button("Start TorchServe Server", on_click=start_torchserve_server)
     st.button("Stop TorchServe Server", on_click=stop_server)
     st.button(
-        f"Register Models",
+        "Register Models",
         on_click=register_models,
         args=([MODEL_NAME_LLM, MODEL_NAME_SD],),
     )
@@ -323,15 +331,15 @@ with intro_container:
     st.markdown(
         """
     ### Multi-Image Generation App Control Center
-    Manage the Multi-Image Generation App workflow with this administrative interface. 
-    Use this app to Start/stop TorchServe, load/register models, scale up/down workers, 
+    Manage the Multi-Image Generation App workflow with this administrative interface.
+    Use this app to Start/stop TorchServe, load/register models, scale up/down workers,
     and review TorchServe Server and Model info.
     See [GitHub](https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app) for details.
     """,
         unsafe_allow_html=True,
     )
     st.markdown(
-        """<div style='background-color: #232628; font-size: 14px; padding: 10px; 
+        """<div style='background-color: #232628; font-size: 14px; padding: 10px;
                 border: 1px solid #ddd; border-radius: 5px;'>
         <b>NOTE</b>: After Starting TorchServe and Registering models, proceed to Client App running at port 8085.
         </div>""",

@@ -10,7 +10,7 @@ def dir_path(path_str):
         if not os.path.isdir(path_str):
             os.makedirs(path_str)
             print(f"{path_str} did not exist, created the directory.")
-            print(f"\nDownload might take a moment to start.. ")
+            print("\nDownload will take few moments to start.. ")
         return path_str
     except Exception as e:
         raise NotADirectoryError(f"Failed to create directory {path_str}: {e}")

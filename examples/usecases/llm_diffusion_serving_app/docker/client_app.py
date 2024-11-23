@@ -160,10 +160,10 @@ def sd_response_postprocess(response):
 
 def preprocess_llm_input(user_prompt, num_images=2):
     template = """ Below is an instruction that describes a task. Write a response that appropriately completes the request.
-    Generate {} unique prompts similar to '{}' by changing the context, keeping the core theme intact. 
+    Generate {} unique prompts similar to '{}' by changing the context, keeping the core theme intact.
     Give the output in square brackets seperated by semicolon.
     Do not generate text beyond the specified output format. Do not explain your response.
-    ### Response: 
+    ### Response:
     """
 
     prompt_template_with_user_input = template.format(num_images, user_prompt)
@@ -242,8 +242,8 @@ with intro_container:
     st.markdown(
         """
     ### Multi-Image Generation App with TorchServe and OpenVINO
-    Welcome to the Multi-Image Generation Client App. This app allows you to generate multiple images 
-    from a single text prompt. Simply input your prompt, and the app will enhance it using a LLM (Llama) and 
+    Welcome to the Multi-Image Generation Client App. This app allows you to generate multiple images
+    from a single text prompt. Simply input your prompt, and the app will enhance it using a LLM (Llama) and
     generate images in parallel using the Stable Diffusion with latent-consistency/lcm-sdxl model.
     See [GitHub](https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app) for details.
     """,
@@ -252,7 +252,7 @@ with intro_container:
     st.image("./img/workflow-2.png")
 
     st.markdown(
-        """<div style='background-color: #232628; font-size: 14px; padding: 10px; 
+        """<div style='background-color: #232628; font-size: 14px; padding: 10px;
                 border: 1px solid #ddd; border-radius: 5px;'>
             NOTE: Initial image generation may take longer due to model warm-up. Subsequent generations will be faster !
             </div>""",
@@ -274,7 +274,7 @@ def display_images_in_grid(images, captions):
 
 
 def display_prompts():
-    prompt_container.write(f"Generated Prompts:")
+    prompt_container.write("Generated Prompts:")
     prompt_list = ""
     for i, pr in enumerate(st.session_state.llm_prompts, 1):
         prompt_list += f"{i}. {pr}\n"
@@ -304,18 +304,18 @@ if st.session_state.models_loaded:
 
     if not st.session_state.llm_prompts:
         prompt_container.write(
-            f"Enter Image Generation Prompt and Click Generate Prompts !"
+            "Enter Image Generation Prompt and Click Generate Prompts !"
         )
     elif len(st.session_state.llm_prompts) < num_images:
         prompt_container.warning(
-            f"""Insufficient prompts. Regenerate prompts ! 
+            f"""Insufficient prompts. Regenerate prompts !
                 Num Images Requested: {num_images}, Prompts Generated: {len(st.session_state.llm_prompts)}
                 {f"Consider increasing the max_new_tokens parameter !" if num_images > 4 else ""}""",
             icon="⚠️",
         )
     else:
         st.success(
-            f"""{len(st.session_state.llm_prompts)} Prompts ready. 
+            f"""{len(st.session_state.llm_prompts)} Prompts ready.
                    Proceed with image generation or regenerate if needed.""",
             icon="⬇️",
         )

@@ -4,10 +4,9 @@ import json
 import logging
 import time
 import torch
-import openvino.torch
+import openvino.torch  # noqa: F401  # Import to enable optimizations from OpenVINO
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from pathlib import Path
 from ts.handler_utils.timer import timed
 from ts.torch_handler.base_handler import BaseHandler
 
@@ -31,7 +30,6 @@ class LlmHandler(BaseHandler):
     def initialize(self, ctx):
         self.context = ctx
         self.manifest = ctx.manifest
-        properties = ctx.system_properties
 
         model_store_dir = ctx.model_yaml_config["handler"]["model_store_dir"]
         model_name_llm = os.environ["MODEL_NAME_LLM"].replace("/", "---")
@@ -50,11 +48,16 @@ class LlmHandler(BaseHandler):
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
         self.model = AutoModelForCausalLM.from_pretrained(model_dir)
 
-        # Get backend for model-confil.yaml. Defaults to "inductor"
-        backend = ctx.model_yaml_config.get("pt2", {}).get("backend", "inductor")
+        # Get backend for model-confil.yaml. Defaults to "openvino"
+        compile_options = {}
+        pt2_config = ctx.model_yaml_config.get("pt2", {})
+        compile_options = {
+            "backend": pt2_config.get("backend", "openvino"),
+            "options": pt2_config.get("options", {}),
+        }
+        logger.info(f"Loading LLM model with PT2 compiler options: {compile_options}")
 
-        logger.info(f"Compiling model with {backend} backend.")
-        self.model = torch.compile(self.model, backend=backend)
+        self.model = torch.compile(self.model, **compile_options)
 
         self.model.to(self.device)
         self.model.eval()
@@ -67,7 +70,6 @@ class LlmHandler(BaseHandler):
         assert len(requests) == 1, "Llama currently only supported with batch_size=1"
 
         req_data = requests[0]
-
         input_data = req_data.get("data") or req_data.get("body")
 
         if isinstance(input_data, (bytes, bytearray)):
@@ -82,7 +84,6 @@ class LlmHandler(BaseHandler):
             self.device
         )
 
-        # self.prompt_length = encoded_prompt.size(0)
         input_data["encoded_prompt"] = encoded_prompt
 
         return input_data
@@ -119,7 +120,7 @@ class LlmHandler(BaseHandler):
         # Initialize with user prompt
         prompt_list = [self.user_prompt]
         try:
-            logger.info(f"Parsing LLM Generated Output to extract prompts within []...")
+            logger.info("Parsing LLM Generated Output to extract prompts within []...")
             response_match = re.search(r"\[(.*?)\]", generated_text)
             # Extract the result if match is found
             if response_match:

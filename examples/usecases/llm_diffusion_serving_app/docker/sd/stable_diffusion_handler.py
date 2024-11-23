@@ -1,10 +1,11 @@
 import logging
+import time
 import os
 from pathlib import Path
 import numpy as np
 import json
 import torch
-import openvino.torch
+import openvino.torch  # noqa: F401  # Import to enable optimizations from OpenVINO
 from diffusers import (
     DiffusionPipeline,
     StableDiffusionXLPipeline,
@@ -40,19 +41,12 @@ class StableDiffusionHandler(BaseHandler):
         model_dir = properties.get("model_dir")
 
         self.device = ctx.model_yaml_config["deviceType"]
-        self.num_inference_steps = ctx.model_yaml_config["handler"][
-            "num_inference_steps"
-        ]
 
         logger.info(f"SD ctx.model_yaml_config is {ctx.model_yaml_config}")
         logger.info(f"SD ctx.system_properties is {ctx.system_properties}")
         logger.info(f"SD device={self.device}")
 
         # Parameters for the model
-        compile_unet = ctx.model_yaml_config["handler"]["compile_unet"]
-        compile_vae = ctx.model_yaml_config["handler"]["compile_vae"]
-        compile_mode = ctx.model_yaml_config["handler"]["compile_mode"]
-        change_comp_config = ctx.model_yaml_config["handler"]["change_comp_config"]
         is_xl = ctx.model_yaml_config["handler"]["is_xl"]
         is_lcm = ctx.model_yaml_config["handler"]["is_lcm"]
 
@@ -69,10 +63,9 @@ class StableDiffusionHandler(BaseHandler):
         ckpt = os.path.join(model_dir, model_path)
 
         """Loads the SDXL LCM pipeline."""
-
         dtype = torch.float16
         logger.info(f"Loading the SDXL LCM pipeline using dtype: {dtype}")
-
+        t0 = time.time()
         if is_lcm:
             unet = UNet2DConditionModel.from_pretrained(
                 f"{ckpt}/lcm/", torch_dtype=dtype
@@ -80,6 +73,8 @@ class StableDiffusionHandler(BaseHandler):
             pipe = DiffusionPipeline.from_pretrained(ckpt, unet=unet, torch_dtype=dtype)
             pipe.scheduler = LCMScheduler.from_config(pipe.scheduler.config)
             pipe.text_encoder = torch.compile(pipe.text_encoder, **compile_options)
+            pipe.unet = torch.compile(pipe.unet, **compile_options)
+            pipe.vae.decode = torch.compile(pipe.vae.decode, **compile_options)
 
         elif is_xl:
             pipe = StableDiffusionXLPipeline.from_pretrained(
@@ -90,33 +85,15 @@ class StableDiffusionHandler(BaseHandler):
                 ckpt, torch_dtype=dtype, use_safetensors=True, safety_checker=None
             )
 
-        if compile_unet:
-            logger.info("Compiling UNet.")
-            if compile_mode == "max-autotune" and change_comp_config:
-                pipe.unet.to(memory_format=torch.channels_last)
-                torch._inductor.config.conv_1x1_as_mm = True
-                torch._inductor.config.coordinate_descent_tuning = True
-                torch._inductor.config.epilogue_fusion = False
-                torch._inductor.config.coordinate_descent_check_all_directions = True
-
-            pipe.unet = torch.compile(pipe.unet, **compile_options)
-
-        if compile_vae:
-            logger.info("Compiling VAE.")
-            if compile_mode == "max-autotune" and change_comp_config:
-                pipe.vae.to(memory_format=torch.channels_last)
-                torch._inductor.config.conv_1x1_as_mm = True
-                torch._inductor.config.coordinate_descent_tuning = True
-                torch._inductor.config.epilogue_fusion = False
-                torch._inductor.config.coordinate_descent_check_all_directions = True
-
-            pipe.vae.decode = torch.compile(pipe.vae.decode, **compile_options)
-
-        logger.info(f"Compiled {ckpt} model with {compile_options}")
+        logger.info(
+            f"Compiled {ckpt} model with PT2 compiler options: {compile_options}"
+        )
         pipe.set_progress_bar_config(disable=True)
 
         self.pipeline = pipe
-        logger.info(f"Stable Diffusion model loaded successfully: {ckpt}")
+        logger.info(
+            f"Time to load Stable Diffusion model: {ckpt}: {time.time() - t0:.02f} seconds"
+        )
         self.initialized = True
 
         return pipe
@@ -155,8 +132,8 @@ class StableDiffusionHandler(BaseHandler):
             list : It returns a list of the generate images for the input text
         """
         # Handling inference for sequence_classification.
-        guidance_scale = model_inputs.get("guidance_scale") or 5.0
-        num_inference_steps = model_inputs.get("num_inference_steps") or 5
+        guidance_scale = model_inputs.get("guidance_scale") or 4.0
+        num_inference_steps = model_inputs.get("num_inference_steps") or 4
         height = model_inputs.get("height") or 768
         width = model_inputs.get("width") or 768
         inferences = self.pipeline(
