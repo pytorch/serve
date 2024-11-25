@@ -426,7 +426,7 @@
 <li><p>For performance optimization, the models are compiled using <a class="reference external" href="https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html">torch.compile using OpenVINO backend.</a></p></li>
 <li><p>The application leverages <a class="reference external" href="https://pytorch.org/serve/">TorchServe</a> for efficient model serving and management.</p></li>
 </ul>
-<p><img alt="Multi-Image Generation App Workflow" src="docker/img/workflow-1.png" /></p>
+<p><img alt="Multi-Image Generation App Workflow" src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/workflow-1.png" /></p>
 </section>
 <section id="quick-start-guide">
 <h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Permalink to this heading">¶</a></h1>
@@ -499,14 +499,14 @@ git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pytor
 </section>
 <section id="what-to-expect">
 <h1>What to expect<a class="headerlink" href="#what-to-expect" title="Permalink to this heading">¶</a></h1>
-<p>After launching the Docker container using the <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">..</span></code> command displayed after successful build, you can access two separate Streamlit applications:</p>
+<p>After launching the Docker container using the <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">..</span></code> command displayed after a successful build, you can access two separate Streamlit applications:</p>
 <ol class="simple">
 <li><p>TorchServe Server App (running at http://localhost:8084) to start/stop TorchServe, load/register models, scale up/down workers.</p></li>
 <li><p>Client App (running at http://localhost:8085) where you can enter prompt for Image generation.</p></li>
 </ol>
 <blockquote>
-<div><p>Note: You could also run a quick benchmark comparing performance of Stable Diffusion with Eager, torch.compile with inductor and openvino.
-Review the <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">..</span></code> command displayed after successful build for benchmarking</p>
+<div><p>Note: You could also run a quick benchmark comparing the performance of Stable Diffusion with Eager, torch.compile with inductor and openvino.
+Review the <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">..</span></code> command displayed after a successful build for benchmarking</p>
 </div></blockquote>
 <section id="sample-output-of-starting-the-app">
 <h2>Sample Output of Starting the App:<a class="headerlink" href="#sample-output-of-starting-the-app" title="Permalink to this heading">¶</a></h2>
@@ -555,7 +555,7 @@ Review the <code class="docutils literal notranslate"><span class="pre">docker</
 </details></section>
 <section id="sample-output-of-stable-diffusion-benchmarking">
 <h2>Sample Output of Stable Diffusion Benchmarking:<a class="headerlink" href="#sample-output-of-stable-diffusion-benchmarking" title="Permalink to this heading">¶</a></h2>
-<p>To run Stable Diffusion benchmarking, use the <code class="docutils literal notranslate"><span class="pre">sd-benchmark.py</span></code>. See details below for sample.</p>
+<p>To run Stable Diffusion benchmarking, use the <code class="docutils literal notranslate"><span class="pre">sd-benchmark.py</span></code>. See details below for a sample console output.</p>
 <details><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">ubuntu@ip-10-0-0-137:~/serve$ </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--platform<span class="w"> </span>linux/amd64<span class="w"> </span><span class="se">\</span>
 <span class="w">        </span>--name<span class="w"> </span>llm_sd_app_bench<span class="w"> </span><span class="se">\</span>
 <span class="w">        </span>-v<span class="w"> </span>/home/ubuntu/serve/model-store-local:/home/model-server/model-store<span class="w"> </span><span class="se">\</span>
@@ -609,7 +609,7 @@ Review the <code class="docutils literal notranslate"><span class="pre">docker</
 </details></section>
 <section id="sample-output-of-stable-diffusion-benchmarking-with-profiling">
 <h2>Sample Output of Stable Diffusion Benchmarking with Profiling:<a class="headerlink" href="#sample-output-of-stable-diffusion-benchmarking-with-profiling" title="Permalink to this heading">¶</a></h2>
-<p>To run Stable Diffusion benchmarking with profiling, use <code class="docutils literal notranslate"><span class="pre">--run_profiling</span></code> or <code class="docutils literal notranslate"><span class="pre">-rp</span></code>. See details below for sample. Sample profiling benchmarking output files are available in <a class="reference external" href="./assets/benchmark_results_20241123_044407/">assets/benchmark_results_20241123_044407/</a></p>
+<p>To run Stable Diffusion benchmarking with profiling, use <code class="docutils literal notranslate"><span class="pre">--run_profiling</span></code> or <code class="docutils literal notranslate"><span class="pre">-rp</span></code>. See details below for a sample console output. Sample profiling benchmarking output files are available in <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app/assets/benchmark_results_20241123_044407">assets/benchmark_results_20241123_044407/</a></p>
 <details><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">ubuntu@ip-10-0-0-137:~/serve$ </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--platform<span class="w"> </span>linux/amd64<span class="w"> </span><span class="se">\</span>
 <span class="w">        </span>--name<span class="w"> </span>llm_sd_app_bench<span class="w"> </span><span class="se">\</span>
 <span class="w">        </span>-v<span class="w"> </span>/home/ubuntu/serve/model-store-local:/home/model-server/model-store<span class="w"> </span><span class="se">\</span>
@@ -670,7 +670,7 @@ Review the <code class="docutils literal notranslate"><span class="pre">docker</
 <h1>Multi-Image Generation App UI<a class="headerlink" href="#multi-image-generation-app-ui" title="Permalink to this heading">¶</a></h1>
 <section id="app-workflow">
 <h2>App Workflow<a class="headerlink" href="#app-workflow" title="Permalink to this heading">¶</a></h2>
-<p><img alt="Multi-Image Generation App Workflow Gif" src="docker/img/multi-image-gen-app.gif" /></p>
+<p><img alt="Multi-Image Generation App Workflow Gif" src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/multi-image-gen-app.gif" /></p>
 </section>
 <section id="app-screenshots">
 <h2>App Screenshots<a class="headerlink" href="#app-screenshots" title="Permalink to this heading">¶</a></h2>
@@ -684,9 +684,9 @@ Review the <code class="docutils literal notranslate"><span class="pre">docker</
 </thead>
 <tbody>
 <tr>
-<td><img src="./docker/img/server-app-screen-1.png" width="400"></td>
-<td><img src="./docker/img/server-app-screen-2.png" width="400"></td>
-<td><img src="./docker/img/server-app-screen-3.png" width="400"></td>
+<td><img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/server-app-screen-1.png" width="400"></td>
+<td><img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/server-app-screen-2.png" width="400"></td>
+<td><img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/server-app-screen-3.png" width="400"></td>
 </tr>
 </tbody>
 </table><table border="1" class="docutils">
@@ -699,9 +699,9 @@ Review the <code class="docutils literal notranslate"><span class="pre">docker</
 </thead>
 <tbody>
 <tr>
-<td><img src="./docker/img/client-app-screen-1.png" width="400"></td>
-<td><img src="./docker/img/client-app-screen-2.png" width="400"></td>
-<td><img src="./docker/img/client-app-screen-3.png" width="400"></td>
+<td><img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/client-app-screen-1.png" width="400"></td>
+<td><img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/client-app-screen-2.png" width="400"></td>
+<td><img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/client-app-screen-3.png" width="400"></td>
 </tr>
 </tbody>
 </table></details></section>
