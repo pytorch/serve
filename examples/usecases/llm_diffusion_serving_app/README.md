@@ -7,7 +7,7 @@ This Multi-Image Generation Streamlit app is designed to generate multiple image
 - For performance optimization, the models are compiled using [torch.compile using OpenVINO backend.](https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html)
 - The application leverages [TorchServe](https://pytorch.org/serve/) for efficient model serving and management.
 
-![Multi-Image Generation App Workflow](./docker/img/workflow-1.png)
+![Multi-Image Generation App Workflow](https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/workflow-1.png)
 
 ## Quick Start Guide
 
@@ -83,12 +83,12 @@ Note: You can replace the model identifiers (MODEL_NAME_LLM, MODEL_NAME_SD) as n
 </details>
 
 ## What to expect
-After launching the Docker container using the `docker run ..` command displayed after successful build, you can access two separate Streamlit applications:
+After launching the Docker container using the `docker run ..` command displayed after a successful build, you can access two separate Streamlit applications:
 1. TorchServe Server App (running at http://localhost:8084) to start/stop TorchServe, load/register models, scale up/down workers. 
 2. Client App (running at http://localhost:8085) where you can enter prompt for Image generation. 
 
-> Note: You could also run a quick benchmark comparing performance of Stable Diffusion with Eager, torch.compile with inductor and openvino.
-> Review the `docker run ..` command displayed after successful build for benchmarking
+> Note: You could also run a quick benchmark comparing the performance of Stable Diffusion with Eager, torch.compile with inductor and openvino.
+> Review the `docker run ..` command displayed after a successful build for benchmarking
 
 #### Sample Output of Starting the App:
 
@@ -140,7 +140,7 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 </details>
 
 #### Sample Output of Stable Diffusion Benchmarking:
-To run Stable Diffusion benchmarking, use the `sd-benchmark.py`. See details below for sample.
+To run Stable Diffusion benchmarking, use the `sd-benchmark.py`. See details below for a sample console output.
 
 <details>
 
@@ -199,7 +199,7 @@ Results saved at /home/model-server/model-store/ which is a Docker container mou
 </details>
 
 #### Sample Output of Stable Diffusion Benchmarking with Profiling:
-To run Stable Diffusion benchmarking with profiling, use `--run_profiling` or `-rp`. See details below for sample. Sample profiling benchmarking output files are available in [assets/benchmark_results_20241123_044407/](./assets/benchmark_results_20241123_044407/)
+To run Stable Diffusion benchmarking with profiling, use `--run_profiling` or `-rp`. See details below for a sample console output. Sample profiling benchmarking output files are available in [assets/benchmark_results_20241123_044407/](https://github.com/pytorch/serve/tree/master/examples/usecases/llm_diffusion_serving_app/assets/benchmark_results_20241123_044407)
 
 <details>
 
@@ -264,7 +264,7 @@ Results saved at /home/model-server/model-store/ which is a Docker container mou
 ## Multi-Image Generation App UI
 
 ### App Workflow 
-![Multi-Image Generation App Workflow Gif](./docker/img/multi-image-gen-app.gif)
+![Multi-Image Generation App Workflow Gif](https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/multi-image-gen-app.gif)
 
 ### App Screenshots
 
@@ -272,10 +272,10 @@ Results saved at /home/model-server/model-store/ which is a Docker container mou
 
 | Server App Screenshot 1 | Server App Screenshot 2 | Server App Screenshot 3 |
 | --- | --- | --- |
-| <img src="./docker/img/server-app-screen-1.png" width="400"> | <img src="./docker/img/server-app-screen-2.png" width="400"> | <img src="./docker/img/server-app-screen-3.png" width="400"> |
+| <img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/server-app-screen-1.png" width="400"> | <img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/server-app-screen-2.png" width="400"> | <img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/server-app-screen-3.png" width="400"> |
 
 | Client App Screenshot 1 | Client App Screenshot 2 | Client App Screenshot 3 |
 | --- | --- | --- |
-| <img src="./docker/img/client-app-screen-1.png" width="400"> | <img src="./docker/img/client-app-screen-2.png" width="400"> | <img src="./docker/img/client-app-screen-3.png" width="400"> |
+| <img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/client-app-screen-1.png" width="400"> | <img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/client-app-screen-2.png" width="400"> | <img src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/client-app-screen-3.png" width="400"> |
 
 </details>
