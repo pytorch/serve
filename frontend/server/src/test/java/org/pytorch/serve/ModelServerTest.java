@@ -26,7 +26,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -1340,6 +1342,24 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testErrorBatch"})
     public void testMetricManager() throws JsonParseException, InterruptedException {
+        final String UNIT = "Unit";
+        final String LEVEL = "Level";
+        final String HOST = "Host";
+
+        // Define expected metrics
+        // See ts/metrics/system_metrics.py, ts/configs/metrics.yaml
+        Map<String, Map<String, String>> expectedMetrics = new HashMap<>();
+        expectedMetrics.put("GPUMemoryUtilization", Map.of(UNIT, "Percent", LEVEL, HOST));
+        expectedMetrics.put("GPUMemoryUsed", Map.of(UNIT, "Megabytes", LEVEL, HOST));
+        expectedMetrics.put("GPUUtilization", Map.of(UNIT, "Percent", LEVEL, HOST));
+        expectedMetrics.put("CPUUtilization", Map.of(UNIT, "Percent", LEVEL, HOST));
+        expectedMetrics.put("MemoryUsed", Map.of(UNIT, "Megabytes", LEVEL, HOST));
+        expectedMetrics.put("MemoryAvailable", Map.of(UNIT, "Megabytes", LEVEL, HOST));
+        expectedMetrics.put("MemoryUtilization", Map.of(UNIT, "Percent", LEVEL, HOST));
+        expectedMetrics.put("DiskUsage", Map.of(UNIT, "Gigabytes", LEVEL, HOST));
+        expectedMetrics.put("DiskUtilization", Map.of(UNIT, "Percent", LEVEL, HOST));
+        expectedMetrics.put("DiskAvailable", Map.of(UNIT, "Gigabytes", LEVEL, HOST));
+
         MetricManager.scheduleMetrics(configManager);
         MetricManager metricManager = MetricManager.getInstance();
         List<Metric> metrics = metricManager.getMetrics();
@@ -1347,23 +1367,31 @@ public class ModelServerTest {
         // Wait till first value is read in
         int count = 0;
         while (metrics.isEmpty()) {
-            Thread.sleep(500);
+            Thread.sleep(1000);
             metrics = metricManager.getMetrics();
             Assert.assertTrue(++count < 5);
         }
+
+        // 7 system-level metrics + 3 gpu-specific metrics
+        Assert.assertEquals(metrics.size(), 7 + 3 * configManager.getNumberOfGpu());
+
         for (Metric metric : metrics) {
-            if (metric.getMetricName().equals("CPUUtilization")) {
-                Assert.assertEquals(metric.getUnit(), "Percent");
+            String metricName = metric.getMetricName();
+            Assert.assertTrue(expectedMetrics.containsKey(metricName));
+
+            Map<String, String> expectedValues = expectedMetrics.get(metricName);
+            Assert.assertEquals(expectedValues.get(UNIT), metric.getUnit());
+
+            List<Dimension> dimensions = metric.getDimensions();
+            Map<String, String> dimensionMap = new HashMap<>();
+            for (Dimension dimension : dimensions) {
+                dimensionMap.put(dimension.getName(), dimension.getValue());
             }
-            if (metric.getMetricName().equals("MemoryUsed")) {
-                Assert.assertEquals(metric.getUnit(), "Megabytes");
-            }
-            if (metric.getMetricName().equals("DiskUsed")) {
-                List<Dimension> dimensions = metric.getDimensions();
-                for (Dimension dimension : dimensions) {
-                    if (dimension.getName().equals("Level")) {
-                        Assert.assertEquals(dimension.getValue(), "Host");
-                    }
+
+            for (Map.Entry<String, String> entry : expectedValues.entrySet()) {
+                if (!entry.getKey().equals(UNIT)) {
+                    Assert.assertTrue(dimensionMap.containsKey(entry.getKey()));
+                    Assert.assertEquals(entry.getValue(), dimensionMap.get(entry.getKey()));
                 }
             }
         }

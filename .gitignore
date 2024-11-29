@@ -46,3 +46,9 @@ instances.yaml.backup
 # cpp
 cpp/_build
 cpp/third-party
+
+# projects
+.tool-versions
+**/*/.classpath
+**/*/.settings
+**/*/.project
