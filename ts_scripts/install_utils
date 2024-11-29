@@ -25,14 +25,16 @@ install_java_deps()
   set -e
 }
 
-install_torch_deps()
-{
-  if is_gpu_instance && [ ! -z "$1" ];
+install_torch_deps() {
+  if [ ! -z "$1" ];
   then
-	  pip install -U -r requirements_$1.txt -f https://download.pytorch.org/whl/torch_stable.html
-	else
-	  pip install -U -r requirements.txt
-	fi
+    if [[ "$1" == *"cu"* || "$1" == *"rocm"* ]] && ! is_gpu_instance;
+    then
+      echo "Cannot install GPU-specific requirements."
+      exit 1
+    fi
+    pip install -U -r requirements/$1.txt
+  fi
 }
 
 install_pytest_suite_deps()
@@ -275,20 +277,15 @@ clean_up_build_residuals()
   rm -rf ts/utils/__pycache__/
 }
 
-is_gpu_instance(){
-  if command -v nvidia-smi;
-  then
-    nvidia-smi | grep 'NVIDIA-SMI has failed'
-    if [ $? == 0 ];
-    then
-      return 1
-    else
+is_gpu_instance() {
+  for cmd in nvidia-smi amd-smi system_profiler xpu-smi; do
+    if command -v "$cmd" && "$cmd" > /dev/null 2>&1; then
+      echo "$cmd found and able to communicate with GPU(s)."
       return 0
     fi
-
-  else
-    return 1
-  fi
+  done
+  echo "Cannot communicate with GPU(s)."
+  return 1
 }
 
 run_markdown_link_checker(){
