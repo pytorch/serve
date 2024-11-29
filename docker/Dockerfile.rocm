@@ -1,0 +1,320 @@
+# syntax = docker/dockerfile:experimental
+#
+# This file can build images for cpu and gpu env. By default it builds image for CPU.
+# Use following option to build image for cuda/GPU: --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
+# Here is complete command for GPU/cuda -
+# $ DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
+#
+# Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
+#
+# NOTE: To build this you will need a docker version > 18.06 with
+#       experimental enabled and DOCKER_BUILDKIT=1
+#
+#       If you do not use buildkit you are not going to have a good time
+#
+#       For reference:
+#           https://docs.docker.com/develop/develop-images/build_enhancements/
+
+ARG BASE_IMAGE=ubuntu:24.04
+ARG BRANCH_NAME=master
+# Note:
+# Define here the default python version to be used in all later build-stages as default.
+# ARG and ENV variables do not persist across stages (they're build-stage scoped).
+# That is crucial for ARG PYTHON_VERSION, which otherwise becomes "" leading to nasty bugs,
+# that don't let the build fail, but break current version handling logic and result
+# in images with wrong python version. To fix that, we will restate the ARG PYTHON_VERSION
+# on each build-stage.
+ARG PYTHON_VERSION=3.11
+
+FROM ${BASE_IMAGE} AS compile-image
+ARG BASE_IMAGE=ubuntu:24.04
+ARG PYTHON_VERSION
+ARG BUILD_NIGHTLY
+ARG BUILD_FROM_SRC
+ARG LOCAL_CHANGES
+ARG BRANCH_NAME
+ARG REPO_URL=https://github.com/pytorch/serve.git
+ENV PYTHONUNBUFFERED TRUE
+
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+        ca-certificates \
+        g++ \
+        python3-setuptools \
+        python$PYTHON_VERSION \
+        python$PYTHON_VERSION-dev \
+        python$PYTHON_VERSION-venv \
+        openjdk-17-jdk \
+        curl \
+        wget \
+        git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Make the virtual environment and "activating" it by adding it first to the path.
+# From here on the python$PYTHON_VERSION interpreter is used and the packages
+# are installed in /home/venv which is what we need for the "runtime-image"
+RUN python$PYTHON_VERSION -m venv /home/venv
+ENV PATH="/home/venv/bin:$PATH"
+
+ARG USE_ROCM_VERSION=""
+
+COPY ./ serve
+
+RUN \
+    if echo "$LOCAL_CHANGES" | grep -q "false"; then \
+        rm -rf /serve;\
+        git clone --recursive $REPO_URL -b $BRANCH_NAME /serve; \
+    fi
+
+WORKDIR "/serve"
+
+RUN cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
+    if [ -n "$USE_ROCM_VERSION" ]; then \
+        apt-get update \
+        && wget https://repo.radeon.com/amdgpu-install/6.2.2/ubuntu/noble/amdgpu-install_6.2.60202-1_all.deb \
+        && DEBIAN_FRONTEND=noninteractive apt-get install -y ./amdgpu-install_6.2.60202-1_all.deb \
+        && apt-get update \
+        && apt-get install --no-install-recommends -y amdgpu-dkms rocm; \
+    else \
+        echo "Skip ROCm installation"; \
+    fi
+
+RUN \
+    # Install ROCm version specific binary when ROCm version is specified as a build arg
+    if [ "$USE_ROCM_VERSION" ]; then \
+        python$PYTHON_VERSION ./ts_scripts/install_dependencies.py --rocm $USE_ROCM_VERSION; \
+    # Install the binary with the latest CPU image on a ROCm base image
+    else \
+        python$PYTHON_VERSION ./ts_scripts/install_dependencies.py;\
+    fi;
+
+# Make sure latest version of torchserve is uploaded before running this
+RUN \
+    if echo "$BUILD_FROM_SRC" | grep -q "true"; then \
+        python$PYTHON_VERSION -m pip install -r requirements/developer.txt \
+        && python$PYTHON_VERSION ts_scripts/install_from_src.py;\
+    elif echo "$BUILD_NIGHTLY" | grep -q "false"; then \
+        python$PYTHON_VERSION -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver;\
+    else \
+        python$PYTHON_VERSION -m pip install --no-cache-dir torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly;\
+    fi
+
+# Final image for production
+FROM ${BASE_IMAGE} AS production-image
+# Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
+ARG PYTHON_VERSION
+ENV PYTHONUNBUFFERED TRUE
+ARG USE_ROCM_VERSION
+
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    python$PYTHON_VERSION \
+    python3-setuptools \
+    python$PYTHON_VERSION-dev \
+    python$PYTHON_VERSION-venv \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+    openjdk-17-jdk \
+    build-essential \
+    wget \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp
+
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
+    if [ -n "$USE_ROCM_VERSION" ]; then \
+        apt-get update \
+        && wget https://repo.radeon.com/amdgpu-install/6.2.2/ubuntu/noble/amdgpu-install_6.2.60202-1_all.deb \
+        && DEBIAN_FRONTEND=noninteractive apt-get install -y ./amdgpu-install_6.2.60202-1_all.deb \
+        && apt-get update \
+        && apt-get install --no-install-recommends -y amdgpu-dkms rocm; \
+    else \
+        echo "Skip ROCm installation"; \
+    fi
+
+RUN useradd -m model-server \
+    && mkdir -p /home/model-server/tmp
+
+COPY --chown=model-server --from=compile-image /home/venv /home/venv
+COPY --from=compile-image /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+ENV PATH="/home/venv/bin:$PATH"
+
+RUN \
+    if [ -n "$USE_ROCM_VERSION" ]; then \
+        python$PYTHON_VERSION -m pip install -U pip setuptools \
+        && python -m pip install /opt/rocm/share/amd_smi; \
+    fi
+
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
+    && chown -R model-server /home/model-server
+
+COPY docker/config.properties /home/model-server/config.properties
+RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
+
+EXPOSE 8080 8081 8082 7070 7071
+
+USER model-server
+WORKDIR /home/model-server
+ENV TEMP=/home/model-server/tmp
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
+CMD ["serve"]
+
+# Final image for docker regression
+FROM ${BASE_IMAGE} AS ci-image
+# Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
+ARG PYTHON_VERSION
+ARG BRANCH_NAME
+ARG USE_ROCM_VERSION
+ENV PYTHONUNBUFFERED TRUE
+
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    python$PYTHON_VERSION \
+    python3-setuptools \
+    python$PYTHON_VERSION-dev \
+    python$PYTHON_VERSION-venv \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+    openjdk-17-jdk \
+    build-essential \
+    wget \
+    numactl \
+    nodejs \
+    npm \
+    zip \
+    unzip \
+    && npm install -g newman@5.3.2 newman-reporter-htmlextra markdown-link-check \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp
+
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
+    if [ -n "$USE_ROCM_VERSION" ]; then \
+        apt-get update \
+        && wget https://repo.radeon.com/amdgpu-install/6.2.2/ubuntu/noble/amdgpu-install_6.2.60202-1_all.deb \
+        && DEBIAN_FRONTEND=noninteractive apt-get install -y ./amdgpu-install_6.2.60202-1_all.deb \
+        && apt-get update \
+        && apt-get install --no-install-recommends -y amdgpu-dkms rocm; \
+    else \
+        echo "Skip ROCm installation"; \
+    fi
+
+COPY --from=compile-image /home/venv /home/venv
+
+ENV PATH="/home/venv/bin:$PATH"
+
+RUN \
+    if [ -n "$USE_ROCM_VERSION" ]; then \
+        python$PYTHON_VERSION -m pip install -U pip setuptools \
+        && python -m pip install /opt/rocm/share/amd_smi; \
+    fi
+
+RUN python$PYTHON_VERSION -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/$BRANCH_NAME/requirements/developer.txt
+
+RUN mkdir /serve
+ENV TS_RUN_IN_DOCKER True
+
+WORKDIR /serve
+CMD ["python", "test/regression_tests.py"]
+
+#Final image for developer Docker image
+FROM ${BASE_IMAGE} as dev-image
+# Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
+ARG PYTHON_VERSION
+ARG BRANCH_NAME
+ARG BUILD_FROM_SRC
+ARG USE_ROCM_VERSION
+ARG LOCAL_CHANGES
+ARG BUILD_WITH_IPEX
+ARG IPEX_VERSION=1.11.0
+ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
+ENV PYTHONUNBUFFERED TRUE
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    fakeroot \
+    ca-certificates \
+    dpkg-dev \
+    sudo \
+    g++ \
+    git \
+    python$PYTHON_VERSION \
+    python$PYTHON_VERSION-dev \
+    python3-setuptools \
+    python$PYTHON_VERSION-venv \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+    openjdk-17-jdk \
+    build-essential \
+    wget \
+    curl \
+    vim \
+    numactl \
+    nodejs \
+    npm \
+    zip \
+    unzip \
+    && npm install -g newman@5.3.2 newman-reporter-htmlextra markdown-link-check \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
+    if [ -n "$USE_ROCM_VERSION" ]; then \
+        apt-get update \
+        && wget https://repo.radeon.com/amdgpu-install/6.2.2/ubuntu/noble/amdgpu-install_6.2.60202-1_all.deb \
+        && DEBIAN_FRONTEND=noninteractive apt-get install -y ./amdgpu-install_6.2.60202-1_all.deb \
+        && apt-get update \
+        && apt-get install --no-install-recommends -y amdgpu-dkms rocm; \
+    else \
+        echo "Skip ROCm installation"; \
+    fi
+
+COPY ./ serve
+
+RUN \
+    if echo "$LOCAL_CHANGES" | grep -q "false"; then \
+        rm -rf /serve;\
+        git clone --recursive $REPO_URL -b $BRANCH_NAME /serve; \
+    fi
+
+COPY --from=compile-image /home/venv /home/venv
+ENV PATH="/home/venv/bin:$PATH"
+
+RUN \
+    if [ -n "$USE_ROCM_VERSION" ]; then \
+        python$PYTHON_VERSION -m pip install -U pip setuptools \
+        && python -m pip install /opt/rocm/share/amd_smi; \
+    fi
+
+WORKDIR "serve"
+
+RUN python$PYTHON_VERSION -m pip install -U pip setuptools \
+    && python$PYTHON_VERSION -m pip install --no-cache-dir -r requirements/developer.txt \
+    && python$PYTHON_VERSION ts_scripts/install_from_src.py --environment=dev \
+    && useradd -m model-server \
+    && mkdir -p /home/model-server/tmp \
+    && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
+    && chmod +x /usr/local/bin/dockerd-entrypoint.sh \
+    && chown -R model-server /home/model-server \
+    && cp docker/config.properties /home/model-server/config.properties \
+    && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store \
+    && chown -R model-server /home/venv
+EXPOSE 8080 8081 8082 7070 7071
+WORKDIR /home/model-server
+ENV TEMP=/home/model-server/tmp
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
+CMD ["serve"]
