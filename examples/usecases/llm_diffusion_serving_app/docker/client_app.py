@@ -27,6 +27,15 @@ st.session_state.gen_images = st.session_state.get("gen_images", [])
 st.session_state.gen_captions = st.session_state.get("gen_captions", [])
 st.session_state.llm_prompts = st.session_state.get("llm_prompts", None)
 st.session_state.llm_time = st.session_state.get("llm_time", 0)
+st.session_state.num_images = st.session_state.get("num_images", 2)
+st.session_state.max_new_tokens = st.session_state.get("max_new_tokens", 100)
+
+
+def update_max_tokens():
+    # Update the max_new_tokens input value in session state and UI
+    # The prompts generated are description which are around 50 tokens per prompt
+    st.session_state.max_new_tokens = 50 * st.session_state.num_images
+
 
 with st.sidebar:
     st.title("Image Generation with Llama, SDXL, torch.compile and OpenVINO")
@@ -76,13 +85,23 @@ with st.sidebar:
         )
 
     # Client App Parameters
-    num_images = st.sidebar.number_input(
-        "Number of images to generate", min_value=1, max_value=8, value=2, step=1
+    # Default value is set via session_state variables for num_images and max_new_tokens
+    st.sidebar.number_input(
+        "Number of images to generate",
+        min_value=1,
+        max_value=8,
+        step=1,
+        key="num_images",
+        on_change=update_max_tokens,
     )
 
     st.subheader("LLM Model parameters")
-    max_new_tokens = st.sidebar.number_input(
-        "max_new_tokens", min_value=30, max_value=250, value=40, step=5
+    st.sidebar.number_input(
+        "max_new_tokens",
+        min_value=100,
+        max_value=1250,
+        step=10,
+        key="max_new_tokens",
     )
 
     temperature = st.sidebar.number_input(
@@ -159,11 +178,19 @@ def sd_response_postprocess(response):
 
 
 def preprocess_llm_input(user_prompt, num_images=2):
-    template = """ Below is an instruction that describes a task. Write a response that appropriately completes the request.
-    Generate {} unique prompts similar to '{}' by changing the context, keeping the core theme intact.
-    Give the output in square brackets seperated by semicolon.
+    template = """ Generate expanded and descriptive prompts for a image generation model based on the user input.
+    Each prompt should build upon the original concept, adding layers of detail and context to create a more vivid and engaging scene for image generation.
+    Format each prompt distinctly within square brackets.
+    Ensure that each prompt is a standalone description that significantly elaborates on the original input as shown in the example below:
+    Example: For the input 'A futuristic cityscape with flying cars,' generate:
+[A futuristic cityscape with sleek, silver flying cars zipping through the sky, set against a backdrop of towering skyscrapers and neon-lit streets.]
+[A futuristic cityscape at dusk, with flying cars of various colors and shapes flying in formation.]
+[A futuristic cityscape at night, with flying cars illuminated by the city's vibrant nightlife.]
+
+    Aim for a tone that is rich in imagination and visual appeal, capturing the essence of the scene with depth and creativity.
     Do not generate text beyond the specified output format. Do not explain your response.
-    ### Response:
+    Generate {} similar detailed prompts for the user's input: {}.
+    Organize the output such that each prompt is within square brackets. Refer to example above.
     """
 
     prompt_template_with_user_input = template.format(num_images, user_prompt)
@@ -206,7 +233,7 @@ def generate_llm_model_response(prompt_template_with_user_input, user_prompt):
         {
             "prompt_template": prompt_template_with_user_input,
             "user_prompt": user_prompt,
-            "max_new_tokens": max_new_tokens,
+            "max_new_tokens": st.session_state.max_new_tokens,
             "temperature": temperature,
             "top_k": top_k,
             "top_p": top_p,
@@ -260,7 +287,7 @@ with intro_container:
     )
 
 user_prompt = st.text_input("Enter a prompt for image generation:")
-include_user_prompt = st.checkbox("Include orginal prompt", value=False)
+include_user_prompt = st.checkbox("Include original prompt", value=False)
 
 prompt_container = st.container()
 status_container = st.container()
@@ -287,15 +314,18 @@ if st.session_state.models_loaded:
             llm_start_time = time.time()
 
             st.session_state.llm_prompts = [user_prompt]
-            if num_images > 1:
+            if st.session_state.num_images > 1:
                 prompt_template_with_user_input = preprocess_llm_input(
-                    user_prompt, num_images
+                    user_prompt, st.session_state.num_images
                 )
                 llm_prompts = generate_llm_model_response(
                     prompt_template_with_user_input, user_prompt
                 )
                 st.session_state.llm_prompts = postprocess_llm_response(
-                    llm_prompts, user_prompt, num_images, include_user_prompt
+                    llm_prompts,
+                    user_prompt,
+                    st.session_state.num_images,
+                    include_user_prompt,
                 )
 
             st.session_state.llm_time = time.time() - llm_start_time
@@ -306,11 +336,11 @@ if st.session_state.models_loaded:
         prompt_container.write(
             "Enter Image Generation Prompt and Click Generate Prompts !"
         )
-    elif len(st.session_state.llm_prompts) < num_images:
+    elif len(st.session_state.llm_prompts) < st.session_state.num_images:
         prompt_container.warning(
             f"""Insufficient prompts. Regenerate prompts !
-                Num Images Requested: {num_images}, Prompts Generated: {len(st.session_state.llm_prompts)}
-                {f"Consider increasing the max_new_tokens parameter !" if num_images > 4 else ""}""",
+                Num Images Requested: {st.session_state.num_images}, Prompts Generated: {len(st.session_state.llm_prompts)}
+                {f"Consider increasing the max_new_tokens parameter !" if st.session_state.num_images > 4 else ""}""",
             icon="⚠️",
         )
     else:

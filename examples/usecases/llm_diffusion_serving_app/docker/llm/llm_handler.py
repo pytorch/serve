@@ -27,6 +27,7 @@ class LlmHandler(BaseHandler):
         self.user_prompt = []
         self.prompt_template = ""
 
+    @timed
     def initialize(self, ctx):
         self.context = ctx
         self.manifest = ctx.manifest
@@ -48,7 +49,7 @@ class LlmHandler(BaseHandler):
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
         self.model = AutoModelForCausalLM.from_pretrained(model_dir)
 
-        # Get backend for model-confil.yaml. Defaults to "openvino"
+        # Get backend for model-config.yaml. Defaults to "openvino"
         compile_options = {}
         pt2_config = ctx.model_yaml_config.get("pt2", {})
         compile_options = {
@@ -115,21 +116,22 @@ class LlmHandler(BaseHandler):
 
         return generated_text
 
+    @timed
     def postprocess(self, generated_text):
-        logger.info(f"LLM Generated Output: {generated_text}")
-        # Initialize with user prompt
+        # Remove input prompt from generated_text
+        generated_text = generated_text.replace(self.prompt_template, "", 1)
+        # Clean up LLM output
+        generated_text = generated_text.replace("\n", " ").replace("  ", " ").strip()
+
+        logger.info(f"LLM Generated Output without input prompt: {generated_text}")
         prompt_list = [self.user_prompt]
         try:
-            logger.info("Parsing LLM Generated Output to extract prompts within []...")
-            response_match = re.search(r"\[(.*?)\]", generated_text)
-            # Extract the result if match is found
-            if response_match:
-                # Split the extracted string by semicolon and strip any leading/trailing spaces
-                response_list = response_match.group(1)
-                extracted_prompts = [item.strip() for item in response_list.split(";")]
-                prompt_list.extend(extracted_prompts)
-            else:
-                logger.warning("No match found in the generated output text !!!")
+            # Use regular expressions to find strings within square brackets
+            pattern = re.compile(r"\[.*?\]")
+            matches = pattern.findall(generated_text)
+            # Clean up the matches and remove square brackets
+            extracted_prompts = [match.strip("[]").strip() for match in matches]
+            prompt_list.extend(extracted_prompts)
         except Exception as e:
             logger.error(f"An error occurred while parsing the generated text: {e}")
 
