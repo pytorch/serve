@@ -20,7 +20,7 @@ echo "ROOT_DIR: $ROOT_DIR"
 
 # Build docker image for the application
 docker_build_cmd="DOCKER_BUILDKIT=1 \
-docker buildx build \
+docker buildx build --load \
 --platform=linux/amd64 \
 --file ${EXAMPLE_DIR}/Dockerfile \
 --build-arg BASE_IMAGE=\"${BASE_IMAGE}\" \
