@@ -13,6 +13,14 @@ Subpackages
 Submodules
 ----------
 
+ts.torch\_handler.abstract\_handler module
+--------------------------------------
+
+.. automodule:: ts.torch_handler.abstract_handler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 ts.torch\_handler.base\_handler module
 --------------------------------------
 
