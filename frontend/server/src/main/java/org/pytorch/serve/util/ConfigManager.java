@@ -5,11 +5,9 @@ import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -27,7 +25,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -46,6 +43,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.device.SystemInfo;
 import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
@@ -128,7 +126,8 @@ public final class ConfigManager {
     private static final String TS_DISABLE_TOKEN_AUTHORIZATION = "disable_token_authorization";
     private static final String TS_ENABLE_MODEL_API = "enable_model_api";
 
-    // Configuration which are not documented or enabled through environment variables
+    // Configuration which are not documented or enabled through environment
+    // variables
     private static final String USE_NATIVE_IO = "use_native_io";
     private static final String IO_RATIO = "io_ratio";
     private static final String METRIC_TIME_INTERVAL = "metric_time_interval";
@@ -176,10 +175,13 @@ public final class ConfigManager {
     private String headerKeySequenceStart;
     private String headerKeySequenceEnd;
 
+    public SystemInfo systemInfo;
+
     private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
+        this.systemInfo = new SystemInfo();
 
         this.snapshotDisabled = args.isSnapshotDisabled();
         String version = readFile(getModelServerHome() + "/ts/version.txt");
@@ -271,7 +273,7 @@ public final class ConfigManager {
                 TS_NUMBER_OF_GPU,
                 String.valueOf(
                         Integer.min(
-                                getAvailableGpu(),
+                                this.systemInfo.getNumberOfAccelerators(),
                                 getIntProperty(TS_NUMBER_OF_GPU, Integer.MAX_VALUE))));
 
         String pythonExecutable = args.getPythonExecutable();
@@ -929,83 +931,6 @@ public final class ConfigManager {
             return null;
         }
         return getCanonicalPath(new File(path));
-    }
-
-    private static int getAvailableGpu() {
-        try {
-
-            List<Integer> gpuIds = new ArrayList<>();
-            String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
-            if (visibleCuda != null && !visibleCuda.isEmpty()) {
-                String[] ids = visibleCuda.split(",");
-                for (String id : ids) {
-                    gpuIds.add(Integer.parseInt(id));
-                }
-            } else if (System.getProperty("os.name").startsWith("Mac")) {
-                Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
-                int ret = process.waitFor();
-                if (ret != 0) {
-                    return 0;
-                }
-
-                BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
-                        return 0;
-                    }
-                    if (line.contains("Total Number of Cores:")) {
-                        String[] parts = line.split(":");
-                        if (parts.length >= 2) {
-                            return (Integer.parseInt(parts[1].trim()));
-                        }
-                    }
-                }
-                // No MPS devices detected
-                return 0;
-            } else {
-
-                try {
-                    Process process =
-                            Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-                    int ret = process.waitFor();
-                    if (ret != 0) {
-                        return 0;
-                    }
-                    List<String> list =
-                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                    if (list.isEmpty() || !"index".equals(list.get(0))) {
-                        throw new AssertionError("Unexpected nvidia-smi response.");
-                    }
-                    for (int i = 1; i < list.size(); i++) {
-                        gpuIds.add(Integer.parseInt(list.get(i)));
-                    }
-                } catch (IOException | InterruptedException e) {
-                    System.out.println("nvidia-smi not available or failed: " + e.getMessage());
-                }
-                try {
-                    Process process = Runtime.getRuntime().exec("xpu-smi discovery --dump 1");
-                    int ret = process.waitFor();
-                    if (ret != 0) {
-                        return 0;
-                    }
-                    List<String> list =
-                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                    if (list.isEmpty() || !list.get(0).contains("Device ID")) {
-                        throw new AssertionError("Unexpected xpu-smi response.");
-                    }
-                    for (int i = 1; i < list.size(); i++) {
-                        gpuIds.add(Integer.parseInt(list.get(i)));
-                    }
-                } catch (IOException | InterruptedException e) {
-                    logger.debug("xpu-smi not available or failed: " + e.getMessage());
-                }
-            }
-            return gpuIds.size();
-        } catch (IOException | InterruptedException e) {
-            return 0;
-        }
     }
 
     public List<String> getAllowedUrls() {

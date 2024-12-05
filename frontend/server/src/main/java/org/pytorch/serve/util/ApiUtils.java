@@ -374,7 +374,8 @@ public final class ApiUtils {
         } else if ((numWorking == 0) && (numScaled > 0)) {
             response = "Unhealthy";
         }
-        // TODO: Check if its OK to send other 2xx errors to ALB for "Partial Healthy" and
+        // TODO: Check if its OK to send other 2xx errors to ALB for "Partial Healthy"
+        // and
         // "Unhealthy"
         return response;
     }

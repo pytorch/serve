@@ -3,14 +3,13 @@
 set -o errexit -o nounset -o pipefail
 
 device=$1
+TEST_GPU="false"
 
 if [ "$device" = "gpu" ]; then
     TEST_GPU="true"
-else
-    TEST_GPU="false"
 fi
 
-function validate_gpu_memory_usage() {
+function validate_gpu_memory_usage_nvidia() {
     echo "Validating GPU memory usage..."
     memory_usage=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
 
@@ -30,6 +29,52 @@ function validate_gpu_memory_usage() {
         delete_minikube_cluster
         exit 1
     fi
+}
+
+function validate_gpu_memory_usage_amd() {
+    # Capture the output of the command into an array, line by line
+    mapfile -t memory_usage < <(amd-smi metric --mem-usage --csv)
+    memory_above_zero=false
+
+    for row in "${memory_usage[@]}"; do
+        # Read each column in the row separated by commas
+        IFS=',' read -r -a columns <<< "$row"
+        if [ "${columns[0]}" == "gpu" ]; then
+            continue
+        fi
+
+        if [ "${columns[2]}" -gt 0 ]; then
+            memory_above_zero=true
+            break
+        fi
+    done
+
+    if [ "$memory_above_zero" = true ]; then
+        echo "GPU memory usage is greater than 0, proceeding with the tests."
+    else
+        echo "✘ GPU memory usage is 0, indicating no GPU activity. Test failed."
+        delete_minikube_cluster
+        exit 1
+    fi
+}
+
+function validate_gpu_memory_usage() {
+    if [ "$GPU_TYPE" = "nvidia-smi" ]; then
+        validate_gpu_memory_usage_nvidia
+    elif [ "$GPU_TYPE" = "amd-smi" ]; then
+        validate_gpu_memory_usage_amd
+    fi
+}
+
+function detect_gpu_smi() {
+  for cmd in nvidia-smi amd-smi system_profiler xpu-smi; do
+    if command -v "$cmd" && "$cmd" > /dev/null 2>&1; then
+      echo "$cmd found and able to communicate with GPU(s)."
+      GPU_TYPE=$cmd
+      return
+    fi
+  done
+  echo "Cannot communicate with GPU(s)."
 }
 
 function start_minikube_cluster() {
@@ -204,6 +249,7 @@ install_kserve
 echo "MNIST KServe V2 test begin"
 if [ "$TEST_GPU" = "true" ]; then
     deploy_cluster "kubernetes/kserve/tests/configs/mnist_v2_gpu.yaml" "torchserve-mnist-v2-predictor"
+    detect_gpu_smi
     validate_gpu_memory_usage
 else
     deploy_cluster "kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml" "torchserve-mnist-v2-predictor"
