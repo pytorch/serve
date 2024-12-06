@@ -9,7 +9,7 @@ You can build the frontend using gradle:
 
 ```sh
 $ cd frontend
-$ ./gradlew -p frontend clean assemble
+$ ./gradlew -p server clean assemble
 ```
 
 And you can build and test the frontend by running
