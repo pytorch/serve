@@ -25,7 +25,7 @@ def parse_config():
         model_name: The name of the model specified in the config.properties
         inference_address: The inference address in which the inference endpoint is hit
         management_address: The management address in which the model gets registered
-        model_store: the path in which the .mar file resides
+        model_store: The path in which the .mar file resides
     """
     separator = "="
     ts_configuration = {}
@@ -66,7 +66,7 @@ def parse_config():
     grpc_inference_address = grpc_inference_address.replace("/", "")
 
     logging.info(
-        "Wrapper : Model names %s, inference address %s, management address %s, grpc_inference_address, %s, model store %s",
+        "Wrapper: Model names %s, inference address %s, management address %s, grpc_inference_address %s, model store %s",
         model_names,
         inference_address,
         management_address,
@@ -92,6 +92,11 @@ if __name__ == "__main__":
         model_dir,
     ) = parse_config()
 
+    # Torchserve enables auth by default. This can be defined in env variables, cli arguments or config file
+    # https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md
+    # The simplest method to check whether it's enabled is to check whether the file `key_file.json` exists
+    ts_auth_enabled = os.path.exists("key_file.json")
+
     protocol = os.environ.get("PROTOCOL_VERSION", PredictorProtocol.REST_V1.value)
 
     models = []
@@ -104,6 +109,7 @@ if __name__ == "__main__":
             grpc_inference_address,
             protocol,
             model_dir,
+            ts_auth_enabled,
         )
         # By default model.load() is called on first request. Enabling load all
         # model in TS config.properties, all models are loaded at start and the
