@@ -1,0 +1,17 @@
+# Stable Diffusion Model Config
+minWorkers: 2
+maxWorkers: 8
+maxBatchDelay: 600
+responseTimeout: 3600
+deviceType: "cpu"
+pt2:
+  backend: "openvino"
+  options:
+    device: "CPU"
+    config:
+      PERFORMANCE_HINT: "LATENCY"
+handler:
+    profile: true
+    model_path: "model"
+    is_xl: false
+    is_lcm: true
