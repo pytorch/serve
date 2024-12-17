@@ -71,11 +71,16 @@ public class SystemInfo {
     private void populateAccelerators() {
         if (this.acceleratorUtil != null) {
             String envVarName = this.acceleratorUtil.getGpuEnvVariableName();
-            String requestedAcceleratorIds = System.getenv(envVarName);
-            LinkedHashSet<Integer> availableAcceleratorIds =
-                    IAcceleratorUtility.parseVisibleDevicesEnv(requestedAcceleratorIds);
-            this.accelerators =
-                    this.acceleratorUtil.getAvailableAccelerators(availableAcceleratorIds);
+            if (envVarName != null) {
+                String requestedAcceleratorIds = System.getenv(envVarName);
+                LinkedHashSet<Integer> availableAcceleratorIds =
+                        IAcceleratorUtility.parseVisibleDevicesEnv(requestedAcceleratorIds);
+                this.accelerators =
+                        this.acceleratorUtil.getAvailableAccelerators(availableAcceleratorIds);
+            } else {
+                // Handle the case where envVarName is null
+                this.accelerators = this.acceleratorUtil.getAvailableAccelerators(new LinkedHashSet<>());
+            }
         } else {
             this.accelerators = new ArrayList<>();
         }
