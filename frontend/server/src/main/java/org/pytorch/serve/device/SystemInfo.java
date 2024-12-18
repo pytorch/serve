@@ -79,7 +79,8 @@ public class SystemInfo {
                         this.acceleratorUtil.getAvailableAccelerators(availableAcceleratorIds);
             } else {
                 // Handle the case where envVarName is null
-                this.accelerators = this.acceleratorUtil.getAvailableAccelerators(new LinkedHashSet<>());
+                this.accelerators =
+                        this.acceleratorUtil.getAvailableAccelerators(new LinkedHashSet<>());
             }
         } else {
             this.accelerators = new ArrayList<>();
