@@ -8,15 +8,16 @@ from pathlib import Path
 
 import torch
 
-from ts_scripts import marsgen as mg
-from ts_scripts import tsutils as ts
-from ts_scripts import utils
-
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 MODELS_CONFIG_FILE_PATH = Path(__file__).parent.joinpath(
     "configs", "sanity_models.json"
 )
+
+
+from ts_scripts import marsgen as mg
+from ts_scripts import tsutils as ts
+from ts_scripts import utils
 
 
 async def markdown_link_checker(in_queue, out_queue, n):
@@ -75,15 +76,23 @@ def run_markdown_link_checker():
 def validate_model_on_gpu():
     # A quick \ crude way of checking if model is loaded in GPU
     # Assumption is -
-    # 1. GPUs on test setup are only utlizied by torchserve
+    # 1. GPUs on test setup are only utilized by torchserve
     # 2. Models are successfully UNregistered between subsequent calls
-    import nvgpu
-
     model_loaded = False
-    for info in nvgpu.gpu_info():
-        if info["mem_used"] > 0 and info["mem_used_percent"] > 0.0:
+
+    if torch.cuda.is_available() and not (torch.version.cuda or torch.version.hip):
+        return model_loaded
+
+    num_of_gpus = torch.cuda.device_count()
+
+    for gpu_index in range(num_of_gpus):
+        free, total = torch.cuda.mem_get_info(gpu_index)
+        mem_used = (total - free) // 1024**2
+        mem_used_percent = 100.0 * (1 - (free / total))
+
+        if mem_used > 0 and mem_used_percent > 0.0:
             model_loaded = True
-            break
+
     return model_loaded
 
 
@@ -218,7 +227,6 @@ def test_sanity():
 
 
 def test_workflow_sanity():
-    current_path = os.getcwd()
     ts_log_file = os.path.join("logs", "ts_console.log")
     os.makedirs("model_store", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
@@ -237,7 +245,7 @@ def test_workflow_sanity():
     if response and response.status_code == 200:
         print(response.text)
     else:
-        print(f"## Failed to register workflow")
+        print("## Failed to register workflow")
         sys.exit(1)
 
     # Run prediction on workflow
@@ -254,7 +262,7 @@ def test_workflow_sanity():
     if response and response.status_code == 200:
         print(response.text)
     else:
-        print(f"## Failed to unregister workflow")
+        print("## Failed to unregister workflow")
         sys.exit(1)
 
     stopped = ts.stop_torchserve()

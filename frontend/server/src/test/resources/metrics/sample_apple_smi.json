@@ -1,0 +1,33 @@
+{
+    "SPDisplaysDataType": [
+        {
+            "_name": "kHW_AppleM1Item",
+            "spdisplays_metalfamily": "spdisplays_mtlgpufamilyapple7",
+            "spdisplays_ndrvs": [
+                {
+                    "_name": "Color LCD",
+                    "_spdisplays_display-product-id": "a045",
+                    "_spdisplays_display-serial-number": "fd626d62",
+                    "_spdisplays_display-vendor-id": "610",
+                    "_spdisplays_display-week": "0",
+                    "_spdisplays_display-year": "0",
+                    "_spdisplays_displayID": "1",
+                    "_spdisplays_pixels": "2880 x 1800",
+                    "_spdisplays_resolution": "1440 x 900 @ 60.00Hz",
+                    "spdisplays_ambient_brightness": "spdisplays_no",
+                    "spdisplays_connection_type": "spdisplays_internal",
+                    "spdisplays_main": "spdisplays_yes",
+                    "spdisplays_mirror": "spdisplays_off",
+                    "spdisplays_online": "spdisplays_yes",
+                    "spdisplays_pixelresolution": "2880 x 1800",
+                    "spdisplays_resolution": "1440 x 900 @ 60.00Hz"
+                }
+            ],
+            "spdisplays_vendor": "sppci_vendor_Apple",
+            "sppci_bus": "spdisplays_builtin",
+            "sppci_cores": "7",
+            "sppci_device_type": "spdisplays_gpu",
+            "sppci_model": "Apple M1"
+        }
+    ]
+}

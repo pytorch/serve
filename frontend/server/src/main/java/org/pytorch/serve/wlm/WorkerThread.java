@@ -9,13 +9,9 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import org.pytorch.serve.device.Accelerator;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.IMetric;
@@ -118,51 +115,13 @@ public class WorkerThread implements Runnable {
     }
 
     public String getGpuUsage() {
-        Process process;
         StringBuffer gpuUsage = new StringBuffer();
         if (gpuId >= 0) {
             try {
-                // TODO : add a generic code to capture gpu details for different devices instead of
-                // just NVIDIA
-                ProcessBuilder pb =
-                        new ProcessBuilder(
-                                "nvidia-smi",
-                                "-i",
-                                String.valueOf(gpuId),
-                                "--query-gpu=utilization.gpu,utilization.memory,memory.used",
-                                "--format=csv");
-
-                // Start the process
-                process = pb.start();
-                process.waitFor();
-                int exitCode = process.exitValue();
-                if (exitCode != 0) {
-                    gpuUsage.append("failed to obtained gpu usage");
-                    InputStream error = process.getErrorStream();
-                    for (int i = 0; i < error.available(); i++) {
-                        logger.error("" + error.read());
-                    }
-                    return gpuUsage.toString();
-                }
-                InputStream stdout = process.getInputStream();
-                BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(stdout, StandardCharsets.UTF_8));
-                String line;
-                String[] headers = new String[3];
-                Boolean firstLine = true;
-                while ((line = reader.readLine()) != null) {
-                    if (firstLine) {
-                        headers = line.split(",");
-                        firstLine = false;
-                    } else {
-                        String[] values = line.split(",");
-                        StringBuffer sb = new StringBuffer("gpuId::" + gpuId + " ");
-                        for (int i = 0; i < headers.length; i++) {
-                            sb.append(headers[i] + "::" + values[i].strip());
-                        }
-                        gpuUsage.append(sb.toString());
-                    }
-                }
+                configManager.systemInfo.updateAcceleratorMetrics();
+                Accelerator accelerator =
+                        this.configManager.systemInfo.getAccelerators().get(gpuId);
+                return accelerator.utilizationToString();
             } catch (Exception e) {
                 gpuUsage.append("failed to obtained gpu usage");
                 logger.error("Exception Raised : " + e.toString());
@@ -333,7 +292,8 @@ public class WorkerThread implements Runnable {
             }
         } finally {
             // WorkerThread is running in thread pool, the thread will be assigned to next
-            // Runnable once this worker is finished. If currentThread keep holding the reference
+            // Runnable once this worker is finished. If currentThread keep holding the
+            // reference
             // of the thread, currentThread.interrupt() might kill next worker.
             for (int i = 0; i < backendChannel.size(); i++) {
                 backendChannel.get(i).disconnect();
