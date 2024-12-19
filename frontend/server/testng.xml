@@ -16,5 +16,9 @@
       <class name="org.pytorch.serve.metrics.MetricTest"/>
       <class name="org.pytorch.serve.metrics.MetricCacheTest"/>
     </classes>
-  </test>
+   <test name="serve.device Tests">
+    <packages>
+      <package name="org.pytorch.serve.device.*"/>
+    </packages>
+  </test> </test>
 </suite>

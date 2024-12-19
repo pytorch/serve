@@ -1,0 +1,26 @@
+{
+	"card0": {
+		"Average Graphics Package Power (W)": "92.0",
+		"Card Series": "AMD INSTINCT MI250 (MCM) OAM AC MBA",
+		"Card Model": "0x740c",
+		"Card Vendor": "Advanced Micro Devices, Inc. [AMD/ATI]",
+		"Card SKU": "D65210V",
+		"Subsystem ID": "0x0b0c",
+		"Device Rev": "0x01",
+		"Node ID": "4",
+		"GUID": "11743",
+		"GFX Version": "gfx9010"
+	},
+	"card1": {
+		"Average Graphics Package Power (W)": "N/A (Secondary die)",
+		"Card Series": "AMD INSTINCT MI250 (MCM) OAM AC MBA",
+		"Card Model": "0x740c",
+		"Card Vendor": "Advanced Micro Devices, Inc. [AMD/ATI]",
+		"Card SKU": "D65210V",
+		"Subsystem ID": "0x0b0c",
+		"Device Rev": "0x01",
+		"Node ID": "5",
+		"GUID": "61477",
+		"GFX Version": "gfx9010"
+	}
+}

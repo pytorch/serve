@@ -164,6 +164,7 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ./build_image.sh -bt dev -g [-cv cu121|cu118] -cpp
 ```
 
+- For ROCm support (*experimental*), refer to [this documentation](../docs/hardware_support/amd_support.md).
 
 ## Start a container with a TorchServe image
 

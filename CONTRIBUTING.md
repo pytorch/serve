@@ -11,18 +11,7 @@ Your contributions will fall into two categories:
     - Search for your issue here: https://github.com/pytorch/serve/issues (look for the "good first issue" tag if you're a first time contributor)
     - Pick an issue and comment on the task that you want to work on this feature.
     - To ensure your changes doesn't break any of the existing features run the sanity suite as follows from serve directory:
-        - Install dependencies (if not already installed)
-          For CPU
-
-          ```bash
-          python ts_scripts/install_dependencies.py --environment=dev
-          ```
-
-         For GPU
-           ```bash
-           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
-           ```
-            > Supported cuda versions as cu121, cu118, cu117, cu116, cu113, cu111, cu102, cu101, cu92
+        - [Install dependencies](#Install-TorchServe-for-development) (if not already installed)
         - Install `pre-commit` to your Git flow:
             ```bash
             pre-commit install
@@ -60,26 +49,30 @@ pytest -k  test/pytest/test_mnist_template.py
 
 If you plan to develop with TorchServe and change some source code, you must install it from source code.
 
-Ensure that you have `python3` installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
+1. Clone the repository, including third-party modules, with `git clone --recurse-submodules --remote-submodules git@github.com:pytorch/serve.git`
+2. Ensure that you have `python3` installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
+3. Run the following script from the top of the source directory. NOTE: This script force re-installs `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` if existing installations are found
 
-Run the following script from the top of the source directory.
+    #### For Debian Based Systems/MacOS
 
-NOTE: This script force re-installs `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` if existing installations are found
+    ```
+    python ./ts_scripts/install_dependencies.py --environment=dev
+    python ./ts_scripts/install_from_src.py --environment=dev
+    ```
+    ##### Installing Dependencies for Accelerator Support
+    Use the optional `--rocm` or `--cuda` flag with `install_dependencies.py` for installing accelerator specific dependencies.
 
-#### For Debian Based Systems/ MacOS
+    Possible values are
+    - rocm: `rocm61`, `rocm60`
+    - cuda: `cu111`, `cu102`, `cu101`, `cu92`
 
-```
-python ./ts_scripts/install_dependencies.py --environment=dev
-python ./ts_scripts/install_from_src.py --environment=dev
-```
+    For example `python ./ts_scripts/install_dependencies.py --environment=dev --rocm=rocm61`
 
-Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`
+    #### For Windows
 
-#### For Windows
+    Refer to the documentation [here](docs/torchserve_on_win_native.md).
 
-Refer to the documentation [here](docs/torchserve_on_win_native.md).
-
-For information about the model archiver, see [detailed documentation](model-archiver/README.md).
+    For information about the model archiver, see [detailed documentation](model-archiver/README.md).
 
 ### What to Contribute?
 
