@@ -55,7 +55,7 @@ Refer to the [Documentation](#documentation) for detailed usage instructions.
 
 ## Documentation
 
-For detailed information on using TorchServe and Detectron2 for object detection, refer to the documentation provided in the [Upstart Commerce Blog](https://upstartcommerce.com/blogs/).
+For detailed information on using TorchServe and Detectron2 for object detection, refer to the documentation provided in the [Upstart Commerce Blog](https://upstartcommerce.com/optimizing-pytorch-model-serving-at-scale-with-torchserve/).
 
 ---
 
