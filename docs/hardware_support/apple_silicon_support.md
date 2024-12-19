@@ -1,19 +1,19 @@
-# Apple Silicon Support 
+# Apple Silicon Support
 
-## What is supported 
+## What is supported
 * TorchServe CI jobs now include M1 hardware in order to ensure support, [documentation](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories) on github M1 hardware.
-    - [Regression Tests](https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu.yml)  
-    - [Regression binaries Test](https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu_binaries.yml) 
+    - [Regression Tests](https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu.yml)
+    - [Regression binaries Test](https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu_binaries.yml)
 * For [Docker](https://docs.docker.com/desktop/install/mac-install/) ensure Docker for Apple silicon is installed then follow [setup steps](https://github.com/pytorch/serve/tree/master/docker)
 
 ## Experimental Support
 
-* For GPU jobs on Apple Silicon, [MPS](https://pytorch.org/docs/master/notes/mps.html) is now auto detected and enabled. To prevent TorchServe from using MPS, users have to set `deviceType: "cpu"` in model-config.yaml. 
-    * This is an experimental feature and NOT ALL models are guaranteed to work.  
+* For GPU jobs on Apple Silicon, [MPS](https://pytorch.org/docs/master/notes/mps.html) is now auto detected and enabled. To prevent TorchServe from using MPS, users have to set `deviceType: "cpu"` in model-config.yaml.
+    * This is an experimental feature and NOT ALL models are guaranteed to work.
 * Number of GPUs now reports GPUs on Apple Silicon
 
-### Testing 
-* [Pytests](https://github.com/pytorch/serve/tree/master/test/pytest/test_device_config.py) that checks for MPS on MacOS M1 devices 
+### Testing
+* [Pytests](https://github.com/pytorch/serve/tree/master/test/pytest/test_device_config.py) that checks for MPS on MacOS M1 devices
 * Models that have been tested and work: Resnet-18, Densenet161, Alexnet
 * Models that have been tested and DO NOT work: MNIST
 
@@ -31,10 +31,10 @@ Config file: N/A
 Inference address: http://127.0.0.1:8080
 Management address: http://127.0.0.1:8081
 Metrics address: http://127.0.0.1:8082
-Model Store: 
+Model Store:
 Initial Models: resnet-18=resnet-18.mar
-Log dir: 
-Metrics dir: 
+Log dir:
+Metrics dir:
 Netty threads: 0
 Netty client threads: 0
 Default workers per model: 16
@@ -48,7 +48,7 @@ Custom python dependency for model allowed: false
 Enable metrics API: true
 Metrics mode: LOG
 Disable system metrics: false
-Workflow Store: 
+Workflow Store:
 CPP log config: N/A
 Model config: N/A
 024-04-08T14:18:02,380 [INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager -  Loading snapshot serializer plugin...
@@ -69,17 +69,17 @@ serve % curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_cla
 }
 ...
 ```
-#### Conda Example 
+#### Conda Example
 
 ```
-(myenv) serve % pip list | grep torch                                                                   
+(myenv) serve % pip list | grep torch
 torch                     2.2.1
 torchaudio                2.2.1
 torchdata                 0.7.1
 torchtext                 0.17.1
 torchvision               0.17.1
 (myenv3) serve % conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-archiver
-(myenv3) serve % pip list | grep torch                                                                   
+(myenv3) serve % pip list | grep torch
 torch                     2.2.1
 torch-model-archiver      0.10.0b20240312
 torch-workflow-archiver   0.2.12b20240312
@@ -119,7 +119,7 @@ System metrics command: default
 2024-03-12T15:58:54,702 [DEBUG] main org.pytorch.serve.wlm.ModelManager - updateModel: densenet161, count: 10
 Model server started.
 ...
-(myenv3) serve % curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg 
+(myenv3) serve % curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
 {
   "tabby": 0.46661922335624695,
   "tiger_cat": 0.46449029445648193,

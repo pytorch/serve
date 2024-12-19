@@ -41,7 +41,7 @@ except ImportError as error:
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0a"):
     PT2_AVAILABLE = True
-    if torch.cuda.is_available():
+    if torch.cuda.is_available() and torch.version.cuda:
         # If Ampere enable tensor cores which will give better performance
         # Ideally get yourself an A10G or A100 for optimal performance
         if torch.cuda.get_device_capability() >= (8, 0):
@@ -227,7 +227,7 @@ class BaseHandler(abc.ABC):
 
             if "compile" in pt2_value:
                 compile_options = pt2_value["compile"]
-                if compile_options["enable"] == True:
+                if compile_options["enable"]:
                     del compile_options["enable"]
 
                     # if backend is not provided, compile will use its default, which is valid
@@ -284,7 +284,7 @@ class BaseHandler(abc.ABC):
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = self.model.to(self.device)
             self.model = ipex.optimize(self.model)
-            logger.info(f"Compiled model with ipex")
+            logger.info("Compiled model with ipex")
 
         logger.debug("Model file %s loaded successfully", self.model_pt_path)
 
@@ -364,7 +364,7 @@ class BaseHandler(abc.ABC):
             export_value = pt2_value.get("export", None)
             if isinstance(export_value, dict) and "aot_compile" in export_value:
                 torch_export_aot_compile = (
-                    True if export_value["aot_compile"] == True else False
+                    True if export_value["aot_compile"] else False
                 )
         return torch_export_aot_compile
 

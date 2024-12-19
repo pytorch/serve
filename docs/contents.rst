@@ -16,9 +16,7 @@
   model_zoo
   request_envelopes
   server
-  nvidia_mps
   snapshot
-  intel_extension_for_pytorch <https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch>
   torchserve_on_win_native
   torchserve_on_wsl
   use_cases
@@ -26,6 +24,12 @@
   large_model_inference
   Security
   FAQs
+
+.. toctree::
+  :maxdepth: 0
+  :caption: Hardware Support:
+
+  hardware_support/hardware_support
 
 .. toctree::
   :maxdepth: 0
