@@ -314,15 +314,21 @@
 <li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">intel_extension_for_pytorch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Hardware Support:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/amd_support.html">AMD Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/apple_silicon_support.html">Apple Silicon Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/linux_aarch64.html">TorchServe on linux aarch64 - Experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">Intel Extension for PyTorch</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
@@ -479,7 +485,7 @@ The theory behind this improvement is discussed in <a class="reference external"
 <li><p>The execution of the kernels is generally serialized</p></li>
 <li><p>Each processes creates its own CUDA context which occupies additional GPU memory</p></li>
 </ul>
-<p>To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service (MPS) to increase performance. You can find more information on how to utilize NVIDIA MPS with TorchServe  <a class="reference internal" href="nvidia_mps.html"><span class="doc">here</span></a>.</p>
+<p>To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service (MPS) to increase performance. You can find more information on how to utilize NVIDIA MPS with TorchServe  <a class="reference external" href="nvidia_mps">here</a>.</p>
 <p><h6> NVIDIA DALI</h6></p>
 <p>The NVIDIA Data Loading Library (DALI) is a library for data loading and pre-processing to accelerate deep learning applications. It can be used as a portable drop-in replacement for built in data loaders and data iterators in popular deep learning frameworks. DALI provides a collection of highly optimized building blocks for loading and processing image, video and audio data.
 You can find an example of DALI optimization integration with TorchServe <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/nvidia_dali">here</a>.</p>

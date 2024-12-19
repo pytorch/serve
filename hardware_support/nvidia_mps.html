@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ts.protocol package &mdash; PyTorch/Serve master documentation</title>
+  <title>Running TorchServe with NVIDIA MPS &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ts.torch_handler package" href="ts.torch_handler.html" />
-    <link rel="prev" title="ts.model_service package" href="ts.model_service.html" />
+    <link rel="next" title="&lt;no title&gt;" href="../apis.html" />
+    <link rel="prev" title="TorchServe on linux aarch64 - Experimental" href="linux_aarch64.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -323,11 +323,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../FAQs.html">FAQ’S</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Hardware Support:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../hardware_support/amd_support.html">AMD Support</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../hardware_support/apple_silicon_support.html">Apple Silicon Support</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../hardware_support/linux_aarch64.html">TorchServe on linux aarch64 - Experimental</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../hardware_support/nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="amd_support.html">AMD Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apple_silicon_support.html">Apple Silicon Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linux_aarch64.html">TorchServe on linux aarch64 - Experimental</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">Intel Extension for PyTorch</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
@@ -341,14 +341,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../workflow_management_api.html">Management API</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="ts.html">ts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.torch_handler.html">ts.torch_handler package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.metrics.html">ts.metrics package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.model_service.html">ts.model_service package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">ts.protocol package</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">serve</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.html">ts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.torch_handler.html">ts.torch_handler package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.metrics.html">ts.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.model_service.html">ts.model_service package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.protocol.html">ts.protocol package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">serve</a></li>
 </ul>
 
             
@@ -389,17 +389,15 @@
       </li>
 
         
-          <li><a href="dev_api.html">&lt;no title&gt;</a> &gt;</li>
+          <li><a href="hardware_support.html">&lt;no title&gt;</a> &gt;</li>
         
-          <li><a href="ts.html">ts package</a> &gt;</li>
-        
-      <li>ts.protocol package</li>
+      <li>Running TorchServe with NVIDIA MPS</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/api/ts.protocol.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/hardware_support/nvidia_mps.md.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -429,78 +427,91 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="ts-protocol-package">
-<h1>ts.protocol package<a class="headerlink" href="#ts-protocol-package" title="Permalink to this heading">¶</a></h1>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
-</section>
-<section id="module-ts.protocol.otf_message_handler">
-<span id="ts-protocol-otf-message-handler-module"></span><h2>ts.protocol.otf_message_handler module<a class="headerlink" href="#module-ts.protocol.otf_message_handler" title="Permalink to this heading">¶</a></h2>
-<p>OTF Codec</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="ts.protocol.otf_message_handler.create_load_model_response">
-<span class="sig-prename descclassname"><span class="pre">ts.protocol.otf_message_handler.</span></span><span class="sig-name descname"><span class="pre">create_load_model_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/protocol/otf_message_handler.html#create_load_model_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.protocol.otf_message_handler.create_load_model_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create load model response.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>code</strong> – </p></li>
-<li><p><strong>message</strong> – </p></li>
+  <section id="running-torchserve-with-nvidia-mps">
+<h1>Running TorchServe with NVIDIA MPS<a class="headerlink" href="#running-torchserve-with-nvidia-mps" title="Permalink to this heading">¶</a></h1>
+<p>In order to deploy ML models, TorchServe spins up each worker in a separate processes, thus isolating each worker from the others.
+Each process creates its own CUDA context to execute its kernels and access the allocated memory.</p>
+<p>While NVIDIA GPUs in their default setting allow multiple processes to run CUDA kernels on a single device it involves the following drawback:</p>
+<ul class="simple">
+<li><p>The execution of the kernels is generally serialized</p></li>
+<li><p>Each processes creates its own CUDA context which occupies additional GPU memory</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ts.protocol.otf_message_handler.create_predict_response">
-<span class="sig-prename descclassname"><span class="pre">ts.protocol.otf_message_handler.</span></span><span class="sig-name descname"><span class="pre">create_predict_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_id_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts_stream_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/protocol/otf_message_handler.html#create_predict_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.protocol.otf_message_handler.create_predict_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create inference response.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>context</strong> – </p></li>
-<li><p><strong>ret</strong> – </p></li>
-<li><p><strong>req_id_map</strong> – </p></li>
-<li><p><strong>message</strong> – </p></li>
-<li><p><strong>code</strong> – </p></li>
+<p>For these scenarios NVIDIA offers the Multi-Process Service (MPS) which:</p>
+<ul class="simple">
+<li><p>Allows multiple processes to share the same CUDA context on the same GPU</p></li>
+<li><p>Run their kernels in a parallel fashion</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ts.protocol.otf_message_handler.encode_response_headers">
-<span class="sig-prename descclassname"><span class="pre">ts.protocol.otf_message_handler.</span></span><span class="sig-name descname"><span class="pre">encode_response_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resp_hdr_map</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/protocol/otf_message_handler.html#encode_response_headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.protocol.otf_message_handler.encode_response_headers" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ts.protocol.otf_message_handler.retrieve_msg">
-<span class="sig-prename descclassname"><span class="pre">ts.protocol.otf_message_handler.</span></span><span class="sig-name descname"><span class="pre">retrieve_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/protocol/otf_message_handler.html#retrieve_msg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.protocol.otf_message_handler.retrieve_msg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve a message from the socket channel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>conn</strong> – </p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ts.protocol.otf_message_handler.send_intermediate_predict_response">
-<span class="sig-prename descclassname"><span class="pre">ts.protocol.otf_message_handler.</span></span><span class="sig-name descname"><span class="pre">send_intermediate_predict_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_id_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/protocol/otf_message_handler.html#send_intermediate_predict_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.protocol.otf_message_handler.send_intermediate_predict_response" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>This can result in:</p>
+<ul class="simple">
+<li><p>Increased performance when using multiple workers on the same GPU</p></li>
+<li><p>Decreased GPU memory utilization due to the shared context</p></li>
+</ul>
+<p>To leverage the benefits of NVIDIA MPS we need to start the MPS daemon with the following commands before starting up TorchServe itself.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">nvidia</span><span class="o">-</span><span class="n">smi</span> <span class="o">-</span><span class="n">c</span> <span class="mi">3</span>
+<span class="n">nvidia</span><span class="o">-</span><span class="n">cuda</span><span class="o">-</span><span class="n">mps</span><span class="o">-</span><span class="n">control</span> <span class="o">-</span><span class="n">d</span>
+</pre></div>
+</div>
+<p>The first command enables the exclusive processing mode for the GPU allowing only one process (the MPS daemon) to utilize it.
+The second command starts the MPS daemon itself.
+To shutdown the daemon we can execute:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="n">quit</span> <span class="o">|</span> <span class="n">nvidia</span><span class="o">-</span><span class="n">cuda</span><span class="o">-</span><span class="n">mps</span><span class="o">-</span><span class="n">control</span>
+</pre></div>
+</div>
+<p>For more details on MPS please refer to <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html">NVIDIA’s MPS documentation</a>.
+It should be noted that MPS only allows 48 processes (for Volta GPUs) to connect to the daemon due limited hardware resources.
+Adding more clients/workers (to the same GPU) will lead to a failure.</p>
+<section id="benchmarks">
+<h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Permalink to this heading">¶</a></h2>
+<p>To show the performance of TorchServe with activated MPS and help to the decision in enabling MPS for your deployment or not we will perform some benchmarks with representative workloads.</p>
+<p>Primarily, we want to investigate how the throughput of a worker evolves with activated MPS for different operation points.
+As an example work load for our benchmark we select the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers#sequence-classification">HuggingFace Transformers Sequence Classification example</a>.
+We perform the benchmark on a g4dn.4xlarge as well as a p3.2xlarge instance on AWS.
+Both instance types provide one GPU per instance which will result in multiple workers to be scheduled on the same GPU.
+For the benchmark we concentrate on the model throughput as measured by the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks/benchmark-ab.py">benchmark-ab.py</a> tool.</p>
+<p>First, we measure the throughput of a single worker for different batch sizes as it will show us at which point the compute resources of the GPU are fully occupied.
+Second, we measure the throughput with two deployed workers for the batch sizes where we expect the GPUs to have still some resources left over to share.
+For each benchmark we perform five runs and take the median over the runs.</p>
+<p>We use the following config.json for the benchmark, only overwriting the number of workers and the batch size accordingly.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span><span class="s2">&quot;/home/ubuntu/serve/examples/Huggingface_Transformers/model_store/BERTSeqClassification&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;requests&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+    <span class="s2">&quot;concurrency&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+    <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;/home/ubuntu/serve/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Please note that we set the concurrency level to 600 which will make sure that the batch aggregation inside TorchServe fills up the batches to the maximum batch size. But concurrently this will skew the latency measurements as many requests will be waiting in the queue to be processed. We will therefore neglect the latency measurements in the following.</p>
+<section id="g4-instance">
+<h3>G4 Instance<a class="headerlink" href="#g4-instance" title="Permalink to this heading">¶</a></h3>
+<p>We first perform the single worker benchmark for the G4 instance.
+In the figure below we see that up to a batch size of four we see a steady increase of the throughput over the batch size.</p>
+<p><img alt="G4 benchmark, single worker" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_g4_single.png" /></p>
+<p>Next, we increase the number of workers to two in order to compare the throughput with and without MPS running.
+To enable MPS for the second set of runs we first set the exclusive processing mode for the GPU and then start the MPS daemon as shown above.</p>
+<p>We select the batch size between one and eight according to our previous findings.
+In the figure we can see that the performance in terms of throughput can be better in case of batch size 1 and 8 (up to +18%) while it can be worse for others (-11%).
+An interpretation of this result could be that the G4 instance has not many resources to share when we run a BERT model in one of the workers.</p>
+<p><img alt="G4 benchmark, two workers" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_g4_two_worker.png" /></p>
 </section>
-<section id="module-ts.protocol">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts.protocol" title="Permalink to this heading">¶</a></h2>
+<section id="p3-instance">
+<h3>P3 instance<a class="headerlink" href="#p3-instance" title="Permalink to this heading">¶</a></h3>
+<p>Next, we will run the same experiment with the bigger p3.2xlarge instance.
+With a single worker we get the following throughput values:</p>
+<p><img alt="P3 benchmark, single worker" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_p3_single.png" /></p>
+<p>We can see that the throughput steady increases but for a batch size over eight we see diminishing returns.
+Finally, we deploy two workers on the P3 instance and compare running them with and without MPS.
+We can see that for batch size between 1 and 32 the throughput is consistently higher (up to +25%) for MPS enabled with the exception of batch size 16.</p>
+<p><img alt="P3 benchmark, two workers" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_p3_two_worker.png" /></p>
+</section>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
+<p>In the previous section we saw that by enabling MPS for two workers running the same model we receive mixed results.
+For the smaller G4 instance we only saw benefits in certain operation points while we saw more consistent improvements for the bigger P3 instance.
+This suggests that the benefit in terms of throughput for running a deployment with MPS are highly workload and environment dependent and need to be determined for specific situations using appropriate benchmarks and tools.
+It should be noted that the previous benchmark solely focused on throughput and neglected latency and memory footprint.
+As using MPS will only create a single CUDA context more workers can be packed to the same GPU which needs to be considered as well in the according scenarios.</p>
 </section>
 </section>
 
@@ -512,10 +523,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ts.torch_handler.html" class="btn btn-neutral float-right" title="ts.torch_handler package" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="../apis.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="ts.model_service.html" class="btn btn-neutral" title="ts.model_service package" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="linux_aarch64.html" class="btn btn-neutral" title="TorchServe on linux aarch64 - Experimental" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -547,10 +558,13 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">ts.protocol package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-ts.protocol.otf_message_handler">ts.protocol.otf_message_handler module</a></li>
-<li><a class="reference internal" href="#module-ts.protocol">Module contents</a></li>
+<li><a class="reference internal" href="#">Running TorchServe with NVIDIA MPS</a><ul>
+<li><a class="reference internal" href="#benchmarks">Benchmarks</a><ul>
+<li><a class="reference internal" href="#g4-instance">G4 Instance</a></li>
+<li><a class="reference internal" href="#p3-instance">P3 instance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#summary">Summary</a></li>
 </ul>
 </li>
 </ul>

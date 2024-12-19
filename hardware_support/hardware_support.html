@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Apple Silicon Support &mdash; PyTorch/Serve master documentation</title>
+  <title>&lt;no title&gt; &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -26,15 +26,17 @@
 
   
 
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="AMD Support" href="amd_support.html" />
+    <link rel="prev" title="FAQ’S" href="../FAQs.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -45,16 +47,16 @@
   
 
   
-  <script src="_static/js/modernizr.min.js"></script>
+  <script src="../_static/js/modernizr.min.js"></script>
 
   <!-- Preload the theme fonts -->
 
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
 
 <!-- Preload the katex fonts -->
 
@@ -281,7 +283,7 @@
 
 
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search Docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -299,48 +301,54 @@
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performance_guide.html">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../large_model_inference.html">Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../FAQs.html">FAQ’S</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Hardware Support:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="amd_support.html">AMD Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apple_silicon_support.html">Apple Silicon Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linux_aarch64.html">TorchServe on linux aarch64 - Experimental</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">intel_extension_for_pytorch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">Intel Extension for PyTorch</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics_api.html">Metrics API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grpc_api.html">TorchServe gRPC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inference_api.html">Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metrics_api.html">Metrics API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rest_api.html">TorchServe REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow_inference_api.html">Workflow Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow_management_api.html">Management API</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.html">ts.torch_handler package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ts.metrics.html">ts.metrics package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ts.model_service.html">ts.model_service package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/ts.protocol.html">ts.protocol package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/modules.html">serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.html">ts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.torch_handler.html">ts.torch_handler package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.metrics.html">ts.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.model_service.html">ts.model_service package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/ts.protocol.html">ts.protocol package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">serve</a></li>
 </ul>
 
             
@@ -373,7 +381,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="contents.html">
+        <a href="../contents.html">
           
             Docs
           
@@ -381,13 +389,13 @@
       </li>
 
         
-      <li>Apple Silicon Support</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/apple_silicon_support.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/hardware_support/hardware_support.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -417,159 +425,65 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="apple-silicon-support">
-<h1>Apple Silicon Support<a class="headerlink" href="#apple-silicon-support" title="Permalink to this heading">¶</a></h1>
-<section id="what-is-supported">
-<h2>What is supported<a class="headerlink" href="#what-is-supported" title="Permalink to this heading">¶</a></h2>
-<ul class="simple">
-<li><p>TorchServe CI jobs now include M1 hardware in order to ensure support, <a class="reference external" href="https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories">documentation</a> on github M1 hardware.</p>
+  <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Hardware Support:</span></p>
 <ul>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu.yml">Regression Tests</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu_binaries.yml">Regression binaries Test</a></p></li>
+<li class="toctree-l1"><a class="reference internal" href="amd_support.html">AMD Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="amd_support.html#supported-versions-of-rocm">Supported Versions of ROCm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="amd_support.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="amd_support.html#selecting-accelerators-using-hip-visible-devices">Selecting Accelerators Using <code class="docutils literal notranslate"><span class="pre">HIP_VISIBLE_DEVICES</span></code></a></li>
 </ul>
 </li>
-<li><p>For <a class="reference external" href="https://docs.docker.com/desktop/install/mac-install/">Docker</a> ensure Docker for Apple silicon is installed then follow <a class="reference external" href="https://github.com/pytorch/serve/tree/master/docker">setup steps</a></p></li>
-</ul>
-</section>
-<section id="experimental-support">
-<h2>Experimental Support<a class="headerlink" href="#experimental-support" title="Permalink to this heading">¶</a></h2>
-<ul class="simple">
-<li><p>For GPU jobs on Apple Silicon, <a class="reference external" href="https://pytorch.org/docs/master/notes/mps.html">MPS</a> is now auto detected and enabled. To prevent TorchServe from using MPS, users have to set <code class="docutils literal notranslate"><span class="pre">deviceType:</span> <span class="pre">&quot;cpu&quot;</span></code> in model-config.yaml.</p>
-<ul>
-<li><p>This is an experimental feature and NOT ALL models are guaranteed to work.</p></li>
+<li class="toctree-l2"><a class="reference internal" href="amd_support.html#docker">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="amd_support.html#example-usage">Example Usage</a></li>
 </ul>
 </li>
-<li><p>Number of GPUs now reports GPUs on Apple Silicon</p></li>
+<li class="toctree-l1"><a class="reference internal" href="apple_silicon_support.html">Apple Silicon Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apple_silicon_support.html#what-is-supported">What is supported</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apple_silicon_support.html#experimental-support">Experimental Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="apple_silicon_support.html#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="apple_silicon_support.html#example-resnet-18-using-mps-on-mac-m1-pro">Example Resnet-18 Using MPS On Mac M1 Pro</a></li>
+<li class="toctree-l4"><a class="reference internal" href="apple_silicon_support.html#conda-example">Conda Example</a></li>
 </ul>
-<section id="testing">
-<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">¶</a></h3>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/test/pytest/test_device_config.py">Pytests</a> that checks for MPS on MacOS M1 devices</p></li>
-<li><p>Models that have been tested and work: Resnet-18, Densenet161, Alexnet</p></li>
-<li><p>Models that have been tested and DO NOT work: MNIST</p></li>
+</li>
 </ul>
-<section id="example-resnet-18-using-mps-on-mac-m1-pro">
-<h4>Example Resnet-18 Using MPS On Mac M1 Pro<a class="headerlink" href="#example-resnet-18-using-mps-on-mac-m1-pro" title="Permalink to this heading">¶</a></h4>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>serve % torchserve --start --model-store model_store_gen --models resnet-18=resnet-18.mar --ncs
-
-Torchserve version: 0.10.0
-Number of GPUs: 16
-Number of CPUs: 10
-Max heap size: 8192 M
-Python executable: /Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11
-Config file: N/A
-Inference address: http://127.0.0.1:8080
-Management address: http://127.0.0.1:8081
-Metrics address: http://127.0.0.1:8082
-Model Store: 
-Initial Models: resnet-18=resnet-18.mar
-Log dir: 
-Metrics dir: 
-Netty threads: 0
-Netty client threads: 0
-Default workers per model: 16
-Blacklist Regex: N/A
-Maximum Response Size: 6553500
-Maximum Request Size: 6553500
-Limit Maximum Image Pixels: true
-Prefer direct buffer: false
-Allowed Urls: [file://.*|http(s)?://.*]
-Custom python dependency for model allowed: false
-Enable metrics API: true
-Metrics mode: LOG
-Disable system metrics: false
-Workflow Store: 
-CPP log config: N/A
-Model config: N/A
-024-04-08T14:18:02,380 [INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager -  Loading snapshot serializer plugin...
-2024-04-08T14:18:02,391 [INFO ] main org.pytorch.serve.ModelServer - Loading initial models: resnet-18.mar
-2024-04-08T14:18:02,699 [DEBUG] main org.pytorch.serve.wlm.ModelVersionedRefs - Adding new version 1.0 for model resnet-18
-2024-04-08T14:18:02,699 [INFO ] main org.pytorch.serve.wlm.ModelManager - Model resnet-18 loaded.
-2024-04-08T14:18:02,699 [DEBUG] main org.pytorch.serve.wlm.ModelManager - updateModel: resnet-18, count: 16
-...
-...
-serve % curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/kitten.jpg
-...
-{
-  &quot;tabby&quot;: 0.40966302156448364,
-  &quot;tiger_cat&quot;: 0.3467046618461609,
-  &quot;Egyptian_cat&quot;: 0.1300288736820221,
-  &quot;lynx&quot;: 0.02391958422958851,
-  &quot;bucket&quot;: 0.011532187461853027
-}
-...
-</pre></div>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="linux_aarch64.html">TorchServe on linux aarch64 - Experimental</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="linux_aarch64.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_aarch64.html#optimizations">Optimizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_aarch64.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_aarch64.html#to-dos">To Dos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nvidia_mps.html">Running TorchServe with NVIDIA MPS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nvidia_mps.html#benchmarks">Benchmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="nvidia_mps.html#g4-instance">G4 Instance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nvidia_mps.html#p3-instance">P3 instance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nvidia_mps.html#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">Intel Extension for PyTorch</a></li>
+</ul>
 </div>
-</section>
-<section id="conda-example">
-<h4>Conda Example<a class="headerlink" href="#conda-example" title="Permalink to this heading">¶</a></h4>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(myenv) serve % pip list | grep torch                                                                   
-torch                     2.2.1
-torchaudio                2.2.1
-torchdata                 0.7.1
-torchtext                 0.17.1
-torchvision               0.17.1
-(myenv3) serve % conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-archiver
-(myenv3) serve % pip list | grep torch                                                                   
-torch                     2.2.1
-torch-model-archiver      0.10.0b20240312
-torch-workflow-archiver   0.2.12b20240312
-torchaudio                2.2.1
-torchdata                 0.7.1
-torchserve                0.10.0b20240312
-torchtext                 0.17.1
-torchvision               0.17.1
-(myenv3) serve % torchserve --start --ncs  --models densenet161.mar --model-store ./model_store_gen/
-Torchserve version: 0.10.0
-Number of GPUs: 0
-Number of CPUs: 10
-Max heap size: 8192 M
-Config file: N/A
-Inference address: http://127.0.0.1:8080
-Management address: http://127.0.0.1:8081
-Metrics address: http://127.0.0.1:8082
-Initial Models: densenet161.mar
-Netty threads: 0
-Netty client threads: 0
-Default workers per model: 10
-Blacklist Regex: N/A
-Maximum Response Size: 6553500
-Maximum Request Size: 6553500
-Limit Maximum Image Pixels: true
-Prefer direct buffer: false
-Allowed Urls: [file://.*|http(s)?://.*]
-Custom python dependency for model allowed: false
-Enable metrics API: true
-Metrics mode: LOG
-Disable system metrics: false
-CPP log config: N/A
-Model config: N/A
-System metrics command: default
-...
-2024-03-12T15:58:54,702 [INFO ] main org.pytorch.serve.wlm.ModelManager - Model densenet161 loaded.
-2024-03-12T15:58:54,702 [DEBUG] main org.pytorch.serve.wlm.ModelManager - updateModel: densenet161, count: 10
-Model server started.
-...
-(myenv3) serve % curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg 
-{
-  &quot;tabby&quot;: 0.46661922335624695,
-  &quot;tiger_cat&quot;: 0.46449029445648193,
-  &quot;Egyptian_cat&quot;: 0.0661405548453331,
-  &quot;lynx&quot;: 0.001292439759708941,
-  &quot;plastic_bag&quot;: 0.00022909720428287983
-}
-</pre></div>
-</div>
-</section>
-</section>
-</section>
-</section>
 
 
              </article>
              
             </div>
             <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="amd_support.html" class="btn btn-neutral float-right" title="AMD Support" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="../FAQs.html" class="btn btn-neutral" title="FAQ’S" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
   
 
   
@@ -598,21 +512,7 @@ Model server started.
         <div class="pytorch-content-right" id="pytorch-content-right">
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
-              <ul>
-<li><a class="reference internal" href="#">Apple Silicon Support</a><ul>
-<li><a class="reference internal" href="#what-is-supported">What is supported</a></li>
-<li><a class="reference internal" href="#experimental-support">Experimental Support</a><ul>
-<li><a class="reference internal" href="#testing">Testing</a><ul>
-<li><a class="reference internal" href="#example-resnet-18-using-mps-on-mac-m1-pro">Example Resnet-18 Using MPS On Mac M1 Pro</a></li>
-<li><a class="reference internal" href="#conda-example">Conda Example</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
+              
             </div>
           </div>
         </div>
@@ -625,23 +525,23 @@ Model server started.
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/katex.min.js"></script>
-         <script src="_static/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="../_static/katex.min.js"></script>
+         <script src="../_static/auto-render.min.js"></script>
+         <script src="../_static/katex_autorenderer.js"></script>
      
 
   
 
-  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
-  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-  <script type="text/javascript" src="_static/js/theme.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
@@ -746,7 +646,7 @@ Model server started.
   <div class="cookie-banner-wrapper">
   <div class="container">
     <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
-    <img class="close-button" src="_static/images/pytorch-x.svg">
+    <img class="close-button" src="../_static/images/pytorch-x.svg">
   </div>
 </div>
 
@@ -879,7 +779,7 @@ Model server started.
 
   <!-- End Mobile Menu -->
 
-  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function() {

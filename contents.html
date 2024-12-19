@@ -313,15 +313,21 @@
 <li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">intel_extension_for_pytorch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Hardware Support:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/amd_support.html">AMD Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/apple_silicon_support.html">Apple Silicon Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/linux_aarch64.html">TorchServe on linux aarch64 - Experimental</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">Intel Extension for PyTorch</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
@@ -434,15 +440,57 @@
 <li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">intel_extension_for_pytorch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Hardware Support:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/amd_support.html">AMD Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/amd_support.html#supported-versions-of-rocm">Supported Versions of ROCm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/amd_support.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hardware_support/amd_support.html#selecting-accelerators-using-hip-visible-devices">Selecting Accelerators Using <code class="docutils literal notranslate"><span class="pre">HIP_VISIBLE_DEVICES</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/amd_support.html#docker">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/amd_support.html#example-usage">Example Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/apple_silicon_support.html">Apple Silicon Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/apple_silicon_support.html#what-is-supported">What is supported</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/apple_silicon_support.html#experimental-support">Experimental Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hardware_support/apple_silicon_support.html#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hardware_support/apple_silicon_support.html#example-resnet-18-using-mps-on-mac-m1-pro">Example Resnet-18 Using MPS On Mac M1 Pro</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hardware_support/apple_silicon_support.html#conda-example">Conda Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/linux_aarch64.html">TorchServe on linux aarch64 - Experimental</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/linux_aarch64.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/linux_aarch64.html#optimizations">Optimizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/linux_aarch64.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/linux_aarch64.html#to-dos">To Dos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_support/nvidia_mps.html">Running TorchServe with NVIDIA MPS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/nvidia_mps.html#benchmarks">Benchmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hardware_support/nvidia_mps.html#g4-instance">G4 Instance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hardware_support/nvidia_mps.html#p3-instance">P3 instance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_support/nvidia_mps.html#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">Intel Extension for PyTorch</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
