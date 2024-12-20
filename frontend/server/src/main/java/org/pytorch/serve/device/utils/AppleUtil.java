@@ -5,10 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.pytorch.serve.device.Accelerator;
 import org.pytorch.serve.device.AcceleratorVendor;
 import org.pytorch.serve.device.interfaces.IAcceleratorUtility;
@@ -75,15 +74,12 @@ public class AppleUtil implements IAcceleratorUtility, IJsonSmiParser {
                         .getAsJsonObject() // Gets the outer object
                         .get("SPDisplaysDataType") // Gets the "SPDisplaysDataType" element
                         .getAsJsonArray();
-        JsonObject gpuObject = displaysArray.get(0).getAsJsonObject();
-        int number_of_cores = Integer.parseInt(gpuObject.get("sppci_cores").getAsString());
 
-        // add the object `number_of_cores` times to maintain the exsisitng
-        // functionality
-        accelerators =
-                IntStream.range(0, number_of_cores)
-                        .mapToObj(i -> gpuObject)
-                        .collect(Collectors.toList());
+        JsonObject gpuObject = displaysArray.get(0).getAsJsonObject();
+
+        // Create list with only a single accelerator object as
+        // M1, M2, M3 Macs have only single integrated GPU
+        accelerators = Collections.singletonList(gpuObject);
 
         return accelerators;
     }
