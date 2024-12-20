@@ -2,6 +2,7 @@ import glob
 import os
 import shutil
 import sys
+import time
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
@@ -108,10 +109,39 @@ def cleanup_model_store():
         os.remove(f)
 
 
-def move_logs(log_file, artifact_dir):
+def move_logs(log_file, artifact_dir, retries=5):
+    """
+    Move log files to artifacts directory. If directory already exists, merge contents.
+    """
     logs_dir = os.path.join("logs")
-    os.rename(log_file, os.path.join(logs_dir, log_file))  # mv file logs/
-    os.rename(logs_dir, os.path.join(artifact_dir, logs_dir))  # mv logs/ dir
+
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
+
+    shutil.move(log_file, os.path.join(logs_dir, log_file))  # mv file logs/
+
+    destination_dir = os.path.join(artifact_dir, logs_dir)
+
+    # Retry is used because the directory might not be ready to be moved.
+    for attempt in range(retries):
+        try:
+            if os.path.exists(destination_dir):
+                # Merge contents if destination directory already exists
+                for root, dirs, files in os.walk(logs_dir):
+                    for file in files:
+                        shutil.move(
+                            os.path.join(root, file),
+                            os.path.join(destination_dir, file),
+                        )
+                shutil.rmtree(logs_dir)  # Remove the empty logs directory
+            else:
+                shutil.move(logs_dir, destination_dir)  # mv logs/ dir
+            break
+        except:
+            if attempt < retries - 1:
+                time.sleep(2)
+            else:
+                raise
 
 
 def trigger_management_tests():

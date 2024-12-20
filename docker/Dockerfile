@@ -37,12 +37,12 @@ ARG BRANCH_NAME
 ARG REPO_URL=https://github.com/pytorch/serve.git
 ENV PYTHONUNBUFFERED TRUE
 
-RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install software-properties-common -y && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt remove python-pip  python3-pip && \
+    apt remove -y python-pip python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         ca-certificates \
         g++ \
@@ -54,6 +54,13 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
         curl \
         git \
     && rm -rf /var/lib/apt/lists/*
+
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
+    if [ "$USE_ROCM_VERSION" ]; then \
+        apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y rocm-dev amd-smi-lib \
+        && rm -rf /var/lib/apt/lists/* ; \
+    fi
 
 # Make the virtual environment and "activating" it by adding it first to the path.
 # From here on the python$PYTHON_VERSION interpreter is used and the packages
@@ -67,6 +74,7 @@ RUN python -m pip install -U pip setuptools
 RUN export USE_CUDA=1
 
 ARG USE_CUDA_VERSION=""
+ARG USE_ROCM_VERSION=""
 
 COPY ./ serve
 
@@ -75,7 +83,6 @@ RUN \
         rm -rf serve;\
         git clone --recursive $REPO_URL -b $BRANCH_NAME serve; \
     fi
-
 
 WORKDIR "serve"
 
@@ -89,6 +96,14 @@ RUN \
         # Install the binary with the latest CPU image on a CUDA base image
         else \
             python ./ts_scripts/install_dependencies.py;\
+        fi; \
+    elif echo "${BASE_IMAGE}" | grep -q "rocm/"; then \
+        # Install ROCm version specific binary when ROCm version is specified as a build arg
+        if [ "$USE_ROCM_VERSION" ]; then \
+            python ./ts_scripts/install_dependencies.py --rocm $USE_ROCM_VERSION;\
+        # Install the binary with the latest CPU image on a ROCm base image
+        else \
+            python ./ts_scripts/install_dependencies.py; \
         fi; \
     # Install the CPU binary
     else \
@@ -111,13 +126,14 @@ FROM ${BASE_IMAGE} AS production-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
 ENV PYTHONUNBUFFERED TRUE
+ARG USE_ROCM_VERSION
 
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install software-properties-common -y && \
     add-apt-repository ppa:deadsnakes/ppa -y && \
-    apt remove python-pip  python3-pip && \
+    apt remove -y python-pip python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python$PYTHON_VERSION \
     python3-distutils \
@@ -130,12 +146,24 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
 
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
+    if [ "$USE_ROCM_VERSION" ]; then \
+        apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y rocm-dev amd-smi-lib \
+        && rm -rf /var/lib/apt/lists/* ; \
+    fi
+
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
 
 COPY --chown=model-server --from=compile-image /home/venv /home/venv
 COPY --from=compile-image /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 ENV PATH="/home/venv/bin:$PATH"
+
+RUN \
+    if [ "$USE_ROCM_VERSION" ]; then \
+        python -m pip install /opt/rocm/share/amd_smi; \
+    fi
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server
@@ -157,13 +185,14 @@ FROM ${BASE_IMAGE} AS ci-image
 ARG PYTHON_VERSION
 ARG BRANCH_NAME
 ENV PYTHONUNBUFFERED TRUE
+ARG USE_ROCM_VERSION
 
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install software-properties-common -y && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt remove python-pip  python3-pip && \
+    apt remove -y python-pip python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python$PYTHON_VERSION \
     python3-distutils \
@@ -183,12 +212,23 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
 
+RUN --mount=type=cache,sharing=locked,id=apt-dev,target=/var/cache/apt \
+    if [ "$USE_ROCM_VERSION" ]; then \
+        apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y rocm-dev amd-smi-lib \
+        && rm -rf /var/lib/apt/lists/* ; \
+    fi
 
 COPY --from=compile-image /home/venv /home/venv
 
 ENV PATH="/home/venv/bin:$PATH"
 
 RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/$BRANCH_NAME/requirements/developer.txt
+
+RUN \
+    if [ "$USE_ROCM_VERSION" ]; then \
+        python -m pip install /opt/rocm/share/amd_smi; \
+    fi
 
 RUN mkdir /home/serve
 ENV TS_RUN_IN_DOCKER True
@@ -203,11 +243,13 @@ ARG PYTHON_VERSION
 ARG BRANCH_NAME
 ARG BUILD_FROM_SRC
 ARG LOCAL_CHANGES
+ARG USE_ROCM_VERSION
 ARG BUILD_WITH_IPEX
 ARG IPEX_VERSION=1.11.0
 ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
 ENV PYTHONUNBUFFERED TRUE
-RUN --mount=type=cache,target=/var/cache/apt \
+
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install software-properties-common -y && \
@@ -243,10 +285,17 @@ RUN \
 
 COPY --from=compile-image /home/venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
+
+RUN \
+    if [ "$USE_ROCM_VERSION" ]; then \
+        python -m pip install /opt/rocm/share/amd_smi; \
+    fi
+
 WORKDIR "serve"
+
 RUN python -m pip install -U pip setuptools \
     && python -m pip install --no-cache-dir -r requirements/developer.txt \
-    && python ts_scripts/install_from_src.py \
+    && python ts_scripts/install_from_src.py --environment=dev\
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \

@@ -11,6 +11,7 @@ BASE_IMAGE="ubuntu:20.04"
 UPDATE_BASE_IMAGE=false
 USE_CUSTOM_TAG=false
 CUDA_VERSION=""
+ROCM_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
 BUILD_CPP=false
@@ -33,6 +34,7 @@ do
           echo "-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04 "
           echo "-bt, --buildtype specify for type of created image. Possible values: production, dev, ci."
           echo "-cv, --cudaversion specify to cuda version to use"
+          echo "-rv, --rocmversion spesify to rocm version to use"
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
@@ -167,6 +169,24 @@ do
           shift
           shift
           ;;
+        -rv|--rocmversion)
+          ROCM_VERSION="$2"
+          if [ "${ROCM_VERSION}" == "rocm60" ];
+          then
+            BASE_IMAGE="rocm/dev-ubuntu-22.04:6.0.2"
+          elif [ "${ROCM_VERSION}" == "rocm61" ];
+          then
+            BASE_IMAGE="rocm/dev-ubuntu-22.04:6.1.2"
+          elif [ "${ROCM_VERSION}" == "rocm62" ];
+          then
+            BASE_IMAGE="rocm/dev-ubuntu-22.04:6.2.4"
+          else
+            echo "ROCM version not supported"
+            exit 1
+          fi
+          shift
+          shift
+          ;;
     esac
 done
 
@@ -218,30 +238,47 @@ then
       exit 1
     fi
   fi
+
+  if [[ "${MACHINE}" == "gpu" || "${ROCM_VERSION}" != "" ]];
+  then
+    if [ "${ROCM_VERSION}" == "rocm60" ];
+    then
+      BASE_IMAGE="rocm/dev-ubuntu-22.04:6.0.2"
+    elif [ "${ROCM_VERSION}" == "rocm61" ];
+    then
+      BASE_IMAGE="rocm/dev-ubuntu-22.04:6.1.2"
+    elif [ "${ROCM_VERSION}" == "rocm62" ];
+    then
+      BASE_IMAGE="rocm/dev-ubuntu-22.04:6.2.4"
+    else
+      echo "ROCm version $ROCM_VERSION is not supported for CPP"
+      exit 1
+    fi
+  fi
 fi
 
 if [ "${BUILD_TYPE}" == "production" ]; then
   if [ "${MULTI}" == "true" ]; then
-    DOCKER_BUILDKIT=1 docker buildx build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
+    DOCKER_BUILDKIT=1 docker buildx build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg USE_ROCM_VERSION="${ROCM_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
     --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}"\
     --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --platform "${ARCH}" --target production-image ../ --push
   else
-    DOCKER_BUILDKIT=1 docker buildx build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
+    DOCKER_BUILDKIT=1 docker buildx build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg USE_ROCM_VERSION="${ROCM_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
     --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}"\
     --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --target production-image ../ --load
   fi
 elif [ "${BUILD_TYPE}" == "ci" ];
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg USE_ROCM_VERSION="${ROCM_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
   --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}"\
   --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --target ci-image  ../
 else
   if [ "${BUILD_CPP}" == "true" ]
   then
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile.cpp --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
+    DOCKER_BUILDKIT=1 docker build --file Dockerfile.cpp --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg USE_ROCM_VERSION="${ROCM_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
     --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" -t "${DOCKER_TAG}" --target cpp-dev-image .
   else
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
+    DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg USE_ROCM_VERSION="${ROCM_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
     --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}"\
     --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}"  -t "${DOCKER_TAG}" --target dev-image  ../
   fi

@@ -41,7 +41,7 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 # Install dependencies
 python ./ts_scripts/install_dependencies.py
 
-# Include depeendencies for accelerator support with the relevant optional flags
+# Include dependencies for accelerator support with the relevant optional flags
 python ./ts_scripts/install_dependencies.py --rocm=rocm61
 python ./ts_scripts/install_dependencies.py --cuda=cu121
 
