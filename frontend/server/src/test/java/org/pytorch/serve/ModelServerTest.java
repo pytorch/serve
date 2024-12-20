@@ -1373,8 +1373,17 @@ public class ModelServerTest {
             Assert.assertTrue(++count < 5);
         }
 
-        // 7 system-level metrics + 2 gpu-specific metrics
-        Assert.assertEquals(metrics.size(), 7 + 2 * configManager.getNumberOfGpu());
+        // Determine if the device is Apple or not
+        String vendor = System.getProperty("os.name");
+        if (vendor != null) {
+            if (vendor.startsWith("Mac")) {
+                // 7 system-level metrics + 2 gpu-specific metrics (per GPU) for Apple devices
+                Assert.assertEquals(metrics.size(), 7 + 2 * configManager.getNumberOfGpu());
+            } else {
+                // 7 system-level metrics + 3 gpu-specific metrics (per GPU) for non-Apple devices
+                Assert.assertEquals(metrics.size(), 7 + 3 * configManager.getNumberOfGpu());
+            }
+        }
 
         for (Metric metric : metrics) {
             String metricName = metric.getMetricName();
