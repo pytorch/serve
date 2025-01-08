@@ -1,11 +1,11 @@
 import io
 import json
-import time
 import torch
 import logging
 import numpy as np
 from os import path
 from detectron2.config import get_cfg
+from ts.handler_utils.timer import timed
 from PIL import Image, UnidentifiedImageError
 from detectron2.engine import DefaultPredictor
 from detectron2.utils.logger import setup_logger
@@ -94,6 +94,7 @@ class ModelHandler:
             self.error = str(e)
             self.initialized = False
 
+    @timed
     def preprocess(self, batch):
         """
         Transform raw input into model input data.
@@ -135,6 +136,7 @@ class ModelHandler:
         logger.info(f"Pre-processing finished for a batch of {len(batch)}.")
         return images
 
+    @timed
     def inference(self, model_input):
         """
         Perform inference on the model input.
@@ -158,7 +160,7 @@ class ModelHandler:
                 raise e
         logger.info(f"Inference finished for a batch of {len(model_input)}.")
         return outputs
-
+    @timed
     def postprocess(self, inference_outputs):
         """
         Post-process the inference outputs to a serializable format.
@@ -169,8 +171,7 @@ class ModelHandler:
         Returns:
             List[str]: List of JSON strings containing predictions.
         """
-        start_time = time.time()
-        logger.info(f"Post-processing started at {start_time} for a batch of {len(inference_outputs)}.")
+        logger.info(f"Post-processing for a batch of {len(inference_outputs)}.")
         responses = []
         for idx, output in enumerate(inference_outputs):
             try:
@@ -192,11 +193,11 @@ class ModelHandler:
             except Exception as e:
                 logger.exception(f"Error during post-processing of output {idx}")
                 raise e
-        elapsed_time = time.time() - start_time
-        logger.info(f"Post-processing finished for a batch of {len(inference_outputs)} in {elapsed_time:.2f} seconds.")
+        logger.info(f"Post-processing finished for a batch of {len(inference_outputs)}.")
 
         return responses
 
+    @timed
     def handle(self, data, context):
         """
         Entry point for TorchServe to interact with the ModelHandler.
@@ -209,7 +210,6 @@ class ModelHandler:
             List[str]: List of predictions.
         """
         logger.info("Handling request...")
-        start_time = time.time()
         if not self.initialized:
             self.initialize(context)
             if not self.initialized:
@@ -223,25 +223,9 @@ class ModelHandler:
             return [error_message]
 
         try:
-            preprocess_start = time.time()
             model_input = self.preprocess(data)
-            preprocess_time = time.time() - preprocess_start
-
-            inference_start = time.time()
             model_output = self.inference(model_input)
-            inference_time = time.time() - inference_start
-
-            postprocess_start = time.time()
             output = self.postprocess(model_output)
-            postprocess_time = time.time() - postprocess_start
-
-            total_time = time.time() - start_time
-            logger.info(
-                f"Handling request finished in {total_time:.2f} seconds. "
-                f"(Preprocess: {preprocess_time:.2f}s, "
-                f"Inference: {inference_time:.2f}s, "
-                f"Postprocess: {postprocess_time:.2f}s)"
-            )
             return output
         except Exception as e:
             error_message = f"Error in handling request: {str(e)}"

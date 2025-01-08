@@ -1,67 +1,54 @@
-# Object Detection using TorchServe and Detectron2
+# Object Detection using torchvision's pretrained fast-rcnn model
 
-## Overview
+* Download the pre-trained fast-rcnn object detection model's state_dict from the following URL :
 
-This folder leverages **TorchServe** to deploy a Detectron2-based object detection model using a custom handler. It provides scalable and efficient object detection capabilities with support for both CPU and GPU environments.
+https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
 
----
+```bash
+wget https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
+```
 
-## Table of Contents
+* Create a model archive file and serve the fastrcnn model in TorchServe using below commands
 
-1. [Pre-requirements](#pre-requirements)
-2. [Installation](#installation)
-3. [Usage](#usage)
-4. [Documentation](#documentation)
-5. [Contributors](#contributors)
+    ```bash
+    torch-model-archiver --model-name fastrcnn --version 1.0 --model-file examples/object_detector/fast-rcnn/model.py --serialized-file fasterrcnn_resnet50_fpn_coco-258fb6c6.pth --handler object_detector --extra-files examples/object_detector/index_to_name.json
+    mkdir model_store
+    mv fastrcnn.mar model_store/
+    torchserve --start --model-store model_store --models fastrcnn=fastrcnn.mar --disable-token-auth  --enable-model-api
+    curl http://127.0.0.1:8080/predictions/fastrcnn -T examples/object_detector/detectron2/person.jpg
+    ```
+* Note : The objects detected have scores greater than "0.5". This threshold value is set in object_detector handler.
 
----
+* Output
 
-## Pre-requirements
-
-- **Python 3.8 or higher** (tested on Python 3.10.15).
-
----
-
-## Installation
-
-Follow these steps to set up the project:
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/pytorch/serve.git
-   ```
-
-2. Make sure the terminal's current directory is set to the folder where this README file is located:
-
-   ```bash
-   cd serve/examples/object_detector/detectron2
-   ```
-
-3. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   pip install git+https://github.com/facebookresearch/detectron2.git && pip install numpy==1.21.6
-   ```
-
----
-
-## Usage
-
-Refer to the [Documentation](#documentation) for detailed usage instructions.
-
----
-
-## Documentation
-
-For detailed information on using TorchServe and Detectron2 for object detection, refer to the documentation provided in the [Upstart Commerce Blog](https://upstartcommerce.com/optimizing-pytorch-model-serving-at-scale-with-torchserve/).
-
----
-
-## Contributors
-
-- **[Muhammad Mudassar](https://github.com/Mudassar-MLE)**  
-  - [LinkedIn](https://www.linkedin.com/in/muhammad-mudassar-a65645192/)  
-  - [Email](mailto:mmudassards@gmail.com)
----
+```json
+[
+  {
+    "person": [
+      362.34539794921875,
+      161.9876251220703,
+      515.53662109375,
+      385.2342834472656
+    ],
+    "score": 0.9977679252624512
+  },
+  {
+    "handbag": [
+      67.37423706054688,
+      277.63787841796875,
+      111.6810073852539,
+      400.26470947265625
+    ],
+    "score": 0.9925485253334045
+  },
+  {
+    "handbag": [
+      228.7159423828125,
+      145.87753295898438,
+      303.5065612792969,
+      231.10513305664062
+    ],
+    "score": 0.9921919703483582
+  }
+]
+```
