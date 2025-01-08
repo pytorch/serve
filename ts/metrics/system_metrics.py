@@ -88,6 +88,20 @@ def collect_gpu_metrics(num_of_gpus):
                     amdsmi.amdsmi_shut_down()
                 except amdsmi.AmdSmiException as e:
                     logging.error("Could not shut down AMD-SMI library.")
+        elif torch.backends.mps.is_available():
+            try:
+                total_memory = torch.mps.driver_allocated_memory()
+                mem_used = torch.mps.current_allocated_memory()
+                gpu_mem_utilization = (
+                    (mem_used / total_memory * 100) if total_memory > 0 else 0
+                )
+                # Currently there is no way to calculate GPU utilization with MPS.
+                gpu_utilization = None
+            except Exception as e:
+                logging.error(f"Could not capture MPS memory metrics")
+                mem_used = 0
+                gpu_mem_utilization = 0
+                gpu_utilization = None
 
         dimension_gpu = [
             Dimension("Level", "Host"),

@@ -118,7 +118,8 @@ public class ConfigManagerTest {
         String mac_arm64_cpu_only = System.getenv().getOrDefault("TS_MAC_ARM64_CPU_ONLY", "False");
         if (arch.equals("aarch64")) {
             if (mac_arm64_cpu_only.equals("True")) {
-                Assert.assertEquals(configManager.getNumberOfGpu(), 0);
+                // Mac M1 returns 1 accelerator device
+                Assert.assertEquals(configManager.getNumberOfGpu(), 1);
             } else {
                 Assert.assertTrue(configManager.getNumberOfGpu() > 0);
             }

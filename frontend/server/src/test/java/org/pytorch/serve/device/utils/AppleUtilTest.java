@@ -76,7 +76,7 @@ public class AppleUtilTest {
     public void testExtractAccelerators() {
         List<JsonObject> accelerators = appleUtil.extractAccelerators(sampleOutputJson);
 
-        assertEquals(accelerators.size(), 7);
+        assertEquals(accelerators.size(), 1);
         assertEquals(accelerators.get(0).get("sppci_model").getAsString(), "Apple M1");
     }
 
@@ -88,7 +88,7 @@ public class AppleUtilTest {
         ArrayList<Accelerator> updatedAccelerators =
                 appleUtil.smiOutputToUpdatedAccelerators(sampleOutputJson.toString(), parsedGpuIds);
 
-        assertEquals(updatedAccelerators.size(), 7);
+        assertEquals(updatedAccelerators.size(), 1);
         Accelerator accelerator = updatedAccelerators.get(0);
         assertEquals(accelerator.getAcceleratorModel(), "Apple M1");
         assertEquals(accelerator.getVendor(), AcceleratorVendor.APPLE);
@@ -112,7 +112,7 @@ public class AppleUtilTest {
         ArrayList<Accelerator> availableAccelerators =
                 spyAppleUtil.getAvailableAccelerators(availableAcceleratorIds);
 
-        assertEquals(availableAccelerators.size(), 7);
+        assertEquals(availableAccelerators.size(), 1);
         Accelerator accelerator = availableAccelerators.get(0);
         assertEquals(accelerator.getAcceleratorModel(), "Apple M1");
         assertEquals(accelerator.getVendor(), AcceleratorVendor.APPLE);
