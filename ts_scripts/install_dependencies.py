@@ -94,7 +94,12 @@ class Common:
     def install_nodejs(self):
         pass
 
-    def install_torch_packages(self, cuda_version):
+    def install_torch_packages(self, cuda_version=None, rocm_version=None):
+        if cuda_version and rocm_version:
+            raise ValueError(
+                "Cannot install both CUDA and ROCm dependencies, please pass only either one."
+            )
+
         if cuda_version:
             if platform.system() == "Darwin":
                 print(
@@ -109,6 +114,16 @@ class Common:
             else:
                 os.system(
                     f"{sys.executable} -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
+                )
+        elif rocm_version:
+            if platform.system() in ["Darwin", "Windows"]:
+                print(
+                    f"ROCm not supported on {platform.system()}. Refer https://pytorch.org/."
+                )
+                sys.exit(1)
+            else:
+                os.system(
+                    f"{sys.executable} -m pip install -U -r requirements/torch_{rocm_version}.txt"
                 )
         elif args.neuronx:
             torch_neuronx_requirements_file = os.path.join(
@@ -127,7 +142,9 @@ class Common:
                     f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
                 )
 
-    def install_python_packages(self, cuda_version, requirements_file_path, nightly):
+    def install_python_packages(
+        self, cuda_version, rocm_version, requirements_file_path, nightly
+    ):
         check = "where" if platform.system() == "Windows" else "which"
         if os.system(f"{check} conda") == 0:
             # conda install command should run before the pip install commands
@@ -143,15 +160,12 @@ class Common:
         elif args.skip_torch_install:
             print("Skipping Torch installation")
         else:
-            self.install_torch_packages(cuda_version)
+            self.install_torch_packages(
+                cuda_version=cuda_version, rocm_version=rocm_version
+            )
 
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
-
-        # Install dependencies for GPU
-        if not isinstance(cuda_version, type(None)):
-            gpu_requirements_file = os.path.join("requirements", "common_gpu.txt")
-            os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
         # Install dependencies for Inferentia2
         if args.neuronx:
@@ -306,7 +320,7 @@ class Darwin(Common):
         pass
 
 
-def install_dependencies(cuda_version=None, nightly=False):
+def install_dependencies(cuda_version=None, rocm_version=None, nightly=False):
     os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
     system = os_map[platform.system()]()
 
@@ -325,7 +339,12 @@ def install_dependencies(cuda_version=None, nightly=False):
     requirements_file = "common.txt" if args.environment == "prod" else "developer.txt"
     requirements_file_path = os.path.join("requirements", requirements_file)
 
-    system.install_python_packages(cuda_version, requirements_file_path, nightly)
+    system.install_python_packages(
+        cuda_version,
+        rocm_version,
+        requirements_file_path=requirements_file_path,
+        nightly=nightly,
+    )
 
     if args.cpp:
         system.install_cpp_dependencies()
@@ -364,6 +383,12 @@ if __name__ == "__main__":
         help="Install dependencies for inferentia2 support",
     )
     parser.add_argument(
+        "--rocm",
+        default=None,
+        choices=["rocm60", "rocm61", "rocm62"],
+        help="ROCm version for torch",
+    )
+    parser.add_argument(
         "--cpp",
         action="store_true",
         help="Install dependencies for cpp backend",
@@ -394,4 +419,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    install_dependencies(cuda_version=args.cuda, nightly=args.nightly_torch)
+    install_dependencies(
+        cuda_version=args.cuda, rocm_version=args.rocm, nightly=args.nightly_torch
+    )

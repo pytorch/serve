@@ -13,6 +13,7 @@ try:
 except (ImportError, NameError, AttributeError):
     TORCH_AVAILABLE = False
 
+
 torchserve_env = {
     "torch": "**Warning: torch not present ..",
     "torch_model_archiver": "**Warning: torch-model-archiver not installed ..",
@@ -38,20 +39,21 @@ cuda_env = {
     "cuda_runtime_version": "N/A",
     "nvidia_gpu_models": [],
     "nvidia_driver_version": "N/A",
-    "cudnn_version": [],
+    "nvidia_driver_cuda_version": "N/A",
+    "cudnn_version": "N/A",
+}
+
+hip_env = {
+    "is_hip_available": "No",
+    "hip_runtime_version": "N/A",
+    "amd_gpu_models": [],
+    "rocm_version": "N/A",
+    "miopen_version": "N/A",
 }
 
 npm_env = {"npm_pkg_version": []}
 
 cpp_env = {"LIBRARY_PATH": ""}
-
-
-def get_nvidia_smi():
-    # Note: nvidia-smi is currently available only on Windows and Linux
-    smi = "nvidia-smi"
-    if get_platform() == "win32":
-        smi = "nvidia-smi.exe"
-    return smi
 
 
 def run(command):
@@ -110,7 +112,7 @@ def get_pip_packages(package_name=None):
         elif package_name == "torch":
             grep_cmd = 'grep "' + package_name + '"'
         else:
-            grep_cmd = r'grep "numpy\|pytest\|pylint\|transformers\|psutil\|wheel\|requests\|sentencepiece\|pillow\|captum\|nvgpu\|pygit2\|torch"'
+            grep_cmd = r'grep "numpy\|pytest\|pylint\|transformers\|psutil\|wheel\|requests\|sentencepiece\|pillow\|captum\|pygit2\|torch"'
         return run_and_read_all(pip + " list --format=freeze | " + grep_cmd)
 
     out = run_with_pip("pip3")
@@ -197,65 +199,58 @@ def get_cmake_version():
     return run_and_parse_first_match("cmake --version", r"cmake (.*)")
 
 
+def get_gpu_info():
+    num_of_gpus = torch.cuda.device_count()
+    gpu_types = [
+        torch.cuda.get_device_name(gpu_index) for gpu_index in range(num_of_gpus)
+    ]
+    return "\n".join(["", *gpu_types])
+
+
 def get_nvidia_driver_version():
-    smi = get_nvidia_smi()
-    if get_platform() == "darwin":
-        cmd = "kextstat | grep -i cuda"
-        return run_and_parse_first_match(cmd, r"com[.]nvidia[.]CUDA [(](.*?)[)]")
+    # Local import because ts_scripts/install_dependencies.py
+    # imports a function from this module at a stage when pynvml is not yet installed
+    import pynvml
 
-    return run_and_parse_first_match(smi, r"Driver Version: (.*?) ")
+    pynvml.nvmlInit()
+    driver_version = pynvml.nvmlSystemGetDriverVersion()
+    pynvml.nvmlShutdown()
+    return driver_version
 
 
-def get_nvidia_gpu_info():
-    smi = get_nvidia_smi()
-    if get_platform() == "darwin":
-        if TORCH_AVAILABLE and torch.cuda.is_available():
-            return torch.cuda.get_device_name(None)
-        return None
-    uuid_regex = re.compile(r" \(UUID: .+?\)")
-    rc, out, _ = run(smi + " -L")
-    if rc != 0:
-        return None
-    # Anonymize GPUs by removing their UUID
-    return "\n" + re.sub(uuid_regex, "", out)
+def get_nvidia_driver_cuda_version():
+    # Local import because ts_scripts/install_dependencies.py
+    # imports a function from this module at a stage when pynvml is not yet installed
+    import pynvml
+
+    pynvml.nvmlInit()
+    cuda = pynvml.nvmlSystemGetCudaDriverVersion()
+    cuda_major = cuda // 1000
+    cuda_minor = (cuda % 1000) // 10
+    pynvml.nvmlShutdown()
+    return f"{cuda_major}.{cuda_minor}"
 
 
 def get_running_cuda_version():
-    return run_and_parse_first_match("nvcc --version", r"V([\d.]+)")
+    cuda = torch._C._cuda_getCompiledVersion()
+    cuda_major = cuda // 1000
+    cuda_minor = (cuda % 1000) // 10
+    return f"{cuda_major}.{cuda_minor}"
 
 
 def get_cudnn_version():
-    """This will return a list of libcudnn.so; it's hard to tell which one is being used"""
-    if get_platform() == "win32":
-        system_root = os.environ.get("SYSTEMROOT", "C:\\Windows")
-        cuda_path = os.environ.get("CUDA_PATH", "%CUDA_PATH%")
-        where_cmd = os.path.join(system_root, "System32", "where")
-        cudnn_cmd = '{} /R "{}\\bin" cudnn*.dll'.format(where_cmd, cuda_path)
-    elif get_platform() == "darwin":
-        # CUDA libraries and drivers can be found in /usr/local/cuda/. See
-        cudnn_cmd = "ls /usr/local/cuda/lib/libcudnn*"
-    else:
-        cudnn_cmd = 'ldconfig -p | grep libcudnn | rev | cut -d" " -f1 | rev'
-    rc, out, _ = run(cudnn_cmd)
-    # find will return 1 if there are permission errors or if not found
-    if len(out) == 0 or (rc != 1 and rc != 0):
-        l = os.environ.get("CUDNN_LIBRARY")
-        if l is not None and os.path.isfile(l):
-            return os.path.realpath(l)
-        return None
-    files = set()
-    for fn in out.split("\n"):
-        fn = os.path.realpath(fn)  # eliminate symbolic links
-        if os.path.isfile(fn):
-            files.add(fn)
-    if not files:
-        return None
-    # Alphabetize the result because the order is non-deterministic otherwise
-    files = list(sorted(files))
-    if len(files) == 1:
-        return files[0]
-    result = "\n".join(files)
-    return "Probably one of the following:\n{}".format(result)
+    cudnn = torch.backends.cudnn.version()
+    cudnn_major = cudnn // 10000
+    cudnn = cudnn % 10000
+    cudnn_minor = cudnn // 100
+    cudnn_patch = cudnn % 100
+    return f"{cudnn_major}.{cudnn_minor}.{cudnn_patch}"
+
+
+def get_miopen_version():
+    cfg = torch._C._show_config()
+    miopen = re.search("MIOpen \d+\.\d+\.\d+", cfg).group()
+    return miopen.split(" ")[1]
 
 
 def get_torchserve_version():
@@ -341,9 +336,20 @@ def populate_os_env():
 def populate_cuda_env(cuda_available_str):
     cuda_env["is_cuda_available"] = cuda_available_str
     cuda_env["cuda_runtime_version"] = get_running_cuda_version()
-    cuda_env["nvidia_gpu_models"] = get_nvidia_gpu_info()
+    cuda_env["nvidia_gpu_models"] = get_gpu_info()
     cuda_env["nvidia_driver_version"] = get_nvidia_driver_version()
+    cuda_env["nvidia_driver_cuda_version"] = get_nvidia_driver_cuda_version()
     cuda_env["cudnn_version"] = get_cudnn_version()
+
+
+def populate_hip_env(hip_available_str):
+    hip_env["is_hip_available"] = hip_available_str
+    hip_env["hip_runtime_version"] = torch.version.hip
+    hip_env["amd_gpu_models"] = get_gpu_info()
+    hip_env["rocm_version"] = run_and_parse_first_match(
+        "amd-smi version", r"ROCm version: ([\d.]+)"
+    )
+    hip_env["miopen_version"] = get_miopen_version()
 
 
 def populate_npm_env():
@@ -371,8 +377,10 @@ def populate_env_info():
     populate_os_env()
 
     # cuda environment
-    if TORCH_AVAILABLE and torch.cuda.is_available():
+    if TORCH_AVAILABLE and torch.cuda.is_available() and torch.version.cuda:
         populate_cuda_env("Yes")
+    elif TORCH_AVAILABLE and torch.cuda.is_available() and torch.version.hip:
+        populate_hip_env("Yes")
 
     if get_platform() == "darwin":
         populate_npm_env()
@@ -412,9 +420,18 @@ CMake version: {cmake_version}
 cuda_info_fmt = """
 Is CUDA available: {is_cuda_available}
 CUDA runtime version: {cuda_runtime_version}
-GPU models and configuration: {nvidia_gpu_models}
+NVIDIA GPU models and configuration: {nvidia_gpu_models}
 Nvidia driver version: {nvidia_driver_version}
+Nvidia driver cuda version: {nvidia_driver_cuda_version}
 cuDNN version: {cudnn_version}
+"""
+
+hip_info_fmt = """
+Is HIP available: {is_hip_available}
+HIP runtime version: {hip_runtime_version}
+AMD GPU models and configuration: {amd_gpu_models}
+ROCm version: {rocm_version}
+MIOpen version: {miopen_version}
 """
 
 npm_info_fmt = """
@@ -431,6 +448,7 @@ library_path (LD_/DYLD_): {LIBRARY_PATH}
 def get_pretty_env_info(branch_name):
     global env_info_fmt
     global cuda_info_fmt
+    global hip_info_fmt
     global npm_info_fmt
     global cpp_env_info_fmt
     populate_env_info()
@@ -443,9 +461,12 @@ def get_pretty_env_info(branch_name):
         **cpp_env,
     }
 
-    if TORCH_AVAILABLE and torch.cuda.is_available():
+    if TORCH_AVAILABLE and torch.cuda.is_available() and torch.version.cuda:
         env_dict.update(cuda_env)
         env_info_fmt = env_info_fmt + "\n" + cuda_info_fmt
+    elif TORCH_AVAILABLE and torch.cuda.is_available() and torch.version.hip:
+        env_dict.update(hip_env)
+        env_info_fmt = env_info_fmt + "\n" + hip_info_fmt
 
     if get_platform() == "darwin":
         env_dict.update(npm_env)
