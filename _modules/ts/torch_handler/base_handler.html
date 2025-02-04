@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -426,25 +444,25 @@
 <span class="sd">Also, provides handle method per torch serve custom model specification</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">import</span> <span class="nn">importlib.util</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-<span class="kn">import</span> <span class="nn">packaging.version</span>
-<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">packaging.version</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
-<span class="kn">from</span> <span class="nn">ts.handler_utils.timer</span> <span class="kn">import</span> <span class="n">timed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.handler_utils.timer</span><span class="w"> </span><span class="kn">import</span> <span class="n">timed</span>
 
-<span class="kn">from</span> <span class="nn">..utils.util</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">check_valid_pt2_backend</span><span class="p">,</span>
     <span class="n">list_classes_from_module</span><span class="p">,</span>
     <span class="n">load_label_mapping</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">packaging</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">packaging</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;1.8.1&quot;</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">torch.profiler</span> <span class="kn">import</span> <span class="n">ProfilerActivity</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">record_function</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">torch.profiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProfilerActivity</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">record_function</span>
 
     <span class="n">PROFILER_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">else</span><span class="p">:</span>
@@ -455,7 +473,7 @@
 
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">torch_xla.core.xla_model</span> <span class="k">as</span> <span class="nn">xm</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch_xla.core.xla_model</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xm</span>
 
     <span class="n">XLA_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
@@ -482,7 +500,7 @@
     <span class="n">PT230_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">openvino.torch</span>  <span class="c1"># nopycln: import</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">openvino.torch</span>  <span class="c1"># nopycln: import</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;OpenVINO backend enabled for torch.compile&quot;</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -491,7 +509,7 @@
 
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TS_IPEX_ENABLE&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">intel_extension_for_pytorch</span> <span class="k">as</span> <span class="nn">ipex</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">intel_extension_for_pytorch</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ipex</span>
 
         <span class="n">IPEX_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
@@ -504,8 +522,8 @@
 
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">onnxruntime</span> <span class="k">as</span> <span class="nn">ort</span>
-    <span class="kn">import</span> <span class="nn">psutil</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">onnxruntime</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ort</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ONNX enabled&quot;</span><span class="p">)</span>
     <span class="n">ONNX_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
@@ -514,14 +532,14 @@
     <span class="n">ONNX_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">torch_tensorrt</span>  <span class="c1"># nopycln: import</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch_tensorrt</span>  <span class="c1"># nopycln: import</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Torch TensorRT enabled&quot;</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Torch TensorRT not enabled&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="setup_ort_session"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.setup_ort_session">[docs]</a><span class="k">def</span> <span class="nf">setup_ort_session</span><span class="p">(</span><span class="n">model_pt_path</span><span class="p">,</span> <span class="n">map_location</span><span class="p">):</span>
+<div class="viewcode-block" id="setup_ort_session"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.setup_ort_session">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">setup_ort_session</span><span class="p">(</span><span class="n">model_pt_path</span><span class="p">,</span> <span class="n">map_location</span><span class="p">):</span>
     <span class="n">providers</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">[</span><span class="s2">&quot;CUDAExecutionProvider&quot;</span><span class="p">,</span> <span class="s2">&quot;CPUExecutionProvider&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">map_location</span> <span class="o">==</span> <span class="s2">&quot;cuda&quot;</span>
@@ -539,13 +557,13 @@
     <span class="k">return</span> <span class="n">ort_session</span></div>
 
 
-<div class="viewcode-block" id="BaseHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler">[docs]</a><span class="k">class</span> <span class="nc">BaseHandler</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">BaseHandler</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base default handler to load torchscript or eager mode [state_dict] models</span>
 <span class="sd">    Also, provides handle method per torch serve custom model specification</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="kc">None</span>
@@ -558,7 +576,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">profiler_args</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="BaseHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.initialize">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize function loads the model.pt file and initialized the model object.</span>
 <span class="sd">           First try to load torchscript else load eager mode state_dict based model.</span>
 
@@ -717,7 +735,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-    <span class="k">def</span> <span class="nf">_load_torch_export_aot_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_so_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_torch_export_aot_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_so_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads the PyTorch model so and returns a Callable object.</span>
 
 <span class="sd">        Args:</span>
@@ -728,7 +746,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">_export</span><span class="o">.</span><span class="n">aot_load</span><span class="p">(</span><span class="n">model_so_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_location</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_load_torchscript_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_pt_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_torchscript_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_pt_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads the PyTorch model and returns the NN model object.</span>
 
 <span class="sd">        Args:</span>
@@ -739,7 +757,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_pt_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_load_pickled_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">model_file</span><span class="p">,</span> <span class="n">model_pt_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_pickled_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">model_file</span><span class="p">,</span> <span class="n">model_pt_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads the pickle file from the given model path.</span>
 
@@ -779,7 +797,7 @@
             <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">model</span>
 
-    <span class="k">def</span> <span class="nf">_use_torch_export_aot_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_use_torch_export_aot_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">torch_export_aot_compile</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;model_yaml_config&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;pt2&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">:</span>
             <span class="c1"># Check if torch._export.aot_compile is being used</span>
@@ -792,7 +810,7 @@
         <span class="k">return</span> <span class="n">torch_export_aot_compile</span>
 
     <span class="nd">@timed</span>
-    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Preprocess function to convert the request input to a tensor(Torchserve supported format).</span>
 <span class="sd">        The user needs to override to customize the pre-processing</span>
@@ -807,7 +825,7 @@
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
     <span class="nd">@timed</span>
-    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The Inference Function is used to make a prediction call on the given input request.</span>
 <span class="sd">        The user needs to override the inference function to customize it.</span>
@@ -825,7 +843,7 @@
         <span class="k">return</span> <span class="n">results</span>
 
     <span class="nd">@timed</span>
-    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The post process function makes use of the output from the inference and converts into a</span>
 <span class="sd">        Torchserve supported response output.</span>
@@ -839,7 +857,7 @@
 
         <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-<div class="viewcode-block" id="BaseHandler.handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.handle">[docs]</a>    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseHandler.handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.handle">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Entry point for default handler. It takes the data from the input request and returns</span>
 <span class="sd">           the predicted outcome for the input.</span>
 
@@ -889,7 +907,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">output</span></div>
 
-    <span class="k">def</span> <span class="nf">_infer_with_profiler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_infer_with_profiler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Custom method to generate pytorch profiler traces for preprocess/inference/postprocess</span>
 
 <span class="sd">        Args:</span>
@@ -938,7 +956,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">prof</span><span class="o">.</span><span class="n">key_averages</span><span class="p">()</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">sort_by</span><span class="o">=</span><span class="s2">&quot;cpu_time_total&quot;</span><span class="p">,</span> <span class="n">row_limit</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">prof</span>
 
-<div class="viewcode-block" id="BaseHandler.explain_handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.explain_handle">[docs]</a>    <span class="k">def</span> <span class="nf">explain_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_preprocess</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseHandler.explain_handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.explain_handle">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">explain_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_preprocess</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Captum explanations handler</span>
 
 <span class="sd">        Args:</span>
@@ -964,20 +982,20 @@
         <span class="n">output_explain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_insights</span><span class="p">(</span><span class="n">data_preprocess</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output_explain</span></div>
 
-    <span class="k">def</span> <span class="nf">_is_explain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_explain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;explain&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;explain&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">explain</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_is_describe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_describe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;describe&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_request_header</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;describe&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="BaseHandler.describe_handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.describe_handle">[docs]</a>    <span class="k">def</span> <span class="nf">describe_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseHandler.describe_handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.describe_handle">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">describe_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Customized describe handler</span>
 
 <span class="sd">        Returns:</span>
@@ -987,7 +1005,7 @@
         <span class="k">pass</span></div>
         <span class="c1"># pylint: enable=unnecessary-pass</span>
 
-<div class="viewcode-block" id="BaseHandler.get_device"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.get_device">[docs]</a>    <span class="k">def</span> <span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseHandler.get_device"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.get_device">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get device</span>
 
 <span class="sd">        Returns:</span>
@@ -1220,7 +1238,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1235,6 +1253,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1274,6 +1295,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1286,6 +1310,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

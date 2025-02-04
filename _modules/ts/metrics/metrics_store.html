@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -426,19 +444,19 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Metrics collection module</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">builtins</span><span class="w"> </span><span class="kn">import</span> <span class="nb">str</span>
 
-<span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
-<span class="kn">from</span> <span class="nn">ts.metrics.metric</span> <span class="kn">import</span> <span class="n">Metric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.metrics.dimension</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dimension</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.metrics.metric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metric</span>
 
 
-<div class="viewcode-block" id="MetricsStore"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore">[docs]</a><span class="k">class</span> <span class="nc">MetricsStore</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="MetricsStore"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MetricsStore</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DEPRECATED</span>
 <span class="sd">    Class for creating, modifying different metrics. And keep them in a dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_ids</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_ids</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize metrics map,model name and request map</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -447,7 +465,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">_add_or_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">metrics_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_or_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">metrics_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a metric key value pair</span>
 
@@ -487,7 +505,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">dim_str</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_req</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_req</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provide the request id dimension</span>
 
@@ -505,7 +523,7 @@
             <span class="n">req_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_ids</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">req_id</span>
 
-<div class="viewcode-block" id="MetricsStore.add_counter"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_counter">[docs]</a>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MetricsStore.add_counter"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_counter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a counter metric or increment an existing counter metric</span>
 
@@ -524,7 +542,7 @@
         <span class="n">req_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_req</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="s1">&#39;counter&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MetricsStore.add_time"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_time">[docs]</a>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MetricsStore.add_time"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_time">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a time based metric like latency, default unit is &#39;ms&#39;</span>
 
@@ -546,7 +564,7 @@
         <span class="n">req_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_req</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MetricsStore.add_size"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_size">[docs]</a>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MetricsStore.add_size"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_size">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a size based metric</span>
 
@@ -568,7 +586,7 @@
         <span class="n">req_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_req</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MetricsStore.add_percent"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_percent">[docs]</a>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MetricsStore.add_percent"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_percent">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a percentage based metric</span>
 
@@ -587,7 +605,7 @@
         <span class="n">req_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_req</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MetricsStore.add_error"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_error">[docs]</a>    <span class="k">def</span> <span class="nf">add_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MetricsStore.add_error"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_error">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a Error Metric</span>
 <span class="sd">        Parameters</span>
@@ -604,7 +622,7 @@
         <span class="c1"># noinspection PyTypeChecker</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MetricsStore.add_metric"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_metric">[docs]</a>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MetricsStore.add_metric"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_metric">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a metric which is generic with custom metrics</span>
 
@@ -849,7 +867,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -864,6 +882,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -903,6 +924,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -915,6 +939,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

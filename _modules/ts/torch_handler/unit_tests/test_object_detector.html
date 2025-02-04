@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -428,34 +446,34 @@
 <span class="sd">Ensures it can load and execute an example model</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">platform</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
 
-<span class="kn">from</span> <span class="nn">ts.torch_handler.object_detector</span> <span class="kn">import</span> <span class="n">ObjectDetector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.torch_handler.object_detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectDetector</span>
 
-<span class="kn">from</span> <span class="nn">.test_utils.mock_context</span> <span class="kn">import</span> <span class="n">MockContext</span>
-<span class="kn">from</span> <span class="nn">.test_utils.model_dir</span> <span class="kn">import</span> <span class="n">copy_files</span><span class="p">,</span> <span class="n">download_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.test_utils.mock_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MockContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.test_utils.model_dir</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_files</span><span class="p">,</span> <span class="n">download_model</span>
 
 <span class="n">REPO_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="image_bytes"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_object_detector.image_bytes">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">image_bytes</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">image_bytes</span><span class="p">():</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">REPO_DIR</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;examples/image_segmenter/persons.jpg&quot;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
         <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">image_bytes</span></div>
 
 
 <div class="viewcode-block" id="model_name"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_object_detector.model_name">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">model_name</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">model_name</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;object_detector&quot;</span></div>
 
 
 <div class="viewcode-block" id="model_dir"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_object_detector.model_dir">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">model_dir</span><span class="p">(</span><span class="n">tmp_path_factory</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">model_dir</span><span class="p">(</span><span class="n">tmp_path_factory</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
     <span class="n">model_dir</span> <span class="o">=</span> <span class="n">tmp_path_factory</span><span class="o">.</span><span class="n">mktemp</span><span class="p">(</span><span class="s2">&quot;model_dir&quot;</span><span class="p">)</span>
 
     <span class="n">src_dir</span> <span class="o">=</span> <span class="n">REPO_DIR</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;examples/object_detector/fast-rcnn/&quot;</span><span class="p">)</span>
@@ -479,7 +497,7 @@
 
 
 <div class="viewcode-block" id="context"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_object_detector.context">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
     <span class="n">context</span> <span class="o">=</span> <span class="n">MockContext</span><span class="p">(</span>
         <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;mnist&quot;</span><span class="p">,</span>
         <span class="n">model_dir</span><span class="o">=</span><span class="n">model_dir</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
@@ -489,7 +507,7 @@
 
 
 <div class="viewcode-block" id="handler"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_object_detector.handler">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
     <span class="n">handler</span> <span class="o">=</span> <span class="n">ObjectDetector</span><span class="p">()</span>
     <span class="n">handler</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
@@ -499,7 +517,7 @@
 <div class="viewcode-block" id="test_handle"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_object_detector.test_handle">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skipif</span><span class="p">(</span>
     <span class="n">platform</span><span class="o">.</span><span class="n">machine</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;aarch64&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Test skipped on aarch64 architecture&quot;</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_handle</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">image_bytes</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_handle</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">image_bytes</span><span class="p">):</span>
     <span class="n">test_data</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">image_bytes</span><span class="p">}]</span> <span class="o">*</span> <span class="mi">2</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
@@ -730,7 +748,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -745,6 +763,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -784,6 +805,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -796,6 +820,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

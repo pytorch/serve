@@ -129,8 +129,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -150,6 +150,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -198,6 +201,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -213,7 +220,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -459,23 +477,23 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
 <section id="indexing">
 <h3>Indexing<a class="headerlink" href="#indexing" title="Permalink to this heading">¶</a></h3>
 <p>The context being provided in this example is a web <a class="reference external" href="https://huggingface.co/blog/llama3">URL</a>. We load the content in the URL, also recursively including the child pages. The documents are split into smaller chunks for efficient processing. These chunks are encoded using an embedding model and stored in a vector database, thereby enabling efficient search and retrieval. We use <code class="docutils literal notranslate"><span class="pre">torch.compile</span></code> on the embedding model to speed up inference. You can read more about using <code class="docutils literal notranslate"><span class="pre">torch.compile</span></code> with AWS Graviton <a class="reference external" href="https://pytorch.org/blog/accelerated-pytorch-inference/">here</a></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span> <span class="k">as</span> <span class="n">Soup</span>
-<span class="kn">from</span> <span class="nn">langchain_community.embeddings</span> <span class="kn">import</span> <span class="n">HuggingFaceEmbeddings</span>
-<span class="kn">from</span> <span class="nn">langchain_community.vectorstores</span> <span class="kn">import</span> <span class="n">FAISS</span>
-<span class="kn">from</span> <span class="nn">langchain.text_splitter</span> <span class="kn">import</span> <span class="n">RecursiveCharacterTextSplitter</span>
-<span class="kn">from</span> <span class="nn">langchain_community.document_loaders.recursive_url_loader</span> <span class="kn">import</span> <span class="n">RecursiveUrlLoader</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bs4</span><span class="w"> </span><span class="kn">import</span> <span class="n">BeautifulSoup</span> <span class="k">as</span> <span class="n">Soup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.embeddings</span><span class="w"> </span><span class="kn">import</span> <span class="n">HuggingFaceEmbeddings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.vectorstores</span><span class="w"> </span><span class="kn">import</span> <span class="n">FAISS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.text_splitter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecursiveCharacterTextSplitter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.document_loaders.recursive_url_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecursiveUrlLoader</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
 <span class="c1"># Enable AWS Graviton specific torch.compile optimizations</span>
-<span class="kn">import</span> <span class="nn">torch._inductor.config</span> <span class="k">as</span> <span class="nn">config</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch._inductor.config</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">config</span>
 <span class="n">config</span><span class="o">.</span><span class="n">cpp</span><span class="o">.</span><span class="n">weight_prepack</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">config</span><span class="o">.</span><span class="n">freezing</span><span class="o">=</span><span class="kc">True</span>
 
-<span class="k">class</span> <span class="nc">CustomEmbedding</span><span class="p">(</span><span class="n">HuggingFaceEmbeddings</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomEmbedding</span><span class="p">(</span><span class="n">HuggingFaceEmbeddings</span><span class="p">):</span>
     <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Any</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the sentence_transformer.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -483,12 +501,12 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;sentence-transformers/all-mpnet-base-v2&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">)</span>
-    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Config</span><span class="p">:</span>
         <span class="n">arbitrary_types_allowed</span> <span class="o">=</span> <span class="kc">True</span>
 
 
 
-    <span class="k">def</span> <span class="nf">embed_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">embed_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute doc embeddings using a HuggingFace transformer model.</span>
 
 <span class="sd">        Args:</span>
@@ -497,7 +515,7 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of embeddings, one for each text.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">sentence_transformers</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sentence_transformers</span>
 
         <span class="n">texts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">),</span> <span class="n">texts</span><span class="p">))</span>
 
@@ -543,13 +561,13 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
 <p>Typical implementations of RAG with LLM , use langchain to chain RAG and LLM pipeline and call an invoke method on the chain with the query.</p>
 <p>The published example of  Llama endpoint with TorchServe expects a text prompt as the input and uses <a class="reference external" href="https://huggingface.co/">HuggingFace</a> APIs to process the query. To make the RAG design compatible, we need to return a text prompt from the RAG endpoint.</p>
 <p>This section describes how we can engineer the prompt that the Llama endpoint expects, including the relevant context. Under the hood, LangChain has a <a class="reference external" href="https://api.python.langchain.com/en/latest/prompts/langchain_core.prompts.prompt.PromptTemplate.html">PromptTemplate</a> for Llama . By executing the code above with the following debug statements, we can determine the prompt being sent to Llama.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">langchain</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">langchain</span>
 <span class="n">langchain</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
 <p>We extract the text from the docs returned in the retrieval section and prompt engineer the final prompt to Llama as follows</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
-<span class="kn">from</span> <span class="nn">langchain_core.prompts</span> <span class="kn">import</span> <span class="n">format_document</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_document</span>
 <span class="n">question</span><span class="o">=</span><span class="s2">&quot;What&#39;s new with Llama 3?&quot;</span>
 
 <span class="n">doc_prompt</span> <span class="o">=</span> <span class="n">PromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{page_content}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -612,33 +630,33 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
 <li><p>rag_handler.py</p></li>
 </ul>
 <p>We define a handler file with a class which derives from the <code class="docutils literal notranslate"><span class="pre">BaseHandler</span></code>. This class needs to define four methods: <code class="docutils literal notranslate"><span class="pre">initialize</span></code>, <code class="docutils literal notranslate"><span class="pre">preprocess</span></code>, <code class="docutils literal notranslate"><span class="pre">inference</span></code> and <code class="docutils literal notranslate"><span class="pre">postprocess</span></code>. The indexing portion is defined in the <code class="docutils literal notranslate"><span class="pre">initialize</span></code> method. The retrieval portion is in the <code class="docutils literal notranslate"><span class="pre">inference</span></code> method and the prompt engineering portion in the <code class="docutils literal notranslate"><span class="pre">postprocess</span></code> method. We use the timed function to determine the time taken to process each of these methods.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
-<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span> <span class="k">as</span> <span class="n">Soup</span>
-<span class="kn">from</span> <span class="nn">hf_custom_embeddings</span> <span class="kn">import</span> <span class="n">CustomEmbedding</span>
-<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
-<span class="kn">from</span> <span class="nn">langchain.text_splitter</span> <span class="kn">import</span> <span class="n">RecursiveCharacterTextSplitter</span>
-<span class="kn">from</span> <span class="nn">langchain_community.document_loaders.recursive_url_loader</span> <span class="kn">import</span> <span class="n">RecursiveUrlLoader</span>
-<span class="kn">from</span> <span class="nn">langchain_community.vectorstores</span> <span class="kn">import</span> <span class="n">FAISS</span>
-<span class="kn">from</span> <span class="nn">langchain_core.prompts</span> <span class="kn">import</span> <span class="n">format_document</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bs4</span><span class="w"> </span><span class="kn">import</span> <span class="n">BeautifulSoup</span> <span class="k">as</span> <span class="n">Soup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hf_custom_embeddings</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomEmbedding</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.text_splitter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecursiveCharacterTextSplitter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.document_loaders.recursive_url_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecursiveUrlLoader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.vectorstores</span><span class="w"> </span><span class="kn">import</span> <span class="n">FAISS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_document</span>
 
-<span class="kn">from</span> <span class="nn">ts.torch_handler.base_handler</span> <span class="kn">import</span> <span class="n">BaseHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.torch_handler.base_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseHandler</span>
 
 
-<span class="k">class</span> <span class="nc">RAGHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RAGHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    RAG handler class retrieving documents from a url, encoding &amp; storing in a vector database.</span>
 <span class="sd">    For a given query, it returns the closest matching documents.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">RAGHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vectorstore</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">5</span>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">inference_mode</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
         <span class="n">url</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">[</span><span class="s2">&quot;handler&quot;</span><span class="p">][</span><span class="s2">&quot;url_to_scrape&quot;</span><span class="p">]</span>
         <span class="n">chunk_size</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">[</span><span class="s2">&quot;handler&quot;</span><span class="p">][</span><span class="s2">&quot;chunk_size&quot;</span><span class="p">]</span>
         <span class="n">chunk_overlap</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">[</span><span class="s2">&quot;handler&quot;</span><span class="p">][</span><span class="s2">&quot;chunk_overlap&quot;</span><span class="p">]</span>
@@ -660,7 +678,7 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
             <span class="n">all_splits</span><span class="p">,</span> <span class="n">CustomEmbedding</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requests</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requests</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">requests</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Expecting batch_size = 1&quot;</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">request</span> <span class="ow">in</span> <span class="n">requests</span><span class="p">:</span>
@@ -671,11 +689,11 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
         <span class="k">return</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@torch</span><span class="o">.</span><span class="n">inference_mode</span>
-    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">searchDocs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorstore</span><span class="o">.</span><span class="n">similarity_search</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">searchDocs</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">docs</span><span class="p">,</span> <span class="n">question</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">doc_prompt</span> <span class="o">=</span> <span class="n">PromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{page_content}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">context</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -712,7 +730,7 @@ benchmark_profile.yaml<span class="w"> </span>--skip<span class="w"> </span><spa
 <p><img alt="RAG + LLM Deployment" src="https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/RAG_based_LLM_serving/assets/rag_llm.png" /></p>
 <p>The steps for full deployment are mentioned in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/usecases/RAG_based_LLM_serving/Deploy.md#Deploy-Llama-&amp;-RAG-using-TorchServe">Deployment Guide</a></p>
 <p>The code snippet which can chain the RAG endpoint with Llama endpoint is shown below</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 
 <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;What&#39;s new with Llama 3.1?&quot;</span>
 
@@ -998,7 +1016,7 @@ benchmark_profile.yaml<span class="w"> </span>--skip<span class="w"> </span><spa
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1013,6 +1031,9 @@ benchmark_profile.yaml<span class="w"> </span>--skip<span class="w"> </span><spa
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1052,6 +1073,9 @@ benchmark_profile.yaml<span class="w"> </span>--skip<span class="w"> </span><spa
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1064,6 +1088,18 @@ benchmark_profile.yaml<span class="w"> </span>--skip<span class="w"> </span><spa
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

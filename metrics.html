@@ -131,8 +131,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -152,6 +152,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -200,6 +203,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -215,7 +222,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -622,7 +640,7 @@ towards the end of the list of dimensions since they are included by default by 
 that are in line with the <a class="reference external" href="https://prometheus.io/docs/concepts/metric_types">Prometheus Metric Types</a>.</p>
 <p>Metric types are an attribute of Metric objects.
 Users will be restricted to the existing metric types when adding custom metrics.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MetricTypes</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MetricTypes</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">COUNTER</span> <span class="o">=</span> <span class="s2">&quot;counter&quot;</span>
     <span class="n">GAUGE</span> <span class="o">=</span> <span class="s2">&quot;gauge&quot;</span>
     <span class="n">HISTOGRAM</span> <span class="o">=</span> <span class="s2">&quot;histogram&quot;</span>
@@ -815,7 +833,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <p><strong>Example with custom handler showing <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/custom_metrics">usage of custom metrics APIs</a></strong>.</p>
 <p>The <a class="reference external" href="../docs/custom_service">custom handler</a> code is provided with a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a> of the current request consisting of a <code class="docutils literal notranslate"><span class="pre">metrics</span></code> object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Access metrics object in context as follows</span>
-<span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="n">metrics</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">metrics</span>
 </pre></div>
 </div>
@@ -831,7 +849,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <section id="create-dimension-object-s">
 <h3>Create Dimension Object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/metrics/dimension.py">Dimensions</a> for metrics can be defined as objects</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ts.metrics.dimension</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dimension</span>
 
 <span class="c1"># Dimensions are name value pairs</span>
 <span class="n">dim1</span> <span class="o">=</span> <span class="n">Dimension</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -848,7 +866,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <p>Generic metrics default to <code class="docutils literal notranslate"><span class="pre">COUNTER</span></code> metric type</p>
 <section id="function-api-to-add-generic-metrics-without-default-dimensions">
 <h4>Function API to add generic metrics without default dimensions<a class="headerlink" href="#function-api-to-add-generic-metrics-without-default-dimensions" title="Permalink to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric_to_cache</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">add_metric_to_cache</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -875,7 +893,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 </pre></div>
 </div>
 <p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/metrics/caching_metric.py">CachingMetric</a> APIs to update a metric</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_or_update</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">add_or_update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">dimension_values</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
@@ -895,7 +913,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <span class="sd">    &quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -929,7 +947,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 </section>
 <section id="function-api-to-add-generic-metrics-with-default-dimensions">
 <h4>Function API to add generic metrics with default dimensions<a class="headerlink" href="#function-api-to-add-generic-metrics-with-default-dimensions" title="Permalink to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">add_metric</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span>
@@ -969,7 +987,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <section id="add-time-based-metrics">
 <h3>Add Time-Based Metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Time-based metrics default to <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">add_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a time based metric like latency, default unit is &#39;ms&#39;</span>
@@ -1003,7 +1021,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <section id="add-size-based-metrics">
 <h3>Add Size-Based Metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Size-based metrics default to <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">add_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a size based metric</span>
@@ -1037,7 +1055,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <section id="add-percentage-based-metrics">
 <h3>Add Percentage-Based Metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Percentage-based metrics default to a <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">add_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a percentage based metric</span>
@@ -1068,7 +1086,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <section id="add-counter-based-metrics">
 <h3>Add Counter-Based Metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Counter-based metrics default to <code class="docutils literal notranslate"><span class="pre">COUNTER</span></code> metric type</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">add_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a counter metric or increment an existing counter metric</span>
 <span class="sd">            Default metric type is counter</span>
@@ -1096,7 +1114,7 @@ Users will be restricted to the existing metric types when adding custom metrics
 <h3>Getting A Metric<a class="headerlink" href="#getting-a-metric" title="Permalink to this heading">¶</a></h3>
 <p>Users can get a metric from the cache. The <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/metrics/caching_metric.py">CachingMetric</a> object is returned,
 so the user can access the methods of CachingMetric to update the metric: (i.e. <code class="docutils literal notranslate"><span class="pre">CachingMetric.add_or_update(value,</span> <span class="pre">dimension_values)</span></code>, <code class="docutils literal notranslate"><span class="pre">CachingMetric.update(value,</span> <span class="pre">dimensions)</span></code>)</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">get_metric</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">get_metric</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">COUNTER</span><span class="p">,</span>
@@ -1411,7 +1429,7 @@ so the user can access the methods of CachingMetric to update the metric: (i.e. 
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1426,6 +1444,9 @@ so the user can access the methods of CachingMetric to update the metric: (i.e. 
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1465,6 +1486,9 @@ so the user can access the methods of CachingMetric to update the metric: (i.e. 
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1477,6 +1501,18 @@ so the user can access the methods of CachingMetric to update the metric: (i.e. 
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

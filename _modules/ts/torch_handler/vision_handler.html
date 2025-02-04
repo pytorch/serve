@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -426,25 +444,25 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Base module for all vision handlers</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">base64</span>
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">IntegratedGradients</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">captum.attr</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegratedGradients</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 
-<span class="kn">from</span> <span class="nn">ts.handler_utils.timer</span> <span class="kn">import</span> <span class="n">timed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.handler_utils.timer</span><span class="w"> </span><span class="kn">import</span> <span class="n">timed</span>
 
-<span class="kn">from</span> <span class="nn">.base_handler</span> <span class="kn">import</span> <span class="n">BaseHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseHandler</span>
 
 
-<div class="viewcode-block" id="VisionHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler">[docs]</a><span class="k">class</span> <span class="nc">VisionHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="VisionHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">VisionHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for all vision handlers</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="VisionHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<div class="viewcode-block" id="VisionHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler.initialize">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ig</span> <span class="o">=</span> <span class="n">IntegratedGradients</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span>
@@ -453,7 +471,7 @@
             <span class="n">Image</span><span class="o">.</span><span class="n">MAX_IMAGE_PIXELS</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@timed</span>
-    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The preprocess function of MNIST program converts the input data to a float tensor</span>
 
 <span class="sd">        Args:</span>
@@ -484,7 +502,7 @@
 
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
-<div class="viewcode-block" id="VisionHandler.get_insights"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler.get_insights">[docs]</a>    <span class="k">def</span> <span class="nf">get_insights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor_data</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="VisionHandler.get_insights"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler.get_insights">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_insights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor_data</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;input shape&quot;</span><span class="p">,</span> <span class="n">tensor_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ig</span><span class="o">.</span><span class="n">attribute</span><span class="p">(</span><span class="n">tensor_data</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
 </pre></div>
@@ -713,7 +731,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -728,6 +746,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -767,6 +788,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -779,6 +803,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

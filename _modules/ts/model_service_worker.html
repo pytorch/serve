@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -427,18 +445,18 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c1"># pylint: disable=redefined-builtin</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">platform</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">ts.arg_parser</span> <span class="kn">import</span> <span class="n">ArgParser</span>
-<span class="kn">from</span> <span class="nn">ts.async_service</span> <span class="kn">import</span> <span class="n">AsyncService</span>
-<span class="kn">from</span> <span class="nn">ts.metrics.metric_cache_yaml_impl</span> <span class="kn">import</span> <span class="n">MetricsCacheYamlImpl</span>
-<span class="kn">from</span> <span class="nn">ts.model_loader</span> <span class="kn">import</span> <span class="n">ModelLoaderFactory</span>
-<span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">create_load_model_response</span><span class="p">,</span> <span class="n">retrieve_msg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.arg_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.async_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncService</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.metrics.metric_cache_yaml_impl</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricsCacheYamlImpl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.model_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelLoaderFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.protocol.otf_message_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_load_model_response</span><span class="p">,</span> <span class="n">retrieve_msg</span>
 
 <span class="n">MAX_FAILURE_THRESHOLD</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">SOCKET_ACCEPT_TIMEOUT</span> <span class="o">=</span> <span class="mf">30.0</span>
@@ -450,12 +468,12 @@
 <span class="n">LOCAL_WORLD_SIZE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LOCAL_WORLD_SIZE&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="TorchModelServiceWorker"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker">[docs]</a><span class="k">class</span> <span class="nc">TorchModelServiceWorker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TorchModelServiceWorker"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TorchModelServiceWorker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Backend worker to handle Model Server&#39;s python service code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">s_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">s_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -484,7 +502,7 @@
                 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">s_name_new</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                         <span class="s2">&quot;socket already in use: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s_name_new</span><span class="p">)</span>
-                    <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Listening on port: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">s_name_new</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">s_type</span> <span class="o">==</span> <span class="s2">&quot;tcp&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sock_name</span> <span class="o">=</span> <span class="n">host_addr</span> <span class="k">if</span> <span class="n">host_addr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;127.0.0.1&quot;</span>
@@ -506,7 +524,7 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">async_comm</span> <span class="o">=</span> <span class="n">async_comm</span>
 
-<div class="viewcode-block" id="TorchModelServiceWorker.load_model"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.load_model">[docs]</a>    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_model_request</span><span class="p">):</span>
+<div class="viewcode-block" id="TorchModelServiceWorker.load_model"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.load_model">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_model_request</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Expected command</span>
 <span class="sd">        {</span>
@@ -587,7 +605,7 @@
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Unknown exception&quot;</span><span class="p">,</span> <span class="mi">500</span></div>
 
-<div class="viewcode-block" id="TorchModelServiceWorker.handle_connection"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.handle_connection">[docs]</a>    <span class="k">def</span> <span class="nf">handle_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cl_socket</span><span class="p">):</span>
+<div class="viewcode-block" id="TorchModelServiceWorker.handle_connection"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.handle_connection">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">handle_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cl_socket</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Handle socket connection.</span>
 
@@ -626,7 +644,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Received unknown command: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="TorchModelServiceWorker.handle_connection_async"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.handle_connection_async">[docs]</a>    <span class="k">def</span> <span class="nf">handle_connection_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cl_socket</span><span class="p">):</span>
+<div class="viewcode-block" id="TorchModelServiceWorker.handle_connection_async"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.handle_connection_async">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">handle_connection_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cl_socket</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Handle socket connection.</span>
 
@@ -658,7 +676,7 @@
         <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in AsyncService:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TorchModelServiceWorker.run_server"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.run_server">[docs]</a>    <span class="k">def</span> <span class="nf">run_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TorchModelServiceWorker.run_server"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.run_server">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the backend worker process and listen on a socket</span>
 <span class="sd">        :return:</span>
@@ -712,7 +730,7 @@
         <span class="n">metrics_config</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">metrics_config</span>
 
         <span class="k">if</span> <span class="n">BENCHMARK</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">cProfile</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">cProfile</span>
 
             <span class="n">pr</span> <span class="o">=</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
             <span class="n">pr</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
@@ -967,7 +985,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -982,6 +1000,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1021,6 +1042,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1033,6 +1057,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -424,55 +442,55 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module to collect system metrics for front-end</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">types</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">types</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">builtins</span><span class="w"> </span><span class="kn">import</span> <span class="nb">str</span>
 
-<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
 
-<span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
-<span class="kn">from</span> <span class="nn">ts.metrics.metric</span> <span class="kn">import</span> <span class="n">Metric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.metrics.dimension</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dimension</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.metrics.metric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metric</span>
 
 <span class="n">system_metrics</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">dimension</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dimension</span><span class="p">(</span><span class="s2">&quot;Level&quot;</span><span class="p">,</span> <span class="s2">&quot;Host&quot;</span><span class="p">)]</span>
 
 
-<div class="viewcode-block" id="cpu_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.cpu_utilization">[docs]</a><span class="k">def</span> <span class="nf">cpu_utilization</span><span class="p">():</span>
+<div class="viewcode-block" id="cpu_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.cpu_utilization">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">cpu_utilization</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_percent</span><span class="p">()</span>
     <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;CPUUtilization&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="memory_used"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_used">[docs]</a><span class="k">def</span> <span class="nf">memory_used</span><span class="p">():</span>
+<div class="viewcode-block" id="memory_used"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_used">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">memory_used</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">used</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>  <span class="c1"># in MB</span>
     <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;MemoryUsed&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;MB&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="memory_available"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_available">[docs]</a><span class="k">def</span> <span class="nf">memory_available</span><span class="p">():</span>
+<div class="viewcode-block" id="memory_available"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_available">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">memory_available</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">available</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>  <span class="c1"># in MB</span>
     <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;MemoryAvailable&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;MB&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="memory_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_utilization">[docs]</a><span class="k">def</span> <span class="nf">memory_utilization</span><span class="p">():</span>
+<div class="viewcode-block" id="memory_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_utilization">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">memory_utilization</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">percent</span>
     <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;MemoryUtilization&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="disk_used"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_used">[docs]</a><span class="k">def</span> <span class="nf">disk_used</span><span class="p">():</span>
+<div class="viewcode-block" id="disk_used"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_used">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">disk_used</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">used</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>  <span class="c1"># in GB</span>
     <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;DiskUsage&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;GB&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="disk_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_utilization">[docs]</a><span class="k">def</span> <span class="nf">disk_utilization</span><span class="p">():</span>
+<div class="viewcode-block" id="disk_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_utilization">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">disk_utilization</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">percent</span>
     <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;DiskUtilization&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="disk_available"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_available">[docs]</a><span class="k">def</span> <span class="nf">disk_available</span><span class="p">():</span>
+<div class="viewcode-block" id="disk_available"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_available">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">disk_available</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">free</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>  <span class="c1"># in GB</span>
     <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;GB&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="gpu_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.gpu_utilization">[docs]</a><span class="k">def</span> <span class="nf">gpu_utilization</span><span class="p">(</span><span class="n">num_of_gpu</span><span class="p">):</span>
+<div class="viewcode-block" id="gpu_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.gpu_utilization">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">gpu_utilization</span><span class="p">(</span><span class="n">num_of_gpu</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Collect gpu metrics.</span>
 
@@ -484,9 +502,9 @@
 
     <span class="c1"># pylint: disable=wrong-import-position</span>
     <span class="c1"># pylint: disable=import-outside-toplevel</span>
-    <span class="kn">import</span> <span class="nn">nvgpu</span>
-    <span class="kn">import</span> <span class="nn">pynvml</span>
-    <span class="kn">from</span> <span class="nn">nvgpu</span> <span class="kn">import</span> <span class="n">list_gpus</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">nvgpu</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pynvml</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">nvgpu</span><span class="w"> </span><span class="kn">import</span> <span class="n">list_gpus</span>
 
     <span class="c1"># pylint: enable=wrong-import-position</span>
     <span class="c1"># pylint: enable=import-outside-toplevel</span>
@@ -522,7 +540,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="collect_all"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.collect_all">[docs]</a><span class="k">def</span> <span class="nf">collect_all</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">num_of_gpu</span><span class="p">):</span>
+<div class="viewcode-block" id="collect_all"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.collect_all">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">collect_all</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">num_of_gpu</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Collect all system metrics.</span>
 
@@ -773,7 +791,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -788,6 +806,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -827,6 +848,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -839,6 +863,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

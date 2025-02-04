@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -425,22 +443,22 @@
 <span class="sd">Base module for all text based default handler.</span>
 <span class="sd">Contains various text based utility methods</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">import</span> <span class="nn">unicodedata</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unicodedata</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
-<span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">LayerIntegratedGradients</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">captum.attr</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayerIntegratedGradients</span>
 
-<span class="kn">from</span> <span class="nn">ts.handler_utils.text_utils</span> <span class="kn">import</span> <span class="n">get_tokenizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.handler_utils.text_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_tokenizer</span>
 
-<span class="kn">from</span> <span class="nn">..utils.util</span> <span class="kn">import</span> <span class="n">CLEANUP_REGEX</span>
-<span class="kn">from</span> <span class="nn">.base_handler</span> <span class="kn">import</span> <span class="n">BaseHandler</span>
-<span class="kn">from</span> <span class="nn">.contractions</span> <span class="kn">import</span> <span class="n">CONTRACTION_MAP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">CLEANUP_REGEX</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.contractions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONTRACTION_MAP</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -451,13 +469,13 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="TextHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler">[docs]</a><span class="k">class</span> <span class="nc">TextHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="TextHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TextHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for all text based default handler.</span>
 <span class="sd">    Contains various text based utility methods</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source_vocab</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">get_tokenizer</span><span class="p">(</span><span class="s2">&quot;basic_english&quot;</span><span class="p">)</span>
@@ -465,7 +483,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lig</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="TextHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<div class="viewcode-block" id="TextHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler.initialize">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads the model and Initializes the necessary artifacts</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -485,7 +503,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lig</span> <span class="o">=</span> <span class="n">LayerIntegratedGradients</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embedding</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="TextHandler.get_source_vocab_path"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler.get_source_vocab_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_source_vocab_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+<div class="viewcode-block" id="TextHandler.get_source_vocab_path"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler.get_source_vocab_path">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_source_vocab_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
         <span class="n">properties</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">system_properties</span>
         <span class="n">model_dir</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_dir&quot;</span><span class="p">)</span>
         <span class="n">source_vocab_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;source_vocab.pt&quot;</span><span class="p">)</span>
@@ -498,12 +516,12 @@
                 <span class="s2">&quot;documentation for details on using text_handler.&quot;</span>
             <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_expand_contractions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_expand_contractions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Expands the contracted words in the text</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">expand_match</span><span class="p">(</span><span class="n">contraction</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">expand_match</span><span class="p">(</span><span class="n">contraction</span><span class="p">):</span>
             <span class="n">match</span> <span class="o">=</span> <span class="n">contraction</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">first_char</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">expanded_contraction</span> <span class="o">=</span> <span class="p">(</span>
@@ -518,7 +536,7 @@
         <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">text</span>
 
-    <span class="k">def</span> <span class="nf">_remove_accented_characters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_accented_characters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes remove_accented_characters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -529,29 +547,29 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">text</span>
 
-    <span class="k">def</span> <span class="nf">_remove_html_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_html_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes html tags</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">clean_text</span> <span class="o">=</span> <span class="n">CLEANUP_REGEX</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">clean_text</span>
 
-    <span class="k">def</span> <span class="nf">_remove_puncutation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_puncutation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Mispelled in original version. This is a compat layer</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_punctuation</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_remove_punctuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_punctuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes punctuation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TextHandler.get_word_token"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler.get_word_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_word_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_tokens</span><span class="p">):</span>
+<div class="viewcode-block" id="TextHandler.get_word_token"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler.get_word_token">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_word_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_tokens</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs word tokens from text</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -559,7 +577,7 @@
         <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">token</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Ġ&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">input_tokens</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">tokens</span></div>
 
-<div class="viewcode-block" id="TextHandler.summarize_attributions"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler.summarize_attributions">[docs]</a>    <span class="k">def</span> <span class="nf">summarize_attributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributions</span><span class="p">):</span>
+<div class="viewcode-block" id="TextHandler.summarize_attributions"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.text_handler.TextHandler.summarize_attributions">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">summarize_attributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributions</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Summarises the attribution across multiple runs</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -794,7 +812,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -809,6 +827,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -848,6 +869,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -860,6 +884,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

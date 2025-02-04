@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -425,18 +443,18 @@
 <span class="sd">OTF Codec</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">struct</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">bytearray</span><span class="p">,</span> <span class="nb">bytes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">builtins</span><span class="w"> </span><span class="kn">import</span> <span class="nb">bytearray</span><span class="p">,</span> <span class="nb">bytes</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
-<span class="kn">from</span> <span class="nn">ts.utils.util</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.utils.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="n">bool_size</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">int_size</span> <span class="o">=</span> <span class="mi">4</span>
@@ -446,7 +464,7 @@
 <span class="n">RESPONSE</span> <span class="o">=</span> <span class="mi">3</span>
 
 
-<div class="viewcode-block" id="retrieve_msg"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.retrieve_msg">[docs]</a><span class="k">def</span> <span class="nf">retrieve_msg</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+<div class="viewcode-block" id="retrieve_msg"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.retrieve_msg">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">retrieve_msg</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Retrieve a message from the socket channel.</span>
 
@@ -465,7 +483,7 @@
     <span class="k">return</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">msg</span></div>
 
 
-<div class="viewcode-block" id="encode_response_headers"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.encode_response_headers">[docs]</a><span class="k">def</span> <span class="nf">encode_response_headers</span><span class="p">(</span><span class="n">resp_hdr_map</span><span class="p">):</span>
+<div class="viewcode-block" id="encode_response_headers"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.encode_response_headers">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">encode_response_headers</span><span class="p">(</span><span class="n">resp_hdr_map</span><span class="p">):</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
     <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">resp_hdr_map</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">resp_hdr_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -476,7 +494,7 @@
     <span class="k">return</span> <span class="n">msg</span></div>
 
 
-<div class="viewcode-block" id="create_predict_response"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.create_predict_response">[docs]</a><span class="k">def</span> <span class="nf">create_predict_response</span><span class="p">(</span>
+<div class="viewcode-block" id="create_predict_response"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.create_predict_response">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_predict_response</span><span class="p">(</span>
     <span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ts_stream_next</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -578,7 +596,7 @@
     <span class="k">return</span> <span class="n">msg</span></div>
 
 
-<div class="viewcode-block" id="create_load_model_response"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.create_load_model_response">[docs]</a><span class="k">def</span> <span class="nf">create_load_model_response</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<div class="viewcode-block" id="create_load_model_response"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.create_load_model_response">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_load_model_response</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create load model response.</span>
 
@@ -597,7 +615,7 @@
     <span class="k">return</span> <span class="n">msg</span></div>
 
 
-<span class="k">def</span> <span class="nf">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
 
     <span class="k">while</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -612,17 +630,17 @@
     <span class="k">return</span> <span class="n">data</span>
 
 
-<span class="k">def</span> <span class="nf">_retrieve_int</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_int</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">int_size</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_retrieve_bool</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_bool</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">bool_size</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;!?&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_retrieve_load_msg</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_load_msg</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MSG Frame Format:</span>
 
@@ -656,7 +674,7 @@
     <span class="k">return</span> <span class="n">msg</span>
 
 
-<span class="k">def</span> <span class="nf">_retrieve_inference_msg</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_inference_msg</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MSG Frame Format:</span>
 
@@ -674,7 +692,7 @@
     <span class="k">return</span> <span class="n">msg</span>
 
 
-<span class="k">def</span> <span class="nf">_retrieve_request</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_request</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MSG Frame Format:</span>
 
@@ -709,7 +727,7 @@
     <span class="k">return</span> <span class="n">request</span>
 
 
-<span class="k">def</span> <span class="nf">_retrieve_reqest_header</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_reqest_header</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MSG Frame Format:</span>
 
@@ -730,7 +748,7 @@
     <span class="k">return</span> <span class="n">header</span>
 
 
-<span class="k">def</span> <span class="nf">_retrieve_input_data</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_input_data</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MSG Frame Format:</span>
 
@@ -788,7 +806,7 @@
     <span class="n">version</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">replacement</span><span class="o">=</span><span class="s2">&quot;ts.handler_utils.utils.send_intermediate_predict_response&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">send_intermediate_predict_response</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">send_intermediate_predict_response</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LOCAL_RANK&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">!=</span> <span class="s2">&quot;0&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="n">create_predict_response</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
@@ -1019,7 +1037,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -1034,6 +1052,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -1073,6 +1094,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -1085,6 +1109,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>

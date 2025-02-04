@@ -128,8 +128,8 @@
                   <span class=dropdown-title>Developer Resources</span>
                   <p>Find resources and get questions answered</p>
                 </a>
-                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2023">
-                  <span class="dropdown-title">Contributor Awards - 2023</span>
+                <a class="nav-dropdown-item" href="https://pytorch.org/ecosystem/contributor-awards-2024">
+                  <span class="dropdown-title">Contributor Awards - 2024</span>
                   <p>Award winners announced at this year's PyTorch Conference</p>
                 </a>
               </div>
@@ -149,6 +149,9 @@
                 <a class="nav-dropdown-item" href="https://pytorch.org/executorch-overview">
                   <span class="dropdown-title">ExecuTorch</span>
                   <p>End-to-end solution for enabling on-device inference capabilities across mobile and edge devices</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch/stable/index.html">
+                  <span class="dropdown-title">ExecuTorch Docs</span>
                 </a>
               </div>
             </div>  
@@ -197,6 +200,10 @@
                   <span class="dropdown-title">Events</span>
                   <p>Find events, webinars, and podcasts</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/newsletter">
+                  <span class="dropdown-title">Newsletter</span>
+                  <p>Stay up-to-date with the latest updates</p>
+                </a>
             </div>
           </li>
 
@@ -212,7 +219,18 @@
                 </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/governing-board">
                   <span class="dropdown-title">Governing Board</span>
-                  <p></p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/credits">
+                  <span class="dropdown-title">Cloud Credit Program</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/tac">
+                  <span class="dropdown-title">Technical Advisory Council</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/staff">
+                  <span class="dropdown-title">Staff</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/contact-us">
+                  <span class="dropdown-title">Contact Us</span>
                 </a>
               </div>
             </div>
@@ -425,21 +443,21 @@
 <span class="sd">Mocks for adding model context without loading all of Torchserve</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
-<span class="kn">from</span> <span class="nn">ts.metrics.metrics_store</span> <span class="kn">import</span> <span class="n">MetricsStore</span>
-<span class="kn">from</span> <span class="nn">ts.utils.util</span> <span class="kn">import</span> <span class="n">get_yaml_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.metrics.metrics_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricsStore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ts.utils.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_yaml_config</span>
 
 
-<div class="viewcode-block" id="MockContext"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.test_utils.html#ts.torch_handler.unit_tests.test_utils.mock_context.MockContext">[docs]</a><span class="k">class</span> <span class="nc">MockContext</span><span class="p">:</span>
+<div class="viewcode-block" id="MockContext"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.test_utils.html#ts.torch_handler.unit_tests.test_utils.mock_context.MockContext">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MockContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Mock class to replicate the context passed into model initialize</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model_pt_file</span><span class="o">=</span><span class="s2">&quot;model.pt&quot;</span><span class="p">,</span>
         <span class="n">model_dir</span><span class="o">=</span><span class="s2">&quot;ts/torch_handler/unit_tests/models/tmp&quot;</span><span class="p">,</span>
@@ -469,7 +487,7 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">model_yaml_config_file</span><span class="p">)</span>
             <span class="p">)</span>
 
-<div class="viewcode-block" id="MockContext.get_request_header"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.test_utils.html#ts.torch_handler.unit_tests.test_utils.mock_context.MockContext.get_request_header">[docs]</a>    <span class="k">def</span> <span class="nf">get_request_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
+<div class="viewcode-block" id="MockContext.get_request_header"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.test_utils.html#ts.torch_handler.unit_tests.test_utils.mock_context.MockContext.get_request_header">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_request_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">idx</span> <span class="ow">and</span> <span class="n">exp</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explain</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
@@ -700,7 +718,7 @@
                <a href="https://pytorch.org/resources">Developer Resources</a>
              </li>
              <li>
-               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2023</a>
+               <a href="https://pytorch.org/ecosystem/contributor-awards-2023">Contributor Awards - 2024</a>
              </li>
            </ul>
 
@@ -715,6 +733,9 @@
              
              <li>
                <a href="https://pytorch.org/executorch-overview">ExecuTorch</a>
+             </li>
+             <li>
+               <a href="https://pytorch.org/executorch/stable/index.html">ExecuTorch Documentation</a>
              </li>
            </ul>
 
@@ -754,6 +775,9 @@
             <li>
               <a href="https://pytorch.org/events">Events</a>
             </li>
+            <li>
+               <a href="https://pytorch.org/newsletter">Newsletter</a>
+             </li>
           </ul>
           
           <li class="resources-mobile-menu-title">
@@ -766,6 +790,18 @@
             </li>
             <li>
               <a href="https://pytorch.org/governing-board">Governing Board</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/credits">Cloud Credit Program</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/tac">Technical Advisory Council</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/staff">Staff</a>
+            </li>
+            <li>
+               <a href="https://pytorch.org/contact-us">Contact Us</a>
             </li>
           </ul>
         </ul>
