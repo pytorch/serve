@@ -28,7 +28,7 @@ Run the commands given in following steps from the parent directory of the root 
   ### Start a docker container with torchserve
 
   ```bash
-  docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -v $(pwd)/model_store:/home/model-server/model-store pytorch/torchserve:latest-cpu
+  docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -e TS_ENABLE_MODEL_API=true -v $(pwd)/model_store:/home/model-server/model-store pytorch/torchserve:latest-cpu
   ```
 
   ### Register the model on TorchServe using the above model archive file
@@ -44,6 +44,14 @@ Run the commands given in following steps from the parent directory of the root 
   "status": "Model \"mnist\" Version: 1.0 registered with 4 initial workers"
   }
   ```
+
+  An alternative to manual registration of models is to specify the model names TorchServe should register at startup using the [`load_models`](https://pytorch.org/serve/configuration.html#load-models-at-startup) property. The property can be configured by setting the `TS_LOAD_MODELS=mnist.mar` environment variable (this removes the need for the `TS_ENABLE_MODEL_API` environment variable and the `curl` call above):
+
+  ```bash
+  docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -e TS_LOAD_MODELS=mnist.mar -v $(pwd)/model_store:/home/model-server/model-store pytorch/torchserve:latest-cpu
+  ```
+
+  Note that this approach does not allow specifying the initial number of workers.
 
   ### Run digit recognition inference outside the container
 
