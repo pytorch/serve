@@ -13,6 +13,7 @@ import packaging.version
 import torch
 
 from ts.handler_utils.timer import timed
+from .abstract_handler import AbstractHandler
 
 from ..utils.util import (
     check_valid_pt2_backend,
@@ -116,22 +117,20 @@ def setup_ort_session(model_pt_path, map_location):
     return ort_session
 
 
-class BaseHandler(abc.ABC):
+class BaseHandler(AbstractHandler, abc.ABC):
     """
     Base default handler to load torchscript or eager mode [state_dict] models
     Also, provides handle method per torch serve custom model specification
     """
 
     def __init__(self):
+        super().__init__()
         self.model = None
         self.mapping = None
-        self.device = None
         self.initialized = False
-        self.context = None
         self.model_pt_path = None
         self.manifest = None
         self.map_location = None
-        self.explain = False
         self.target = 0
         self.profiler_args = {}
 
@@ -368,8 +367,7 @@ class BaseHandler(abc.ABC):
                 )
         return torch_export_aot_compile
 
-    @timed
-    def preprocess(self, data):
+    def as_tensor(self, data):
         """
         Preprocess function to convert the request input to a tensor(Torchserve supported format).
         The user needs to override to customize the pre-processing
@@ -401,70 +399,17 @@ class BaseHandler(abc.ABC):
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
-    @timed
-    def postprocess(self, data):
-        """
-        The post process function makes use of the output from the inference and converts into a
-        Torchserve supported response output.
-
-        Args:
-            data (Torch Tensor): The torch tensor received from the prediction output of the model.
-
-        Returns:
-            List: The post process function returns a list of the predicted output.
-        """
-
-        return data.tolist()
-
-    def handle(self, data, context):
-        """Entry point for default handler. It takes the data from the input request and returns
-           the predicted outcome for the input.
-
-        Args:
-            data (list): The input data that needs to be made a prediction request on.
-            context (Context): It is a JSON Object containing information pertaining to
-                               the model artifacts parameters.
-
-        Returns:
-            list : Returns a list of dictionary with the predicted response.
-        """
-
-        # It can be used for pre or post processing if needed as additional request
-        # information is available in context
-        start_time = time.time()
-
-        self.context = context
-        metrics = self.context.metrics
-
-        is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
-        if is_profiler_enabled:
-            if PROFILER_AVAILABLE:
-                if self.manifest is None:
-                    # profiler will use to get the model name
-                    self.manifest = context.manifest
-                output, _ = self._infer_with_profiler(data=data)
-            else:
-                raise RuntimeError(
-                    "Profiler is enabled but current version of torch does not support."
-                    "Install torch>=1.8.1 to use profiler."
-                )
+    def infer_with_profiler(self, data, context):
+        if PROFILER_AVAILABLE:
+            if self.manifest is None:
+                # profiler will use to get the model name
+                self.manifest = context.manifest
+            output, _ = self._infer_with_profiler(data=data)
         else:
-            if self._is_describe():
-                output = [self.describe_handle()]
-            else:
-                data_preprocess = self.preprocess(data)
-
-                if not self._is_explain():
-                    output = self.inference(data_preprocess)
-                    output = self.postprocess(output)
-                else:
-                    output = self.explain_handle(data_preprocess, data)
-
-        stop_time = time.time()
-        metrics.add_time(
-            "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
-        )
-        return output
+            raise RuntimeError(
+                "Profiler is enabled but current version of torch does not support."
+                "Install torch>=1.8.1 to use profiler."
+            )
 
     def _infer_with_profiler(self, data):
         """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess
@@ -514,60 +459,3 @@ class BaseHandler(abc.ABC):
 
         logger.info(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
         return output, prof
-
-    def explain_handle(self, data_preprocess, raw_data):
-        """Captum explanations handler
-
-        Args:
-            data_preprocess (Torch Tensor): Preprocessed data to be used for captum
-            raw_data (list): The unprocessed data to get target from the request
-
-        Returns:
-            dict : A dictionary response with the explanations response.
-        """
-        output_explain = None
-        inputs = None
-        target = 0
-
-        logger.info("Calculating Explanations")
-        row = raw_data[0]
-        if isinstance(row, dict):
-            logger.info("Getting data and target")
-            inputs = row.get("data") or row.get("body")
-            target = row.get("target")
-            if not target:
-                target = 0
-
-        output_explain = self.get_insights(data_preprocess, inputs, target)
-        return output_explain
-
-    def _is_explain(self):
-        if self.context and self.context.get_request_header(0, "explain"):
-            if self.context.get_request_header(0, "explain") == "True":
-                self.explain = True
-                return True
-        return False
-
-    def _is_describe(self):
-        if self.context and self.context.get_request_header(0, "describe"):
-            if self.context.get_request_header(0, "describe") == "True":
-                return True
-        return False
-
-    def describe_handle(self):
-        """Customized describe handler
-
-        Returns:
-            dict : A dictionary response.
-        """
-        # pylint: disable=unnecessary-pass
-        pass
-        # pylint: enable=unnecessary-pass
-
-    def get_device(self):
-        """Get device
-
-        Returns:
-            string : self device
-        """
-        return self.device
