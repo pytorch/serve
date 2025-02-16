@@ -157,6 +157,7 @@ class Common:
             os.system(
                 f"pip3 install numpy --pre torch torchvision torchaudio torchtext --index-url https://download.pytorch.org/whl/nightly/{pt_nightly}"
             )
+
         elif args.skip_torch_install:
             print("Skipping Torch installation")
         else:
