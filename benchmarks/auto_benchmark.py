@@ -11,6 +11,7 @@ CWD = os.getcwd()
 MODEL_JSON_CONFIG_PATH = CWD + "/model_json_config"
 BENCHMARK_TMP_PATH = "/tmp/benchmark"
 BENCHMARK_REPORT_PATH = "/tmp/ts_benchmark"
+BENCHMARK_REPORT_PATH_TEST = "/tmp/ts_benchmark/fail"
 TS_LOGS_PATH = CWD + "/logs"
 MODEL_STORE = "/tmp/model_store"
 WF_STORE = "/tmp/wf_store"
@@ -136,8 +137,8 @@ def install_torchserve(skip_ts_install, hw, ts_version, nightly):
         return
 
     # git checkout branch if it is needed
-    cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
-    execute(cmd, wait=True)
+    # cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
+    # execute(cmd, wait=True)
     print("successfully reset git")
 
     ts_install_cmd = None
@@ -159,6 +160,7 @@ def install_torchserve(skip_ts_install, hw, ts_version, nightly):
     if nightly:
         cmd += " --nightly_torch"
     execute(cmd, wait=True)
+
     print("successfully install install_dependencies.py")
 
     # install torchserve
@@ -212,10 +214,23 @@ def run_benchmark(bm_config):
             # generate stats metrics from ab_report.csv
             bm_model = model_json_config[0 : -len(".json")]
 
-            gen_metrics_json.gen_metric(
-                "{}/ab_report.csv".format(BENCHMARK_TMP_PATH),
-                "{}/logs/stats_metrics.json".format(BENCHMARK_TMP_PATH),
-            )
+            try:
+                gen_metrics_json.gen_metric(
+                    "{}/ab_report.csv".format(BENCHMARK_TMP_PATH),
+                    "{}/logs/stats_metrics.json".format(BENCHMARK_TMP_PATH),
+                )
+            except Exception as e:
+                bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH_TEST, bm_model)
+                os.makedirs(bm_model_log_path, exist_ok=True)
+
+                cmd = "tar -cvzf {}/logs.tar.gz {}".format(
+                    bm_model_log_path, TS_LOGS_PATH
+                )
+                execute(cmd, wait=True)
+
+                print(f"An error occurred: {e}")
+                if "report_cmd" in bm_config:
+                    execute(bm_config["report_cmd"], wait=True)
 
             # load stats metrics to remote metrics storage
             if "metrics_cmd" in bm_config:
