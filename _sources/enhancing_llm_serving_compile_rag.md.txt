@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Enhancing LLM Serving with Torch Compiled RAG on AWS Graviton
 
 Previously, it has been [demonstrated](https://pytorch.org/blog/high-performance-llama/)  how to deploy Llama with TorchServe. Deploying just the LLM can have limitations such as lack of up-to-date information & limited domain specific knowledge. Retrieval Augmented Generation (RAG) is a technique that can be used to enhance  the accuracy and reliability of an LLM by providing the context of up-to-date, relevant information. This blog post illustrates how to implement RAG alongside LLM in a microservices-based architecture, which enhances scalability and expedites development. Additionally, by utilizing CPU-based RAG with AWS Graviton, customers can efficiently use compute resources, ultimately leading to cost savings.

@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Serving large models with Torchserve
 
 This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.

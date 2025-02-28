@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Model Zoo
 
 This page lists model archives that are pre-trained and pre-packaged, ready to be served for inference with TorchServe.
@@ -21,7 +25,7 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 | FCN ResNet 101 | Image Segmentation | COCO | 193 MB | [.mar](https://torchserve.pytorch.org/mar_files/fcn_resnet_101.mar) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/persons.jpg?raw=true) |Eager|
 | DeepLabV3 ResNet 101 | Image Segmentation | COCO | 217 MB | [.mar](https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101_eager.mar) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/persons.jpg) |Eager|
 | BERT token classification | Token Classification | AG_NEWS | 384.7 MB | [.mar](https://torchserve.pytorch.org/mar_files/bert_token_classification_no_torchscript.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/text_classification/sample_text.txt) |Eager|
-| BERT sequence classification | Sequence Classification | AG_NEWS | 386.8 MB | [.mar](https://torchserve.pytorch.org/mar_files/bert_seqc_without_torchscript.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/text_classification/sample_text.txt) |Eager| 
+| BERT sequence classification | Sequence Classification | AG_NEWS | 386.8 MB | [.mar](https://torchserve.pytorch.org/mar_files/bert_seqc_without_torchscript.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/text_classification/sample_text.txt) |Eager|
 | AlexNet Scripted | Image Classification | ImageNet | 216 MB | [.mar](https://torchserve.pytorch.org/mar_files/alexnet_scripted.mar) | [kitten.jpg](https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg?raw=true) |Torchscripted |
 | Densenet161 Scripted| Image Classification | ImageNet | 105 MB | [.mar](https://torchserve.pytorch.org/mar_files/densenet161_scripted.mar) | [kitten.jpg](https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg?raw=true) |Torchscripted |
 | Resnet18 Scripted| Image Classification | ImageNet | 42 MB | [.mar](https://torchserve.pytorch.org/mar_files/resnet-18_scripted.mar) | [kitten.jpg](https://github.com/pytorch/serve/blob/master/examples/image_classifier/kitten.jpg?raw=true) |Torchscripted |
@@ -33,9 +37,9 @@ To propose a model for inclusion, please submit a [pull request](https://github.
 | FCN ResNet 101 Scripted | Image Segmentation | COCO | 193 MB | [.mar](https://torchserve.pytorch.org/mar_files/fcn_resnet_101_scripted.mar) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/persons.jpg?raw=true) |Torchscripted |
 | DeepLabV3 ResNet 101 Scripted | Image Segmentation | COCO | 217 MB | [.mar](https://torchserve.pytorch.org/mar_files/deeplabv3_resnet_101_scripted.mar) | [persons.jpg](https://github.com/pytorch/serve/blob/master/examples/image_segmenter/persons.jpg) |Torchscripted |
 | MMF activity recognition | Activity Recognition | Charades | 549 MB | [.mar](https://torchserve.pytorch.org/mar_files/MMF_activity_recognition_v2.mar) | [372CC.mp4](https://mmfartifacts.s3-us-west-2.amazonaws.com/372CC.mp4) | Torchscripted |
-| BERT sequence classification CPU | Sequence Classification | AG_NEWS | 386.9 MB | [.mar](https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt) |Torchscripted| 
-| BERT sequence classification mGPU | Sequence Classification | CAPTUM | 386.9 MB | [.mar](https://torchserve.pytorch.org/mar_files/BERTSeqClassification_mgpu.mar) | [sample_text_captum_input.txt](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt) |Torchscripted| 
-| BERT sequence classification | Sequence Classification | AG_NEWS | 386.8 MB | [.mar](https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt) |Torchscripted| 
+| BERT sequence classification CPU | Sequence Classification | AG_NEWS | 386.9 MB | [.mar](https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt) |Torchscripted|
+| BERT sequence classification mGPU | Sequence Classification | CAPTUM | 386.9 MB | [.mar](https://torchserve.pytorch.org/mar_files/BERTSeqClassification_mgpu.mar) | [sample_text_captum_input.txt](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt) |Torchscripted|
+| BERT sequence classification | Sequence Classification | AG_NEWS | 386.8 MB | [.mar](https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar) | [sample_text.txt](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt) |Torchscripted|
 | dog breed classification | Image Classification | ImageNet | 1.1 KB | [.war](https://torchserve.s3.amazonaws.com/war_files/dog_breed_wf.war) | [kitten_small.jpg](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg) | Workflow |
 
 Refer [example](https://github.com/pytorch/serve/tree/master/examples) for more details on above models.

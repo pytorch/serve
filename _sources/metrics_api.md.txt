@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Metrics API
 
 Metrics API is a http API that is used to fetch metrics in the prometheus format. It is listening on port 8082 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md). The metrics endpoint is enabled by default and returns Prometheus formatted metrics when [metrics_mode](https://github.com/pytorch/serve/blob/master/docs/metrics.md) configuration is set to `prometheus`. You can query metrics using curl requests or point a [Prometheus Server](#prometheus-server) to the endpoint and use [Grafana](#grafana) for dashboards.

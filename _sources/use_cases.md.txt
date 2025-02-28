@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Torchserve Use Cases
 
 Torchserve can be used for different use cases. In order to make it convenient for users, some of them have been documented here.
