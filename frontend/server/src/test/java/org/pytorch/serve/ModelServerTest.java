@@ -1037,6 +1037,32 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsModifyResponseHeader"})
+    public void testPredictionsRequestIdPrefixHeader() throws InterruptedException {
+        Channel channel = TestUtils.getInferenceChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/noop");
+        req.content().writeCharSequence("test", CharsetUtil.UTF_8);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_OCTET_STREAM);
+        req.headers().set("x-request-id-prefix", "test-prefix");
+        channel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getResult(), "OK");
+
+        String respId = TestUtils.getHeaders().get("x-request-id");
+        String[] respIdParts = respId.split("#");
+        String respIdPrefix = respIdParts[0];
+        Assert.assertEquals(respIdPrefix, "test-prefix");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionsRequestIdPrefixHeader"})
     public void testPredictionsNoManifest()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);

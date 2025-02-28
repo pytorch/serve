@@ -1,9 +1,12 @@
 package org.pytorch.serve.http;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import java.util.UUID;
 
 public class Session {
+
+    private static final String REQUEST_ID_PREFIX = "x-request-id-prefix";
 
     private String requestId;
     private String remoteIp;
@@ -23,7 +26,13 @@ public class Session {
             method = "GET";
             protocol = "HTTP/1.1";
         }
-        requestId = UUID.randomUUID().toString();
+        HttpHeaders headers = request.headers();
+        if (headers.contains(REQUEST_ID_PREFIX)) {
+            // adopt header value as prefix for internal request id
+            requestId = headers.getAsString(REQUEST_ID_PREFIX) + "#" + UUID.randomUUID().toString();
+        } else {
+            requestId = UUID.randomUUID().toString();
+        }
         startTime = System.currentTimeMillis();
     }
 
