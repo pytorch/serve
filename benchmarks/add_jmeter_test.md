@@ -1,16 +1,20 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 ## Adding a new test plan for torchserve
 
 A new Jmeter test plan for torchserve benchmark can be added as follows:
 
 * Assuming you know how to create a jmeter test plan. If not then please use this jmeter [guide](https://jmeter.apache.org/usermanual/build-test-plan.html)
 * Here, we will show you how 'MMS Benchmarking Image Input Model Test Plan' plan can be added.
-This test plan does following: 
-  
+This test plan does following:
+
     * Register a model - `default is resnet-18`
     * Scale up to add workers for inference
     * Send Inference request in a loop
     * Unregister a model
-    
+
     (NOTE - This is an existing plan in `serve/benchmarks`)
 * Open jmeter GUI
 e.g. on macOS, type `jmeter` on commandline
@@ -63,7 +67,7 @@ You can create variables or use them directly in your test plan.
 * input_filepath - input image file for prediction
 * min_workers - minimum workers to be launch for serving inference request
 
-NOTE - 
+NOTE -
 
 * In above, screenshot, some variables/input box are partially displayed. You can view details by opening an existing test cases from serve/benchmarks/jmx for details.
 * Apart from above argument, you can define custom arguments specific to you test plan if needed. Refer `benchmark.py` for details

@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 ## TorchServe on Google Kubernetes Engine (GKE)
 
 ### 1 Create an GKE cluster
@@ -36,10 +40,10 @@ WARNING: Warning: basic authentication is deprecated, and will be removed in GKE
 WARNING: Currently VPC-native is not the default mode during cluster creation. In the future, this will become the default mode and can be disabled using `--no-enable-ip-alias` flag. Use `--[no-]enable-ip-alias` flag to suppress this warning.
 WARNING: Newly created clusters and node-pools will have node auto-upgrade enabled by default. This can be disabled using the `--no-enable-autoupgrade` flag.
 WARNING: Starting with version 1.18, clusters will have shielded GKE nodes by default.
-WARNING: Your Pod address range (`--cluster-ipv4-cidr`) can accommodate at most 1008 node(s). 
+WARNING: Your Pod address range (`--cluster-ipv4-cidr`) can accommodate at most 1008 node(s).
 WARNING: Starting with version 1.19, newly created clusters and node-pools will have COS_CONTAINERD as the default node image when no image type is specified.
 Machines with GPUs have certain limitations which may affect your workflow. Learn more at https://cloud.google.com/kubernetes-engine/docs/how-to/gpus
-Creating cluster ts in us-west1... Cluster is being health-checked (master is healthy)...done.                                                                    
+Creating cluster ts in us-west1... Cluster is being health-checked (master is healthy)...done.
 Created [https://container.googleapis.com/v1/projects/xxxxx-xxxx-35xx55/zones/us-west1/clusters/ts].
 To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/us-west1/ts?project=xxxxx-xxxx-35xx55
 kubeconfig entry generated for ts.
@@ -100,7 +104,7 @@ cd serve/kubernetes/GKE
 * Change torchserve image in Helm/values.yaml to the CPU version
 * Set `n_gpu` to `0` in Helm/values.yaml
 * Skip NVIDIA plugin installation in section [2.3](#23-install-nvidia-device-plugin)
-  
+
 #### 2.3 Install NVIDIA device plugin
 
 Before the GPUs in the nodes can be used, you must deploy a DaemonSet for the NVIDIA device plugin. This DaemonSet runs a pod on each node to provide the required drivers for the GPUs.
@@ -292,7 +296,7 @@ Possible error in this step may be a result of one of the following. Your pod my
   * Check affinity zone in values.yaml to match the storage disk.
 
 * Wrong Server IP
-  
+
   * Check the server IP mentioned in the pv_pvc.yaml
 
 * You can execute the following commands to inspect the pods / events to debug NFS Issues

@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Logging in Torchserve
 
 In this document we explain logging in TorchServe. We also explain how to modify the behavior of logging in the model server.

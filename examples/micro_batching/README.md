@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Micro Batching
 Accelerators like GPUs can be used most cost efficiently for inference if they are steadily fed with incoming data.
 TorchServe currently allows a single batch to be processed per backend worker.

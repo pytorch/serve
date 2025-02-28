@@ -1,4 +1,8 @@
-# Autoscaler 
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
+# Autoscaler
 
 Setup Kubernetes HPA(Horizontal Pod Autoscaler) for Torchserve, tuned for torchserve metrics. This uses Prometheus as metrics collector and Prometheus Adapter as metrics server, serving Torchserve metrics for HPA.
 

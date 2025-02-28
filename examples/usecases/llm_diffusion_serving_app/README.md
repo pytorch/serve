@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 ## Multi-Image Generation Streamlit App: Chaining Llama & Stable Diffusion using TorchServe, torch.compile & OpenVINO
 
 This Multi-Image Generation Streamlit app is designed to generate multiple images based on a provided text prompt. Instead of using Stable Diffusion directly, this app chains Llama and Stable Diffusion to enhance the image generation process. Here’s how it works:
@@ -10,7 +14,7 @@ This Multi-Image Generation Streamlit app is designed to generate multiple image
 
 ## Quick Start Guide
 
-**Prerequisites**: 
+**Prerequisites**:
 - Docker installed on your system
 - Hugging Face Token: Create a Hugging Face account and obtain a token with access to the [meta-llama/Llama-3.2-3B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct) model.
 
@@ -25,7 +29,7 @@ cd serve
 ./examples/usecases/llm_diffusion_serving_app/docker/build_image.sh
 
 # 3: Launch the streamlit app for server & client
-# After the Docker build is successful, you will see a "docker run" command printed to the console. 
+# After the Docker build is successful, you will see a "docker run" command printed to the console.
 # Run that "docker run" command to launch the Streamlit app for both the server and client.
 ```
 
@@ -34,7 +38,7 @@ cd serve
 <details>
 
 ```console
-ubuntu@ip-10-0-0-137:~/serve$ ./examples/usecases/llm_diffusion_serving_app/docker/build_image.sh 
+ubuntu@ip-10-0-0-137:~/serve$ ./examples/usecases/llm_diffusion_serving_app/docker/build_image.sh
 EXAMPLE_DIR: .//examples/usecases/llm_diffusion_serving_app/docker
 ROOT_DIR: /home/ubuntu/serve
 DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 --file .//examples/usecases/llm_diffusion_serving_app/docker/Dockerfile --build-arg BASE_IMAGE="pytorch/torchserve:latest-cpu" --build-arg EXAMPLE_DIR=".//examples/usecases/llm_diffusion_serving_app/docker" --build-arg HUGGINGFACE_TOKEN=hf_<token> --build-arg HTTP_PROXY= --build-arg HTTPS_PROXY= --build-arg NO_PROXY= -t "pytorch/torchserve:llm_diffusion_serving_app" .
@@ -45,7 +49,7 @@ DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 --file .//examples/
  .
  => => naming to docker.io/pytorch/torchserve:llm_diffusion_serving_app                                                                                                                                    0.0s
 
-Docker Build Successful ! 
+Docker Build Successful !
 
 ............................ Next Steps ............................
 --------------------------------------------------------------------
@@ -83,8 +87,8 @@ Note: You can replace the model identifiers (MODEL_NAME_LLM, MODEL_NAME_SD) as n
 
 ## What to expect
 After launching the Docker container using the `docker run ..` command displayed after a successful build, you can access two separate Streamlit applications:
-1. TorchServe Server App (running at http://localhost:8084) to start/stop TorchServe, load/register models, scale up/down workers. 
-2. Client App (running at http://localhost:8085) where you can enter prompt for Image generation. 
+1. TorchServe Server App (running at http://localhost:8084) to start/stop TorchServe, load/register models, scale up/down workers.
+2. Client App (running at http://localhost:8085) where you can enter prompt for Image generation.
 
 > Note: You could also run a quick benchmark comparing the performance of Stable Diffusion with Eager, torch.compile with inductor and openvino.
 > Review the `docker run ..` command displayed after a successful build for benchmarking
@@ -262,7 +266,7 @@ Results saved at /home/model-server/model-store/ which is a Docker container mou
 
 ## Multi-Image Generation App UI
 
-### App Workflow 
+### App Workflow
 ![Multi-Image Generation App Workflow Gif](https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/llm_diffusion_serving_app/docker/img/multi-image-gen-app.gif)
 
 ### App Screenshots

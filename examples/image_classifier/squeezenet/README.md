@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 #### Sample commands to create a squeezenet eager mode model archive, register it on TorchServe and run image prediction
 
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path/serve
@@ -45,7 +49,7 @@ produces the output
   "tiger_cat": 0.2425432652235031,
   "Egyptian_cat": 0.22137290239334106,
   "cougar": 0.0022544628009200096
-}%                                                                                     
+}%
 ```
 
 

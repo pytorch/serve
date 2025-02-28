@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # LLM Deployment with TorchServe
 
 This document describes how to easily serve large language models (LLM) like Meta-Llama3 with TorchServe.

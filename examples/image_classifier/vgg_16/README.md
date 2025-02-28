@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 #### TorchServe inference with torch.compile of vgg-16 model
 This example shows how to take eager model of `vgg-16`, configure TorchServe to use `torch.compile` and run inference using `torch.compile`
 

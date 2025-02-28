@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Digit recognition model with MNIST dataset using a Kubernetes cluster
 
 In this example, we show how to use a pre-trained custom MNIST model to perform real time Digit recognition with TorchServe.

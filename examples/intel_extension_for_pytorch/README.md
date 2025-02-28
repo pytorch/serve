@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # TorchServe with Intel® Extension for PyTorch*
 
 TorchServe can be used with Intel® Extension for PyTorch* to give performance boost on Intel hardware.<sup>1</sup>

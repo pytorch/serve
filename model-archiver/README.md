@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Torch Model archiver for TorchServe
 
 ## Contents of this Document
@@ -170,7 +174,7 @@ A model config yaml file. For example:
 
 ```
 # TS frontend parameters
-# See all supported parameters: https://github.com/pytorch/serve/blob/master/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14
+# See all supported parameters: https://github.com/pytorch/serve/blob/2a0ce756b179677f905c3216b9c8427cd530a129/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14
 minWorkers: 1 # default: #CPU or #GPU
 maxWorkers: 1 # default: #CPU or #GPU
 batchSize: 1 # default: 1
