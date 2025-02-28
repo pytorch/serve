@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Transformer (NMT) models for English-French and English-German translation.
 
 The Transformer, introduced in the paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762), is a powerful sequence-to-sequence modeling architecture capable of producing state-of-the-art neural machine translation (NMT) systems.

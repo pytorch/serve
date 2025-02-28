@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Torchserve custom endpoint plugin
 
 In this example, we demonstrate how to create a custom HTTP API endpoint plugin for TorchServe. Endpoint plugins enable us to dynamically add custom functionality to TorchServe at start time, without having to rebuild TorchServe. For more details on endpoint plugins and TorchServe SDK, refer to the following links:
@@ -52,17 +56,17 @@ Run the commands given in the following steps from the root directory of the rep
   $ cd plugins
   $ ./gradlew clean build
   $ cd ..
-  ``` 
+  ```
 
 - Step 6: Create two example model archives to test the plugin with
 
   ```bash
   $ mkdir -p model_store
   $ torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
-  $ mv mnist.mar ./model_store 
+  $ mv mnist.mar ./model_store
   ```
 
-  ```bash 
+  ```bash
   $ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
   $ torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ./examples/image_classifier/index_to_name.json
   $ mv resnet-18.mar ./model_store
@@ -98,7 +102,7 @@ Run the commands given in the following steps from the root directory of the rep
   The `model-ready` endpoint reports that the models are not ready since there are no workers that have loaded the models and ready to serve inference requests.
 
 - Step 9: Scale up workers for one of the models and test the custom endpoint
-  
+
   ```bash
   $ curl -X PUT "http://localhost:8081/models/mnist?min_worker=1&synchronous=true"
   {
@@ -142,4 +146,3 @@ Run the commands given in the following steps from the root directory of the rep
   ```bash
   $ torchserve --stop
   ```
-

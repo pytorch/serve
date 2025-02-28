@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # TorchServe on linux aarch64 - Experimental
 
 TorchServe has been tested to be working on linux aarch64 for some of the examples.

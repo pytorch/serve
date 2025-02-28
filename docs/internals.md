@@ -1,6 +1,10 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 ## TorchServe internals
 
-TorchServe was designed a multi model inferencing framework. A production grade inferencing framework needs both APIs to request inferences but also APIs to manage models all the while keeping track of logs. TorchServe manages several worker processes that are dynamically assigned to different models with the behavior of those workers determined by a handler file and a model store where weights are loaded from. 
+TorchServe was designed a multi model inferencing framework. A production grade inferencing framework needs both APIs to request inferences but also APIs to manage models all the while keeping track of logs. TorchServe manages several worker processes that are dynamically assigned to different models with the behavior of those workers determined by a handler file and a model store where weights are loaded from.
 
 ## TorchServe Architecture
 ![Architecture Diagram](https://user-images.githubusercontent.com/880376/83180095-c44cc600-a0d7-11ea-97c1-23abb4cdbe4d.jpg)
@@ -45,7 +49,7 @@ https://github.com/pytorch/serve/blob/master/ts/arg_parser.py
 
 https://github.com/pytorch/serve/blob/master/ts/context.py
 
-* Context object of incoming request - keeps model relevant worker information 
+* Context object of incoming request - keeps model relevant worker information
 
 https://github.com/pytorch/serve/blob/master/ts/model_server.py
 
@@ -56,7 +60,7 @@ https://github.com/pytorch/serve/blob/master/ts/model_server.py
 https://github.com/pytorch/serve/blob/master/ts/model_loader.py
 
 * Model loader
-* Uses manifest file to find handler and envelope and starts the service 
+* Uses manifest file to find handler and envelope and starts the service
 * Loads either default handler or custom handler
 * Request envelopes which make it easier to interact with other systems like Seldon, KFserving, Google cloud AI platform
 
@@ -68,7 +72,7 @@ https://github.com/pytorch/serve/blob/master/ts/model_loader.py
 
 https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/WorkerStateListener.java
 
-* Takes care of closing workers 
+* Takes care of closing workers
 
 https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/WorkerState.java
 

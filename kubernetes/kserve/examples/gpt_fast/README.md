@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Text generation with GPT Fast using KServe
 
 [GPT Fast](https://github.com/pytorch-labs/gpt-fast) is a PyTorch native solution of optimized GPT models. We are using GPT Fast version of `llama2-7b-chat-hf`.

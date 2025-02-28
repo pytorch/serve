@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Serving IPEX Optimized Models
 This example provides an example of serving IPEX-optimized LLMs e.g. ```meta-llama/llama2-7b-hf``` on huggingface. For setting up the Python environment for this example, please refer here: https://github.com/intel/intel-extension-for-pytorch/blob/main/examples/cpu/inference/python/llm/README.md#3-environment-setup
 
@@ -38,7 +42,7 @@ There are 3 different example config files; ```model-config-llama2-7b-int8-sq.ya
 
 ### IPEX Weight Only Quantization
 <ul>
-    <li> weight_type: weight data type for weight only quantization. Options: INT8 or INT4.  
+    <li> weight_type: weight data type for weight only quantization. Options: INT8 or INT4.
     <li> lowp_mode: low precision mode for weight only quantization. It indicates data type for computation.
 </ul>
 

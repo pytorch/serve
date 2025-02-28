@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # TorchServe GenAI use cases and showcase
 
 This document shows interesting usecases with TorchServe for Gen AI deployments.
@@ -8,4 +12,4 @@ In this blog, we show how to deploy a RAG Endpoint using TorchServe, increase th
 
 ## [Multi-Image Generation Streamlit App: Chaining Llama & Stable Diffusion using TorchServe, torch.compile & OpenVINO](https://pytorch.org/serve/llm_diffusion_serving_app.html)
 
-This Multi-Image Generation Streamlit app is designed to generate multiple images based on a provided text prompt. Instead of using Stable Diffusion directly, this app chains Llama and Stable Diffusion to enhance the image generation process. This multi-image generation use case exemplifies the powerful synergy of cutting-edge AI technologies: TorchServe, OpenVINO, Torch.compile, Meta-Llama, and Stable Diffusion. 
+This Multi-Image Generation Streamlit app is designed to generate multiple images based on a provided text prompt. Instead of using Stable Diffusion directly, this app chains Llama and Stable Diffusion to enhance the image generation process. This multi-image generation use case exemplifies the powerful synergy of cutting-edge AI technologies: TorchServe, OpenVINO, Torch.compile, Meta-Llama, and Stable Diffusion.

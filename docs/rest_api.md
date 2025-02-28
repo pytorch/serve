@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # TorchServe REST API
 
 TorchServe uses a RESTful API for both inference and management calls. The API is compliant with the [OpenAPI specification 3.0](https://swagger.io/specification/).

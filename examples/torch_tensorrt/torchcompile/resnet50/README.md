@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # TorchServe inference with torch.compile with tensorrt backend
 
 This example shows how to run TorchServe inference with [Torch-TensorRT](https://github.com/pytorch/TensorRT) model

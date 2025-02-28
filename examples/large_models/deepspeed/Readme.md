@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Loading large Huggingface models on Multiple GPUs
 
 This document briefs on serving large HuggingFace (HF) models on multiple GPUs using deepspeed. We are using facebook/opt-30b in this example

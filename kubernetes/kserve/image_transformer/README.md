@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Predict on a InferenceService using PyTorch Server and Transformer
 
 Most of the model servers expect tensors as input data, so a pre-processing step is needed before making the prediction call if the user is sending in raw input format. Transformer is a service for users to implement pre/post processing code before making the prediction call. In this example we add additional pre-processing step to allow the user send raw image data and convert it into json array.

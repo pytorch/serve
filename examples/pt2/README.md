@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 ## PyTorch 2.x integration
 
 PyTorch 2.x brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption.

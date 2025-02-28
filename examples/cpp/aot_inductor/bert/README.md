@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 This example uses AOTInductor to compile the [google-bert/bert-base-uncased](https://huggingface.co/google-bert/bert-base-uncased) into an so file (see script [aot_compile_export.py](aot_compile_export.py)). In PyTorch 2.2, the supported `MAX_SEQ_LENGTH` in this script is 511.
 
 Then, this example loads model and runs prediction using libtorch. The handler C++ source code for this examples can be found [here](src).
