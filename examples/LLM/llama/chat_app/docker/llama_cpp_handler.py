@@ -5,7 +5,7 @@ from abc import ABC
 import torch
 from llama_cpp import Llama
 
-from ts.protocol.otf_message_handler import send_intermediate_predict_response
+from ts.protocol.otf_torch_message_handler import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
