@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Image Segmentation using torchvision's pretrained fcn_resnet_101_coco model.
 
 * Download the pre-trained fcn_resnet_101_coco image segmentation model's state_dict from the following URL:

@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 #### TorchServe inference with torch.compile of Resnet152 batch image classifier:
 Run the commands given in following steps from the root directory of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path/serve
 

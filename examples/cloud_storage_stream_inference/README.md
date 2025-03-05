@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Using fsspec to stream data from cloud storage providers for batch inference
 
 This example shows how to use fsspec to stream large amount of data from cloud storage like s3, google cloud storage, azure cloud etc. and use it to create requests to torchserve for large scale batch inference with a large batch size.

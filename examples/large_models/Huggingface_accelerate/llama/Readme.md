@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Loading meta-llama/Meta-Llama-3-70B-Instruct on AWS EC2 g5.24xlarge using accelerate
 
 This document briefs on serving large HF models with limited resource using accelerate. This option can be activated with `low_cpu_mem_usage=True`. The model is first created on the Meta device (with empty weights) and the state dict is then loaded inside it (shard by shard in the case of a sharded checkpoint). This examples uses Meta Llama-3 as an example but it works with Llama2 as well by replacing the model identifier.

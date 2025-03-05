@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # End to End Documentation for Torchserve - KServe Model Serving
 
 The documentation covers the steps to run Torchserve inside the KServe environment for the mnist model.

@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Developer Guide
 
 The documentation covers the steps to run Torchserve along with the KServe for the mnist model in a local machine without kubernetes. This serves the purpose of developing and debugging Kserve wrapper, service envelope for Torchserve.

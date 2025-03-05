@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Object Detection using torchvision's pretrained maskrcnn model.
 
 * Download the pre-trained maskrcnn object detection model's state_dict from the following URL :

@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Workflow pipeline example for classifying dog breed
 
 This workflow uses two models, first to classify if an image is of a dog or a cat. If it is a dog the second model does breed classification.

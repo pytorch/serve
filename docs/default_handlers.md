@@ -1,3 +1,7 @@
+<font size="6" style="font-weight: bold;"> ⚠️ Notice: Limited Maintenance </font>
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # TorchServe default inference handlers
 
 TorchServe provides following inference handlers out of box. It's expected that the models consumed by each support batched inference.

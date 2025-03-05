@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # Torchscript Support
 
 [Torchscript](https://pytorch.org/docs/stable/jit.html#creating-torchscript-code) along with Pytorch JIT are designed to provide portability and performance for Pytorch models. Torchscript is a static subset of Python language that capture the structure of Pytorch programs and JIT uses this structure for optimization.

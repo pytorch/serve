@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # TorchServe Regression Tests
 
 This folder contains nightly regression tests executed against TorchServe master.These tests include
@@ -45,10 +49,10 @@ docker run -it --gpus all --user root pytorch/torchserve:dev-gpu /bin/bash
 In the Docker CLI execute the following cmds.
 
 ```
-apt-get update 
+apt-get update
 apt-get install -y git wget sudo curl
 git clone https://github.com/pytorch/serve
-cd serve 
+cd serve
 git checkout <branch_name>
 ```
 Install dependencies (if not already installed)

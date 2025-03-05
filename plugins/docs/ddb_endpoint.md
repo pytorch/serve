@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 ## DynamoDB Endpoint plugin
 Using this plugin, you can serialize snapshots to DDB instead of files on your local file system.
 Refer [plugins](README.md) for details on how to use plugins with torchserve.
@@ -8,15 +12,15 @@ You can change snapshot serializer by using a DDBEndPoint plugin as follow from 
 - You have aws cli installed on your machine
 - Assuming you have AWS account and required privileged to create DDB tables/indexes
 
-1. DDB serializer uses `DefaultCredentialsProvider` which supports following authorization mechanisms - 
- 
+1. DDB serializer uses `DefaultCredentialsProvider` which supports following authorization mechanisms -
+
     - Environment Variables - AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
     - Credential profiles file at the default location (~/.aws/credentials) shared by all AWS SDKs and the AWS CLI
     - Credentials delivered through the Amazon EC2 container service if AWS_CONTAINER_CREDENTIALS_RELATIVE_URI" environment variable is set and security manager has permission to access the variable,
     - Instance profile credentials delivered through the Amazon EC2 metadata service
-    
+
      Please configure desired auth. mechanism from above list.
-     
+
 2. Create following two tables (using aws cli)
     `aws dynamodb create-table \
     --table-name Snapshots2 \

@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 This example uses Bert Maher's [llama2.so](https://github.com/bertmaher/llama2.so/) which is a fork of Andrej Karpathy's [llama2.c](https://github.com/karpathy/llama2.c).
 It uses AOTInductor to compile the model into an so file which is then executed using libtorch.
 The handler C++ source code for this examples can be found [here](src/).

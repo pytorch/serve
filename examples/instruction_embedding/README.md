@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 # A TorchServe handler for Instructor Embedding models
 
 A simple handler that you can use to serve [Instructor Embedding models](https://instructor-embedding.github.io/) with TorchServe, supporting both single inference and batch inference.

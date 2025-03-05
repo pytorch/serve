@@ -1,11 +1,15 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 ### ASR (Automated Speech Recognition) Example
 
 In this example we use torchserve to serve a ASR model that convert wav to text.  There are four steps in this process. First we download a pretrained emformer model and save it to JIT format; Second we start model server, create the model archive; Third we configure the model server with 1 worker; Last we send a wav file to the model endpoint to get text prediction.
 
 #### Steps to run:
-- 1. Save asr model to jit format. 
+- 1. Save asr model to jit format.
 ```bash
-./00_save_jit_model.sh 
+./00_save_jit_model.sh
 ```
 - 2. Create model archive
 ```bash
@@ -14,7 +18,7 @@ In this example we use torchserve to serve a ASR model that convert wav to text.
 output:
 2023-01-10T20:46:39,660 [INFO ] pool-3-thread-2 TS_METRICS - MemoryUtilization.Percent:3.2|Level:Host|hostname:ip-172-31-15-90,timestamp:1673383599
 ```
-- 3. Configure model server. register model and add workers. 
+- 3. Configure model server. register model and add workers.
 ```bash
 ./02_configure_server.sh
 

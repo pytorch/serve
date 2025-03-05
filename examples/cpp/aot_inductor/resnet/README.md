@@ -1,3 +1,7 @@
+# ⚠️ Notice: Limited Maintenance
+
+This project is no longer actively maintained. While existing releases remain available, there are no planned updates, bug fixes, new features, or security patches. Users should be aware that vulnerabilities may not be addressed.
+
 This example uses AOTInductor to compile the Resnet50 into an so file which is then executed using libtorch.
 The handler C++ source code for this examples can be found [here](src).
 
