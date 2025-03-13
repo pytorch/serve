@@ -85,7 +85,7 @@ While NVIDIA GPUs allow multiple processes to run on CUDA kernels, this comes wi
 * The execution of the kernels is generally serialized
 * Each processes creates its own CUDA context which occupies additional GPU memory
 
-To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service (MPS) to increase performance. You can find more information on how to utilize NVIDIA MPS with TorchServe  [here](nvidia_mps.md).
+To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service (MPS) to increase performance. You can find more information on how to utilize NVIDIA MPS with TorchServe  [here](hardware_support/nvidia_mps.md).
 
 <h6> NVIDIA DALI</h6>
 

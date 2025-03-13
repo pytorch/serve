@@ -70,7 +70,7 @@ If you plan to develop with TorchServe and change some source code, you must ins
     - rocm: `rocm6.2`, `rocm6.1`, 'rocm6.0'
     - cuda: `cu111`, `cu102`, `cu101`, `cu92`
 
-    For example `python ./ts_scripts/install_dependencies.py --environment=dev --rocm=rocm61`
+    For example `python ./ts_scripts/install_dependencies.py --environment=dev --rocm=rocm6.1`
 
     #### For Windows
 
