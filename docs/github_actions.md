@@ -70,6 +70,14 @@ This project is no longer actively maintained. While existing releases remain av
             matrix:
                 cuda: ["cu116", "cu117"]
     ```
+    -  This would create 2 runs. One run on `ci-gpu` with ROCm 6.1 and a second run on `ci-gpu` with ROCm 6.2
+    ```
+        runs-on: [self-hosted, ci-gpu]
+            strategy:
+            fail-fast: false
+            matrix:
+                cuda: ["rocm6.1", "rocm6.2"]
+    ```
 
 6. Specify the commands to be executed for the run
 

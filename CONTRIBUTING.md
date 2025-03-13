@@ -67,7 +67,7 @@ If you plan to develop with TorchServe and change some source code, you must ins
     Use the optional `--rocm` or `--cuda` flag with `install_dependencies.py` for installing accelerator specific dependencies.
 
     Possible values are
-    - rocm: `rocm61`, `rocm60`
+    - rocm: `rocm6.2`, `rocm6.1`, 'rocm6.0'
     - cuda: `cu111`, `cu102`, `cu101`, `cu92`
 
     For example `python ./ts_scripts/install_dependencies.py --environment=dev --rocm=rocm61`

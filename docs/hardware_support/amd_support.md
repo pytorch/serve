@@ -39,7 +39,7 @@ The current stable `major.patch` version of ROCm and the previous path version w
   - install the dependencies needed for ROCm support.
 
     ```bash
-    python ./ts_scripts/install_dependencies.py --rocm=rocm61
+    python ./ts_scripts/install_dependencies.py --rocm=rocm6.1
     python ./ts_scripts/install_from_src.py
     ```
   - enable amd-smi in the python virtual environment
@@ -73,7 +73,7 @@ If you have 8 accelerators but only want TorchServe to see the last four of them
 Building and running `dev-image`:
 
 ```bash
-docker build --file docker/Dockerfile.rocm --target dev-image -t torch-serve-dev-image-rocm --build-arg USE_ROCM_VERSION=rocm62 --build-arg BUILD_FROM_SRC=true .
+docker build --file docker/Dockerfile.rocm --target dev-image -t torch-serve-dev-image-rocm --build-arg USE_ROCM_VERSION=rocm6.2 --build-arg BUILD_FROM_SRC=true .
 
 docker run -it --rm --device=/dev/kfd --device=/dev/dri torch-serve-dev-image-rocm bash
 ```

@@ -29,7 +29,7 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 python ./ts_scripts/install_dependencies.py
 
 # Include dependencies for accelerator support with the relevant optional flags
-python ./ts_scripts/install_dependencies.py --rocm=rocm61
+python ./ts_scripts/install_dependencies.py --rocm=rocm6.1
 python ./ts_scripts/install_dependencies.py --cuda=cu121
 
 # Latest release
@@ -45,8 +45,8 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 # Install dependencies
 python ./ts_scripts/install_dependencies.py
 
-# Include depeendencies for accelerator support with the relevant optional flags
-python ./ts_scripts/install_dependencies.py --rocm=rocm61
+# Include dependencies for accelerator support with the relevant optional flags
+python ./ts_scripts/install_dependencies.py --rocm=rocm6.1
 python ./ts_scripts/install_dependencies.py --cuda=cu121
 
 # Latest release
