@@ -446,6 +446,11 @@ public final class ApiUtils {
         jobQueueStatus.setPendingRequests(model.getPendingRequestsInJobQueue());
         resp.setJobQueueStatus(jobQueueStatus);
 
+        DescribeModelResponse.SequenceStatus sequenceStatus =
+                new DescribeModelResponse.SequenceStatus();
+        sequenceStatus.setSequenceCount(model.getJobGroupCount());
+        resp.setSequenceStatus(sequenceStatus);
+
         return resp;
     }
 
