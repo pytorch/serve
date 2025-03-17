@@ -60,7 +60,7 @@ jobs:
           name: nightly ${{ matrix.hardware }} artifact
           path: /tmp/ts_benchmark
       - name: Download benchmark artifacts for auto validation
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
           workflow: ${{ github.event.workflow_run.workflow_id }}
           workflow_conclusion: success
