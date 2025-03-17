@@ -178,7 +178,7 @@ if __name__ == "__main__":
         },
         install_requires=requirements,
         extras_require={
-            "onnx": ["numpy", "onnx", "onnx-runtime"],
+            "onnx": ["numpy", "onnx", "onnxruntime"],
             "ipex": ["intel_extension_for_pytorch"],
         },
         entry_points={"console_scripts": ["torchserve=ts.model_server:start"]},
