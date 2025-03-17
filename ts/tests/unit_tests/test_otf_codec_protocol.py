@@ -12,6 +12,7 @@ from collections import namedtuple
 import pytest
 
 import ts.protocol.otf_message_handler as codec
+import ts.protocol.otf_torch_message_handler as codec_torch
 
 
 @pytest.fixture()
@@ -191,7 +192,7 @@ class TestOtfCodecHandler:
         assert msg == b"\x00\x00\x00\xc8\x00\x00\x00\x0cmodel_loaded\xff\xff\xff\xff"
 
     def test_create_predict_response(self):
-        msg = codec.create_predict_response(["OK"], {0: "request_id"}, "success", 200)
+        msg = codec_torch.create_predict_response(["OK"], {0: "request_id"}, "success", 200)
         assert (
             msg
             == b"\x00\x00\x00\xc8\x00\x00\x00\x07success\x00\x00\x00\nrequest_id\x00\x00\x00\x00\x00\x00"
@@ -199,7 +200,7 @@ class TestOtfCodecHandler:
         )
 
     def test_create_predict_response_with_error(self):
-        msg = codec.create_predict_response(None, {0: "request_id"}, "failed", 200)
+        msg = codec_torch.create_predict_response(None, {0: "request_id"}, "failed", 200)
 
         assert (
             msg
@@ -225,7 +226,7 @@ class TestOtfCodecHandler:
         ctx.stopping_criteria = {0: lambda _: True, 1: lambda _: False}
         ctx.request_processor = {0: RequestProcessor({}), 1: RequestProcessor({})}
 
-        msg = codec.create_predict_response(
+        msg = codec_torch.create_predict_response(
             ["OK", "NOT OK"],
             {0: "request_0", 1: "request_1"},
             "success",

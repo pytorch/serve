@@ -52,7 +52,7 @@ For a more comprehensive list of available handlers make sure to check out the [
 - [object_detector](https://github.com/pytorch/serve/tree/master/examples/object_detector/index_to_name.json)
 
 ### Contributing
-We welcome new contributed handlers, if your usecase isn't covered by one of the existing default handlers please follow the below steps to contribute it
+We welcome new contributed handlers, if your use-case isn't covered by one of the existing default handlers please follow the below steps to contribute it
 1. Write a new class derived from [BaseHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py). Add it as a separate file in `ts/torch_handler/`
 2. Update `model-archiver/model_packaging.py` to add in your classes name
 3. Run and update the unit tests in [unit_tests](https://github.com/pytorch/serve/tree/master/ts/torch_handler/unit_tests). As always, make sure to run [torchserve_sanity.py](https://github.com/pytorch/serve/tree/master/torchserve_sanity.py) before submitting.

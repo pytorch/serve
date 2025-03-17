@@ -27,8 +27,16 @@ Following is applicable to all types of custom handlers
 * **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customization
 model_name, model_dir, manifest, batch_size, gpu etc.
 
-### Start with BaseHandler!
-[BaseHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py) implements most of the functionality you need. You can derive a new class from it, as shown in the examples and default handlers. Most of the time, you'll only need to override `preprocess` or `postprocess`.
+### Start with BaseHandler or AbstractHandler!
+[BaseHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py)
+implements most of the functionality you need for torch models. 
+You can derive a new class from it, as shown in the examples and default handlers.
+Most of the time, you'll only need to override `preprocess` or `postprocess`.
+
+[AbstractHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/abstract_handler.py)
+implements most of the handling functionality without being torch-specific. You need to implement the model loading
+yourself, but it lets you use TorchServe and its great features without needing to install torch, so it's useful for
+scikit-learn or tensorflow models in case you need something flexible with executing python during the serving.
 
 ### Custom handler with `module` level entry point
 
