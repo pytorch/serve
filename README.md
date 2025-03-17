@@ -106,7 +106,7 @@ curl -X POST -d '{"model":"meta-llama/Meta-Llama-3-8B-Instruct", "prompt":"Hello
 Refer to [LLM deployment](docs/llm_deployment.md) for details and other methods.
 
 ## ⚡ Why TorchServe
-* Write once, run anywhere, on-prem, on-cloud, supports inference on CPUs, GPUs, AWS Inf1/Inf2/Trn1, Google Cloud TPUs, [Nvidia MPS](docs/nvidia_mps.md)
+* Write once, run anywhere, on-prem, on-cloud, supports inference on CPUs, GPUs, AWS Inf1/Inf2/Trn1, Google Cloud TPUs, [Nvidia MPS](docs/hardware_support/nvidia_mps.md)
 * [Model Management API](docs/management_api.md): multi model management with optimized worker to model allocation
 * [Inference API](docs/inference_api.md): REST and gRPC support for batched inference
 * [TorchServe Workflows](examples/Workflows/README.md): deploy complex DAGs with multiple interdependent models
