@@ -13,7 +13,7 @@ from vllm.entrypoints.openai.protocol import (
 )
 from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
 from vllm.entrypoints.openai.serving_completion import OpenAIServingCompletion
-from vllm.entrypoints.openai.serving_engine import LoRAModulePath
+from vllm.entrypoints.openai.serving_engine import BaseModelPath, LoRAModulePath
 
 from ts.handler_utils.utils import send_intermediate_predict_response
 from ts.service import PredictionException
@@ -54,6 +54,11 @@ class VLLMHandler(BaseHandler):
         else:
             served_model_names = [vllm_engine_config.model]
 
+        base_model_paths = [
+            BaseModelPath(name=name, model_path=vllm_engine_config.model)
+            for name in served_model_names
+        ]
+
         chat_template = ctx.model_yaml_config.get("handler", {}).get(
             "chat_template", None
         )
@@ -64,7 +69,7 @@ class VLLMHandler(BaseHandler):
         self.completion_service = OpenAIServingCompletion(
             self.vllm_engine,
             model_config,
-            served_model_names,
+            base_model_paths,
             lora_modules=lora_modules,
             prompt_adapters=None,
             request_logger=None,
@@ -73,7 +78,7 @@ class VLLMHandler(BaseHandler):
         self.chat_completion_service = OpenAIServingChat(
             self.vllm_engine,
             model_config,
-            served_model_names,
+            base_model_paths,
             "assistant",
             lora_modules=lora_modules,
             prompt_adapters=None,
