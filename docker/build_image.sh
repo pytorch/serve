@@ -180,6 +180,9 @@ do
           elif [ "${ROCM_VERSION}" == "rocm6.2" ];
           then
             BASE_IMAGE="rocm/dev-ubuntu-22.04:6.2.4"
+          elif [ "${ROCM_VERSION}" == "rocm6.3" ];
+          then
+            BASE_IMAGE="rocm/dev-ubuntu-22.04:6.3.4"
           else
             echo "ROCm version not supported"
             exit 1
@@ -250,6 +253,9 @@ then
     elif [ "${ROCM_VERSION}" == "rocm6.2" ];
     then
       BASE_IMAGE="rocm/dev-ubuntu-22.04:6.2.4"
+    elif [ "${ROCM_VERSION}" == "rocm6.3" ];
+    then
+      BASE_IMAGE="rocm/dev-ubuntu-22.04:6.3.4"
     else
       echo "ROCm version $ROCM_VERSION is not supported for CPP"
       exit 1

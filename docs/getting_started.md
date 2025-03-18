@@ -26,7 +26,7 @@ This project is no longer actively maintained. While existing releases remain av
 
      Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.
 
-     - For GPU with ROCm. Options are `rocm6.0`, `rocm6.1`, `rocm6.2`
+     - For GPU with ROCm. Options are `rocm6.0`, `rocm6.1`, `rocm6.2`, `rocm6.3`
 
        ```bash
        python ./ts_scripts/install_dependencies.py --rocm=rocm6.2

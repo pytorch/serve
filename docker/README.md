@@ -48,7 +48,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. `cu121`, Default `cu121`|
-|-rv, --rocmversion| Specify to rocm version to use. Supported values `rocm6.0`, `rocm6.1`, `rocm6.2`|
+|-rv, --rocmversion| Specify to rocm version to use. Supported values `rocm6.0`, `rocm6.1`, `rocm6.2`, `rocm6.3`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
 |-cpp, --build-cpp specify to build TorchServe CPP|
 |-n, --nightly| Specify to build with TorchServe nightly.|
@@ -67,7 +67,7 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118` for CUDA and `rocm6.0`, `rocm6.1`, `rocm6.2` for ROCm.
+ - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118` for CUDA and `rocm6.0`, `rocm6.1`, `rocm6.2`, `rocm6.3` for ROCm.
 
     - GPU images are built with either NVIDIA CUDA base image or AMD ROCm base image. If you want to use ONNX, please specify the base image as shown in the next section.
 
@@ -153,6 +153,12 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 
 ```bash
 ./build_image.sh -bt dev -g -rv rocm6.2
+```
+
+- For creating GPU based image with rocm version 6.3:
+
+```bash
+./build_image.sh -bt dev -g -rv rocm6.3
 ```
 
 - For creating GPU based image with a different branch:
