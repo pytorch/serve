@@ -63,10 +63,6 @@ std::shared_ptr<torch::Device> BaseHandler::GetTorchDevice(
     return std::make_shared<torch::Device>(torch::kCPU);
   }
 
-#if defined(__HIPCC__) || (defined(__clang__) && defined(__HIP__)) || defined(__HIPCC_RTC__)
-  return std::make_shared<torch::Device>(torch::kHIP,
-                                         load_model_request->gpu_id);
-#else
   return std::make_shared<torch::Device>(torch::kCUDA,
                                          load_model_request->gpu_id);
 }
