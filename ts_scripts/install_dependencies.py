@@ -385,7 +385,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--rocm",
         default=None,
-        choices=["rocm60", "rocm61", "rocm62"],
+        choices=["rocm6.0", "rocm6.1", "rocm6.2", "rocm6.3"],
         help="ROCm version for torch",
     )
     parser.add_argument(

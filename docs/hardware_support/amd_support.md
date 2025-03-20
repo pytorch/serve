@@ -9,7 +9,7 @@ TorchServe can be run on any combination of operating system and device that is
 
 ## Supported Versions of ROCm
 
-The current stable `major.patch` version of ROCm and the previous path version will be supported. For example version `N.2` and `N.1` where `N` is the current major version.
+The current stable `major.patch` version of ROCm and the previous patch version will be supported. For example version `N.2` and `N.1` where `N` is the current major version.
 
 ## Installation
 
@@ -39,7 +39,7 @@ The current stable `major.patch` version of ROCm and the previous path version w
   - install the dependencies needed for ROCm support.
 
     ```bash
-    python ./ts_scripts/install_dependencies.py --rocm=rocm61
+    python ./ts_scripts/install_dependencies.py --rocm=rocm6.2
     python ./ts_scripts/install_from_src.py
     ```
   - enable amd-smi in the python virtual environment
@@ -68,12 +68,12 @@ If you have 8 accelerators but only want TorchServe to see the last four of them
 
 **In Development**
 
-`Dockerfile.rocm` provides preliminary ROCm support for TorchServe.
+`Dockerfile` and `build_image.sh` provides ROCm support for TorchServe.
 
 Building and running `dev-image`:
 
 ```bash
-docker build --file docker/Dockerfile.rocm --target dev-image -t torch-serve-dev-image-rocm --build-arg USE_ROCM_VERSION=rocm62 --build-arg BUILD_FROM_SRC=true .
+docker build --file docker/Dockerfile.rocm --target dev-image -t torch-serve-dev-image-rocm --build-arg USE_ROCM_VERSION=rocm6.2 --build-arg BUILD_FROM_SRC=true .
 
 docker run -it --rm --device=/dev/kfd --device=/dev/dri torch-serve-dev-image-rocm bash
 ```

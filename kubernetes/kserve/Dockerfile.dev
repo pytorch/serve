@@ -55,11 +55,12 @@ RUN python -m pip install -U pip setuptools
 FROM compile-image AS dev-image
 ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION
-RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
+ARG ROCM_VERSION
+RUN if [ "$MACHINE_TYPE" = "gpu" ]; then if [ -n "$ROCM_VERSION"]; then export USE_ROCM=1; else export USE_CUDA=1; fi fi \
   && git clone https://github.com/pytorch/serve.git \
   && cd serve \
   && git checkout ${BRANCH_NAME} \
-  && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
+  && if [ -n "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev --cuda $CUDA_VERSION; elif [ -n "$ROCM_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev --rcom $ROCM_VERSION; else python ts_scripts/install_dependencies.py --environment=dev; fi \
   && python ts_scripts/install_from_src.py \
   && python -m pip install captum transformers kserve[storage]>=0.11.0 \
   && python -m pip install . \

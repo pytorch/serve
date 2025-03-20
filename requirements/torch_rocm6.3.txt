@@ -1,0 +1,6 @@
+# PyTorch 2.7 will be the first release with ROCm 6.3 support.
+# For now (as of 20250317), nightly builds need to be used.
+#--index-url https://download.pytorch.org/whl/rocm6.3
+#torch==2.7.1+rocm6.2; sys_platform == 'linux'
+#torchvision==0.20.1+rocm6.2; sys_platform == 'linux'
+#torchaudio==2.5.1+rocm6.2; sys_platform == 'linux'

@@ -10,7 +10,7 @@ This checklist describes some steps that should be completed when diagnosing mod
 
 - Check the versions of PyTorch, Nvidia driver, and other components and update to the latest compatible releases.  Oftentimes known performance bugs have already been fixed.
 
-- Collect system-level activity logs to understand the overall resource utilizations. It’s useful to know how the model inference pipeline is using the system resources at a high level, as the first step of optimization.  Even simple CLI tools such as nvidia-smi and htop would be helpful.
+- Collect system-level activity logs to understand the overall resource utilizations. It’s useful to know how the model inference pipeline is using the system resources at a high level, as the first step of optimization.  Even simple CLI tools such as nvidia-smi, amd-smi, and htop would be helpful.
 
 - Start with a target with the highest impact on performance.  It should be obvious from the system activity logs where the biggest bottleneck is – look beyond model inference, as pre/post processing can be expensive and can affect the end-to-end throughput just as much.
 

@@ -65,10 +65,10 @@ This project is no longer actively maintained. While existing releases remain av
     -  This would create 2 runs. One run on `ci-gpu` with CUDA 11.6 and a second run on `ci-gpu` with CUDA 11.7
     ```
         runs-on: [self-hosted, ci-gpu]
-            strategy:
-            fail-fast: false
-            matrix:
-                cuda: ["cu116", "cu117"]
+        strategy:
+          fail-fast: false
+          matrix:
+            cuda: ["cu116", "cu117"]
     ```
 
 6. Specify the commands to be executed for the run
