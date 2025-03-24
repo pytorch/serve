@@ -29,7 +29,7 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 python ./ts_scripts/install_dependencies.py
 
 # Include dependencies for accelerator support with the relevant optional flags
-python ./ts_scripts/install_dependencies.py --rocm=rocm61
+python ./ts_scripts/install_dependencies.py --rocm=rocm6.2
 python ./ts_scripts/install_dependencies.py --cuda=cu121
 
 # Latest release
@@ -45,8 +45,8 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 # Install dependencies
 python ./ts_scripts/install_dependencies.py
 
-# Include depeendencies for accelerator support with the relevant optional flags
-python ./ts_scripts/install_dependencies.py --rocm=rocm61
+# Include dependencies for accelerator support with the relevant optional flags
+python ./ts_scripts/install_dependencies.py --rocm=rocm6.2
 python ./ts_scripts/install_dependencies.py --cuda=cu121
 
 # Latest release
@@ -106,7 +106,7 @@ curl -X POST -d '{"model":"meta-llama/Meta-Llama-3-8B-Instruct", "prompt":"Hello
 Refer to [LLM deployment](docs/llm_deployment.md) for details and other methods.
 
 ## ⚡ Why TorchServe
-* Write once, run anywhere, on-prem, on-cloud, supports inference on CPUs, GPUs, AWS Inf1/Inf2/Trn1, Google Cloud TPUs, [Nvidia MPS](docs/nvidia_mps.md)
+* Write once, run anywhere, on-prem, on-cloud, supports inference on CPUs, GPUs, AWS Inf1/Inf2/Trn1, Google Cloud TPUs, [Nvidia MPS](docs/hardware_support/nvidia_mps.md)
 * [Model Management API](docs/management_api.md): multi model management with optimized worker to model allocation
 * [Inference API](docs/inference_api.md): REST and gRPC support for batched inference
 * [TorchServe Workflows](examples/Workflows/README.md): deploy complex DAGs with multiple interdependent models

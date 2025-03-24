@@ -48,6 +48,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. `cu121`, Default `cu121`|
+|-rv, --rocmversion| Specify to ROCm version to use. Supported values `rocm6.0`, `rocm6.1`, `rocm6.2`, `rocm6.3`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
 |-cpp, --build-cpp specify to build TorchServe CPP|
 |-n, --nightly| Specify to build with TorchServe nightly.|
@@ -66,9 +67,9 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`
+ - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118` for CUDA and `rocm6.0`, `rocm6.1`, `rocm6.2`, `rocm6.3` for ROCm.
 
-    - GPU images are built with NVIDIA CUDA base image. If you want to use ONNX, please specify the base image as shown in the next section.
+    - GPU images are built with either NVIDIA CUDA base image or AMD ROCm base image. If you want to use ONNX, please specify the base image as shown in the next section.
 
   ```bash
   ./build_image.sh -g -cv cu117
@@ -136,6 +137,30 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ./build_image.sh -bt dev -g -cv cu92
 ```
 
+- For creating GPU based image with rocm version 6.0:
+
+```bash
+./build_image.sh -bt dev -g -rv rocm6.0
+```
+
+- For creating GPU based image with rocm version 6.1:
+
+```bash
+./build_image.sh -bt dev -g -rv rocm6.1
+```
+
+- For creating GPU based image with rocm version 6.2:
+
+```bash
+./build_image.sh -bt dev -g -rv rocm6.2
+```
+
+- For creating GPU based image with rocm version 6.3:
+
+```bash
+./build_image.sh -bt dev -g -rv rocm6.3
+```
+
 - For creating GPU based image with a different branch:
 
 ```bash
@@ -152,7 +177,7 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ./build_image.sh -bt dev -t torchserve-dev:1.0
 ```
 
- - For creating image with Intel® Extension for PyTorch*:
+ - For creating image with Intel® Extension for PyTorch:
 
 ```bash
 ./build_image.sh -bt dev -ipex -t torchserve-ipex:1.0
@@ -168,7 +193,7 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ./build_image.sh -bt dev -g [-cv cu121|cu118] -cpp
 ```
 
-- For ROCm support (*experimental*), refer to [this documentation](../docs/hardware_support/amd_support.md).
+- For more ROCm support (*experimental*), refer to [this documentation](../docs/hardware_support/amd_support.md).
 
 ## Start a container with a TorchServe image
 
@@ -194,7 +219,7 @@ For specific versions you can pass in the specific tag to use (ex: pytorch/torch
 docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 pytorch/torchserve:0.1.1-cpu
 ```
 
-#### Start CPU container with Intel® Extension for PyTorch*
+#### Start CPU container with Intel® Extension for PyTorch
 
 ```bash
 docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071  torchserve-ipex:1.0
@@ -206,6 +231,12 @@ For GPU latest image with gpu devices 1 and 2:
 
 ```bash
 docker run --rm -it --gpus '"device=1,2"' -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 pytorch/torchserve:latest-gpu
+```
+
+For GPU with ROCm support with gpu devices 1 and 2:
+
+```bash
+docker run --rm -it --device=/dev/kfd --device=/dev/dri -e HIP_VISIBLE_DEVICES=1,2 -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 pytorch/torchserve:latest-gpu
 ```
 
 For specific versions you can pass in the specific tag to use (ex: `0.1.1-cuda10.1-cudnn7-runtime`):

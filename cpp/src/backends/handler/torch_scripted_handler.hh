@@ -4,6 +4,7 @@
 namespace torchserve {
 
 class TorchScriptHandler : public BaseHandler {
+ public:
   std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>> LoadModel(
       std::shared_ptr<LoadModelRequest>& load_model_request) override;
 };

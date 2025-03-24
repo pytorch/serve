@@ -19,6 +19,7 @@ ARG BRANCH_NAME=master
 ARG REPO_URL=https://github.com/pytorch/serve.git
 ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION
+ARG ROCM_VERSION
 
 ARG BUILD_WITH_IPEX
 ARG IPEX_VERSION=1.11.0
@@ -62,7 +63,8 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python$PYTHON_
 FROM compile-image AS dev-image
 ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION
-RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
+ARG ROCM_VERSION
+RUN if [ "$MACHINE_TYPE" = "gpu" ]; then if [ -n "$ROCM_VERSION" ]; then export USE_ROCM=1; else export USE_CUDA=1; fi fi \
     && git clone $REPO_URL \
     && cd serve \
     && git checkout ${BRANCH_NAME} \
@@ -70,7 +72,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
 ENV PATH="/home/venv/bin:$PATH"
 WORKDIR serve
 RUN python -m pip install -U pip setuptools \
-    && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
+    && if [ -n "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev --cuda $CUDA_VERSION; elif [ -n "$ROCM_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev --rocm $ROCM_VERSION; else python ts_scripts/install_dependencies.py --environment=dev; fi \
     && if [ "$BUILD_WITH_IPEX" = "true" ]; then python -m pip install --no-cache-dir intel_extension_for_pytorch==${IPEX_VERSION} -f ${IPEX_URL}; fi \
     && python ts_scripts/install_from_src.py \
     && useradd -m model-server \
