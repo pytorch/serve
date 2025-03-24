@@ -48,7 +48,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. `cu121`, Default `cu121`|
-|-rv, --rocmversion| Specify to rocm version to use. Supported values `rocm6.0`, `rocm6.1`, `rocm6.2`, `rocm6.3`|
+|-rv, --rocmversion| Specify to ROCm version to use. Supported values `rocm6.0`, `rocm6.1`, `rocm6.2`, `rocm6.3`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
 |-cpp, --build-cpp specify to build TorchServe CPP|
 |-n, --nightly| Specify to build with TorchServe nightly.|
