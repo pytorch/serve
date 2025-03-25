@@ -37,7 +37,7 @@ do
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
           echo "-cpp, --build-cpp specify to build TorchServe CPP"
-          echo "-py, --pythonversion specify to python version to use: Possible values: 3.8 3.9 3.10"
+          echo "-py, --pythonversion specify to python version to use: Possible values: 3.8 3.9 3.10 3.11 3.12"
           echo "-n, --nightly specify to build with TorchServe nightly"
           echo "-s, --source specify to build with TorchServe from source"
           echo "-r, --remote specify to use local TorchServe"
@@ -113,10 +113,10 @@ do
           ;;
         -py|--pythonversion)
           PYTHON_VERSION="$2"
-          if [[ $PYTHON_VERSION = 3.8 || $PYTHON_VERSION = 3.9 || $PYTHON_VERSION = 3.10 || $PYTHON_VERSION = 3.11 ]]; then
+          if [[ $PYTHON_VERSION = 3.8 || $PYTHON_VERSION = 3.9 || $PYTHON_VERSION = 3.10 || $PYTHON_VERSION = 3.11 || $PYTHON_VERSION = 3.12 ]]; then
             echo "Valid python version"
           else
-            echo "Valid python versions are 3.8, 3.9 3.10 and 3.11"
+            echo "Valid python versions are 3.8, 3.9, 3.10, 3.11 and 3.12"
             exit 1
           fi
           shift
