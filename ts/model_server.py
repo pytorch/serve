@@ -20,12 +20,12 @@ from ts.version import __version__
 TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 
 
-def start() -> None:
+def start(args=None) -> None:
     """
     This is the entry point for model server
     :return:
     """
-    args = ArgParser.ts_parser().parse_args()
+    args = ArgParser.extract_args(args)
     pid_file = os.path.join(tempfile.gettempdir(), ".model_server.pid")
     pid = None
     if os.path.isfile(pid_file):
