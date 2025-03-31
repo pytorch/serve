@@ -1,0 +1,2 @@
+Write a python function to compute the factorial of an integer.
+
