@@ -127,3 +127,30 @@ To enable asynchronous logging, add following property in `config.properties`:
 ```properties
 async_logging=true
 ```
+
+## Request IDs
+
+Log entries will sometimes contain unique request IDs, such as `ad0ee62d-291c-44a1-86fb-61809d32fcc6` in the entry
+
+```text
+2023-05-15T16:34:54,397 [INFO ] W-9005-densenet161_1.0-stdout MODEL_METRICS - HandlerTime.ms:516.92|#ModelName:densenet161,Level:Model|#hostname:fedora,requestID:ad0ee62d-291c-44a1-86fb-61809d32fcc6,timestamp:1684182894
+```
+
+These request IDs are randomly generated upon receiving a HTTP request and returned in responses in the `x-request-id` header value.
+
+To make tracing individual requests easier in multi-service architectures, a prefix for a request's ID can be set via the request header `x-request-id-prefix`. For example, a request made with the command
+
+```bash
+$ curl -v http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg -H 'x-request-id-prefix: <MY-PREFIX>'
+```
+
+may result in a log entry
+
+```text
+2023-05-15T16:42:06,483 [INFO ] W-9002-densenet161_1.0-stdout MODEL_METRICS - HandlerTime.ms:434.28|#ModelName:densenet161,Level:Model|#hostname:fedora,requestID:<MY-PREFIX>#ef4b8d9b-da76-4368-a34a-763868c7caaa,timestamp:1684183326
+```
+
+and response header
+```text
+x-request-id: <MY-PREFIX>#ef4b8d9b-da76-4368-a34a-763868c7caaa
+```
