@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.google.protobuf' version '0.8.13' apply false
+    id 'com.google.protobuf' version '0.9.5' apply false
     id 'idea'
     id 'com.github.spotbugs' version '6.0.7' apply false
 }
