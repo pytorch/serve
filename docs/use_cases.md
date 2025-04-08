@@ -155,7 +155,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 - Move MAR file in a new directory name it as `model-store`
     - Docker -  Make sure that MAR file is being copied in volume/directory shared while starting torchserve docker image
 - torchserve start command in following instruction will automatically detect GPUs and use for loading/serving models. If you want to [limit the GPU usage](https://github.com/pytorch/serve/blob/master/docs/configuration.md#limit-gpu-usage)
-then use `nvidia-smi` to determine the number of GPU and corresponding ids. Once you have gpu details, you can add `number_of_gpu` param in config.proerties and use second command as given next instruction.
+then use `nvidia-smi` or `amd-smi` to determine the number of GPU and corresponding ids. Once you have gpu details, you can add `number_of_gpu` param in config.proerties and use second command as given next instruction.
 e.g. number_of_gpu=2
 - Start torchserve with all GPUs- `torchserve --start --ncs --model-store <model_store or your_model_store_dir>`. With restricted GPUs - `torchserve --start --ncs --model-store <model_store or your_model_store_dir> --ts-config <your_path>/config.properties`
     - Docker -  For all GPU `docker run --rm -it --gpus all -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 torchserve:gpu-latest` For GPUs 1 and 2 `docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu`

@@ -99,11 +99,12 @@ except ImportError:
 
 
 def setup_ort_session(model_pt_path, map_location):
-    providers = (
-        ["CUDAExecutionProvider", "CPUExecutionProvider"]
-        if map_location == "cuda"
-        else ["CPUExecutionProvider"]
-    )
+    providers = ["CPUExecutionProvider"]
+    if map_location == "cuda":
+        if torch.version.cuda:
+            providers.append("CUDAExecutionProvider")
+        elif torch.version.hip:
+            providers.append("ROCMExecutionProvider")
 
     sess_options = ort.SessionOptions()
     sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)

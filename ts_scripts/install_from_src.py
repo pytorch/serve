@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--environment",
         type=str,
-        default="production",
+        default="prod",
         help="options: dev|prod",
     )
     args = parser.parse_args()

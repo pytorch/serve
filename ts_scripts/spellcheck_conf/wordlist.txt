@@ -1301,3 +1301,10 @@ OpenAI
 openai
 kv
 OOM
+recurse
+submodules
+ROCm
+rocm
+rocmversion
+rv
+amd

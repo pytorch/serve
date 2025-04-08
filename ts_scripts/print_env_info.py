@@ -231,6 +231,9 @@ def get_nvidia_driver_cuda_version():
     return f"{cuda_major}.{cuda_minor}"
 
 
+# XXX:
+# Even though `torch._C_._cuda_getCompiledVersion` is compatible with both CUDA and ROCm/HIP,
+# the way of calculating the major & minor version numbers may not.
 def get_running_cuda_version():
     cuda = torch._C._cuda_getCompiledVersion()
     cuda_major = cuda // 1000
