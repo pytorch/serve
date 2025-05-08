@@ -51,6 +51,14 @@ def disk_available():
     system_metrics.append(Metric("DiskAvailable", data, "GB", dimension))
 
 
+def is_rbln_supported():
+    try:
+        import rebel  # nopycln: import
+    except ImportError:
+        return False
+    return True
+
+
 def collect_gpu_metrics(num_of_gpus):
     """
     Collect GPU metrics. Supports NVIDIA and AMD GPUs.
@@ -102,6 +110,47 @@ def collect_gpu_metrics(num_of_gpus):
                 mem_used = 0
                 gpu_mem_utilization = 0
                 gpu_utilization = None
+        elif is_rbln_supported():
+            import json
+            import shutil
+            import subprocess
+
+            mem_used = 0
+            gpu_mem_utilization = 0
+            gpu_utilization = 0
+            rbln_stat = shutil.which("rbln-stat")
+            if rbln_stat:
+                try:
+                    stat = subprocess.run(
+                        [rbln_stat, "-j"], capture_output=True, text=True, check=True
+                    )
+                    data = json.loads(stat.stdout)
+                    devices = data.get("devices", [])
+                    for device in devices:
+                        npu = device.get("npu")
+                        if device.get("npu") == str(gpu_index):
+                            mem_used = int(device.get("memory", {}).get("used", "0"))
+                            gpu_mem_utilization = round(
+                                (
+                                    mem_used
+                                    / float(device.get("memory", {}).get("total", "0"))
+                                )
+                                * 100,
+                                2,
+                            )  # Percentage
+                            mem_used = mem_used // 1024**2  # Megabyte
+                            gpu_utilization = float(
+                                device.get("util", "0")
+                            )  # Percentage
+                except Exception as e:
+                    logging.error(f'Could not utilize "rbln-stat". {e}')
+                    mem_used = 0
+                    gpu_mem_utilization = 0
+                    gpu_utilization = 0
+        else:
+            mem_used = 0
+            gpu_mem_utilization = 0
+            gpu_utilization = 0
 
         dimension_gpu = [
             Dimension("Level", "Host"),
