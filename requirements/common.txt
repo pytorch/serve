@@ -1,5 +1,5 @@
 psutil==5.9.8
-requests==2.32.0
+requests==2.32.4
 captum==0.6.0
 packaging==23.2
 pynvml==11.5.0
