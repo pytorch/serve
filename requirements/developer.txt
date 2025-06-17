@@ -6,7 +6,7 @@ pytest-mock==3.14.0
 pytest-cov==4.1.0
 pytest-timeout==2.3.1
 grpcio==1.62.1
-protobuf==4.25.1
+protobuf==4.25.8
 grpcio-tools==1.60.0
 transformers>=4.34.0
 pyspelling==2.8.2
