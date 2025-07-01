@@ -7,7 +7,7 @@ plugins {
 dependencies {
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
-    implementation "io.netty:netty-all:4.1.107.Final"
+    implementation "io.netty:netty-all:4.2.2.Final"
 }
 
 project.ext{
