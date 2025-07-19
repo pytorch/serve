@@ -380,13 +380,27 @@ public final class ModelManager {
     }
 
     private boolean isValidDependencyPath(File dependencyPath) {
-        if (dependencyPath
-                .toPath()
-                .normalize()
-                .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
+        try {
+            File canonicalDependencyPath = dependencyPath.getCanonicalFile();
+            File allowedBaseDir = FileUtils.getTempDirectory().getCanonicalFile();
+
+            // Ensure the dependency path is within the allowed base directory
+            if (!canonicalDependencyPath.toPath().startsWith(allowedBaseDir.toPath())) {
+                logger.warn("Dependency path is outside the allowed directory: {}", dependencyPath);
+                return false;
+            }
+
+            // Reject symbolic links
+            if (Files.isSymbolicLink(canonicalDependencyPath.toPath())) {
+                logger.warn("Dependency path is a symbolic link and is not allowed: {}", dependencyPath);
+                return false;
+            }
+
             return true;
+        } catch (IOException e) {
+            logger.error("Failed to validate dependency path: {}", dependencyPath, e);
+            return false;
         }
-        return false;
     }
 
     private Model createModel(
